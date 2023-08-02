@@ -49,6 +49,36 @@ class LookupWindow(QDialog):
         search_btn.clicked.connect(self.on_search_submit)
         search_lyt.addWidget(search_btn)
 
+        self.power_search_bar = QLineEdit()
+        self.power_search_bar.setPlaceholderText("")
+        self.power_search_bar.returnPressed.connect(self.on_power_search_submit)
+        self.power_search_bar.textChanged.connect(self.on_power_search_changed)
+        search_lyt.addWidget(self.power_search_bar)
+
+        self.power_search_results_lyt = QHBoxLayout()
+        lyt.addLayout(self.power_search_results_lyt)
+        self.power_search_results_lyt.setSpacing(3)
+        self.power_search_results_lyt.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.power_search_buttons = []
+
+        for i in range(15):
+            result_btn = QPushButton('   ', objectName='result_btn_' + str(i+1))
+            result_btn.setStyleSheet(
+                "background-color: #e9e9e9;"
+                "font-size: 20px;"
+                "border-style: ridge;"
+                "border-width: 2px;"
+                "border-radius: 6px;"
+                "padding: 2px;"
+            );
+            result_btn.setFixedWidth(search_btn.sizeHint().height()*1.5)
+            result_btn.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            result_btn.clicked.connect(lambda state, x=result_btn: self.on_power_result_button_click(x))
+            result_btn.character = None
+            result_btn.setVisible(False)
+            self.power_search_results_lyt.addWidget(result_btn)
+            self.power_search_buttons.append(result_btn)
+
         self.keep_tab_on_search_box = QCheckBox("Keep tabs open")
         self.keep_tab_on_search_box.setChecked(False)
         self.keep_tab_on_search_box.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -160,6 +190,48 @@ class LookupWindow(QDialog):
 
         if not handle_bridge_action(cmd, lookup_window=self):
             print("Unhandled bridge command:", cmd)
+
+
+    def set_power_search_results(self, results):
+        idx = 0
+        for r in results:
+            btn = self.power_search_buttons[idx]
+            btn.setVisible(True)
+            if r[0] == '[':
+                # [primitive] tag -> convert to image
+                img = r[1:-1]
+                path = util.addon_path('primitives','%s.svg' % img)
+                btn.setText('')
+                btn.setIcon(QIcon(path))
+                btn.setIconSize(QSize(24,24))
+            else:
+                # normal unicode kanji character
+                btn.setText(r)
+                btn.setIcon(QIcon())
+            btn.character = r
+            idx += 1
+        for i in range(idx,15):
+            # hide rest of the buttons
+            btn = self.power_search_buttons[i]
+            btn.character = None
+            btn.setVisible(False)
+
+    def on_power_result_button_click(self, button):
+        text = button.text()
+        print("Clicked",button.objectName(), text,button.character)
+        if button.character is not None:
+            self.search(button.character)
+
+    def on_power_search_changed(self):
+        text = self.power_search_bar.text()
+        result = aqt.mw.migaku_kanji_db.search_engine.search(text)
+        self.set_power_search_results(result)
+
+    def on_power_search_submit(self):
+        # do not do any additional searches but just select the first match
+        btn = self.power_search_buttons[0]
+        if btn.character is not None:
+            self.search(btn.character)
 
     def on_search_submit(self):
         text = self.search_bar.text()
