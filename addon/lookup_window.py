@@ -61,16 +61,26 @@ class LookupWindow(QDialog):
         self.power_search_results_lyt.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.power_search_buttons = []
 
+
+        if aqt.theme.theme_manager.night_mode:
+            btn_style_sheet = \
+                "color: #e9e9e9;" \
+                "background-color: #454545;" 
+        else:
+            btn_style_sheet = \
+                "color: #202020;" \
+                "background-color: #e9e9e9;"
+        btn_style_sheet += \
+            "font-size: 20px;" \
+            "border-style: ridge;" \
+            "border-width: 2px;" \
+            "border-radius: 6px;" \
+            "padding: 2px;"
+
+
         for i in range(15):
             result_btn = QPushButton('   ', objectName='result_btn_' + str(i+1))
-            result_btn.setStyleSheet(
-                "background-color: #e9e9e9;"
-                "font-size: 20px;"
-                "border-style: ridge;"
-                "border-width: 2px;"
-                "border-radius: 6px;"
-                "padding: 2px;"
-            );
+            result_btn.setStyleSheet(btn_style_sheet)
             result_btn.setFixedWidth(search_btn.sizeHint().height()*1.5)
             result_btn.setFocusPolicy(Qt.FocusPolicy.NoFocus)
             result_btn.clicked.connect(lambda state, x=result_btn: self.on_power_result_button_click(x))
