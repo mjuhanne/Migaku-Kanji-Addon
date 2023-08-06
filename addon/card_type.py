@@ -132,12 +132,14 @@ class CardTypeData(metaclass=CardTypeDataMeta):
             </script>
         """
 
+        common_js = "<script>" + web_file_data("common.js") + "</script>"
+
         # Set template html
         template["qfmt"] = (
-            settings_html + "\n\n" + web_file_data(f"front-{self.label}.html")
+            settings_html + "\n\n" + common_js + "\n\n" + web_file_data(f"front-{self.label}.html")
         )
         template["afmt"] = (
-            settings_html + "\n\n" + web_file_data(f"back-{self.label}.html")
+            settings_html + "\n\n" + common_js + "\n\n" + web_file_data(f"back-{self.label}.html")
         )
 
         aqt.mw.col.models.save(model)

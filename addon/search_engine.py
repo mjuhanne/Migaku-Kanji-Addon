@@ -27,18 +27,21 @@ unicode_conversion_table = {
     '⺹' : '老',
     '爿' : '丬',
     '辶' : '辶',
+    '氵' : '水',
+    '灬' : '火',
 }
 
-def convert_to_correct_unicode_character(c):
-    if c in unicode_conversion_table:
-        return unicode_conversion_table[c]
-    return c
 
 class SearchEngine:
 
     def __init__(self, db_cursor):
         self.crs = db_cursor
         self.create_cache()
+
+    def radical_to_primitive(self,c):
+        if c in unicode_conversion_table:
+            return unicode_conversion_table[c]
+        return c
 
     def recursively_find_all_primitives(self, character):
         if character not in self.primitive_set_cache:
@@ -219,7 +222,7 @@ class SearchEngine:
                 for r in radical_set:
                     # some radicals in the list might use slightly different 
                     # (albeit visually indistinguishable) unicode character
-                    r = convert_to_correct_unicode_character(r)
+                    r = self.radical_to_primitive(r)
                     if r in self.keyword_set_cache:
                         radical_names_set.update(self.keyword_set_cache[r])
                     elif r in self.primitive_alternative_cache:

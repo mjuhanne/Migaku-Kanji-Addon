@@ -117,8 +117,8 @@ body.dark {
 	color: #fff;
 }
 
-body.ankidroid_dark_mode,
-body.nightMode,
+body.ankidroid_dark_mode img,
+body.nightMode img,
 body.dark img {
 	filter: invert(99%) sepia(50%) saturate(2%) hue-rotate(181deg) brightness(114%) contrast(101%);
 }
@@ -588,6 +588,83 @@ button.primitive:focus .kanji-addon__hover-tooltip,
 .nightMode .title-tooltip__container.-subdued .title-tooltip__title,
 .dark .title-tooltip__container.-subdued .title-tooltip__title {
 	color: #afb5c3;
+}
+
+.editable_title:hover,
+.editable_title:focus {
+		color: #9fc4f7;
+}
+.ankidroid_dark_mode .editable_title:hover,
+.nightMode .editable_title:hover,
+.dark .editable_title:hover,
+.editable_title:focus,
+.editable_title:focus,
+.dark .editable_title:focus {
+		color: #f1d6be;
+}
+
+.editable_title.-user-modified {
+	color: #e664d0;
+}
+.ankidroid_dark_mode .editable_title.-user-modified,
+.nightMode .editable_title.-user-modified,
+.dark .editable_title.-user-modified {
+		color: #a366a5;
+}
+
+.editable_title.-user-modified:hover,
+.editable_title.-user-modified:focus {
+		color: #902794;
+}
+.ankidroid_dark_mode .editable_title.-user-modified:hover,
+.nightMode .editable_title.-user-modified:hover,
+.dark .editable_title.-user-modified:hover,
+.editable_title.-user-modified:focus,
+.editable_title.-user-modified:focus,
+.dark .editable_title.-user-modified:focus {
+		color: #e9baf0;
+}
+
+.primitive_keyword.-user-modified {
+	background: #e6c4ee;
+	color: #81517f;
+}
+.ankidroid_dark_mode .primitive_keyword.-user-modified,
+.nightMode .primitive_keyword.-user-modified,
+.dark .primitive_keyword.-user-modified {
+	color: #cf8fcd;
+	background: #770c92;
+}
+
+.editable_title:hover .primitive_keyword.-user-modified,
+.editable_title:focus .primitive_keyword.-user-modified,
+.primitive_keyword.-user-modified:hover,
+.primitive_keyword.-user-modified:focus {
+	color: #b877b5;
+}
+.ankidroid_dark_mode .primitive_keyword.-user-modified:hover,
+.ankidroid_dark_mode .primitive_keyword.-user-modified:focus,
+.ankidroid_dark_mode .editable_title:hover .primitive_keyword.-user-modified,
+.ankidroid_dark_mode .editable_title:focus .primitive_keyword.-user-modified,
+.nightMode .primitive_keyword.-user-modified:hover,
+.nightMode .primitive_keyword.-user-modified:focus,
+.nightMode .editable_title:hover .primitive_keyword.-user-modified,
+.nightMode .editable_title:focus .primitive_keyword.-user-modified,
+.dark .primitive_keyword.-user-modified:hover,
+.dark .primitive_keyword.-user-modified:focus,
+.dark .editable_title:hover .primitive_keyword.-user-modified,
+.dark .editable_title:focus .primitive_keyword.-user-modified {
+		color: #e7bfe6;
+}
+
+.primitive_keyword.-user-modified::before {
+	background-color: #bc37d6;
+}
+.ankidroid_dark_mode .primitive_keyword.-user-modified::before,
+.nightMode .primitive_keyword.-user-modified::before,
+.dark .primitive_keyword.-user-modified::before {
+	background-color: #bc37d6;
+	color: #363c4a;
 }
 
 .title-tooltip__container.-subdued .title-tooltip__text {
@@ -2185,8 +2262,8 @@ button.primitive img {
 	filter: invert(99%) sepia(50%) saturate(2%) hue-rotate(181deg) brightness(114%) contrast(101%);
 }
 
-.ankidroid_dark_mode button.primitive,
-.nightMode button.primitive,
+.ankidroid_dark_mode button.primitive img,
+.nightMode button.primitive img,
 .dark button.primitive img {
 	filter: invert(19%) sepia(7%) saturate(2109%) hue-rotate(184deg) brightness(88%) contrast(81%);
 }
@@ -2237,6 +2314,32 @@ button.primitive.-has-alternative::before {
 	button.primitive.-has-alternative::before {
 		font-size: 20px;
 	}
+}
+
+button.primitive.-user-modified {
+	background: #dd6bfa;
+	color: #f7f1f6;
+}
+
+button.primitive.-user-modified:hover,
+button.primitive.-user-modified:focus {
+	background: #770c92;
+}
+
+.ankidroid_dark_mode button.primitive.-user-modified,
+.nightMode button.primitive.-user-modified,
+.dark button.primitive.-user-modified {
+	background: #770c92;
+	color: #d4c3d3;
+}
+
+.ankidroid_dark_mode button.primitive.-user-modified:hover,
+.ankidroid_dark_mode button.primitive.-user-modified:focus,
+.nightMode button.primitive.-user-modified:hover,
+.nightMode button.primitive.-user-modified:focus,
+.dark button.primitive.-user-modified:hover,
+.dark button.primitive.-user-modified:focus {
+	background: #ce2cf7;
 }
 
 button.radical {
@@ -2347,7 +2450,18 @@ button.radical {
 
 .stories__container {
 	text-align: left;
+	padding: 0px 20px 20px 20px;
 }
+
+.stories__container.edit_mode {
+	background: #edf0ff
+}
+.ankidroid_dark_mode .stories__container.edit_mode,
+.nightMode .stories__container.edit_mode,
+.dark .stories__container.edit_mode {
+	background: #644a27
+}
+
 
 @media only screen and (min-width: 30em) and (max-width: 36.1875em) {
 	.stories__title {

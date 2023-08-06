@@ -435,9 +435,12 @@ START - Migaku markup
 					data.usr_primitive_keyword +
 					'</span>',
 			);
+		var userModifiedPrimitiveKeywords = data.mod_primitive_keywords !== null
 		for (const pk of data.primitive_keywords) {
-			if (!keywords.includes(pk))
-				keywords.push('<span class="primitive_keyword">' + pk + '</span>');
+			if (!keywords.includes(pk)) {
+				const kw = `<span class="primitive_keyword${userModifiedPrimitiveKeywords ? ' -user-modified' : ''}">` + pk + `</span>`;
+				keywords.push(kw);
+			}
 		}
 	}
 	keywords_txt = keywords.length ? keywords.join(', ') : '-';

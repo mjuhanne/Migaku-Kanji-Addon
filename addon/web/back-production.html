@@ -15,7 +15,9 @@ START - Migaku markup
 	<div class="layout__above">
 		<!-- START - Character and examples -->
 		<div class="character-and-examples__container">
-			<h1 id="keywords_front" class="character-and-examples__keyword"></h1>
+			<h1 class="character-and-examples__keyword">
+				<span id="keywords_front" class="editable_title" onclick="edit_item('primitive_keywords');"></span>
+			</h1>
 
 			<div
 				id="words_front"
@@ -115,7 +117,7 @@ START - Migaku markup
 						<div class="primitives-and-radicals__block">
 							<div class="title-tooltip__container">
 								<h2 class="title-tooltip__title primitives-and-radicals__title">
-									Primitives
+									<span class="editable_title" onclick="edit_item('primitives');">Primitives</span>
 									<button
 										type="button"
 										title="What's this?"
@@ -451,12 +453,12 @@ START - Migaku markup
 
 	<div class="layout__below">
 		<!-- START - Stories -->
-		<div class="stories__container">
+		<div id="stories_container" class="stories__container">
 			<hr class="separator -full" />
 
 			<div class="title-tooltip__container">
 				<h2 class="title-tooltip__title stories__title -left-aligned">
-					Stories
+					<span id="story_title"></span>
 					<button
 						type="button"
 						title="What's this?"
@@ -8462,15 +8464,6 @@ Changes:
 	// CHANGES - END - stroke order diagram
 	// ==================================================================
 
-	function ReplaceTagsWithImages(src) {
-		if (src.includes('[')) {
-			// replace [tag] with image link to tag.svg, but skip strike counts (such as [3])
-			const reg =  /\[([a-zA-Z\-_]+)\]/g
-			return src.replace(reg, '<' + 'img src="' + primitives_uri + '$1.svg">');
-		}
-		return src;
-	}
-
 	$('.fontExample').html(ReplaceTagsWithImages(data.character));
 
 	tags = [];
@@ -8498,6 +8491,7 @@ Changes:
 	$('#nanori').html(data.nanori.length ? data.nanori.join(', ') : '-');
 
 	var primitives_pts = [];
+	var userModifiedPrimitives = data.mod_primitives !== null
 	for (const p_data of data.primitives_detail) {
 		var keywords = [];
 		if (!p_data.has_result) {
@@ -8538,7 +8532,8 @@ Changes:
 
 		primitives_pts.push(
 			`<button
-					class="primitive${primitiveHasAlts ? ' -has-alternative' : ''}"
+					class="primitive${primitiveHasAlts ? ' -has-alternative' : ''}
+					${userModifiedPrimitives ? ' -user-modified' : ''}"
 					data-character="${p_data.character}"
 				>
 					${ReplaceTagsWithImages(p_data.character)}
@@ -8903,8 +8898,9 @@ Changes:
 					data.usr_primitive_keyword +
 					'</span>',
 			);
+		var userModifiedPrimitiveKeywords = data.mod_primitive_keywords !== null
 		for (const pk of data.primitive_keywords) {
-			const kw = '<span class="primitive_keyword">' + pk + '</span>';
+			const kw = `<span class="primitive_keyword${userModifiedPrimitiveKeywords ? ' -user-modified' : ''}">` + pk + `</span>`;
 			if (!keywords.includes(kw)) keywords.push(kw);
 		}
 	}
@@ -8917,19 +8913,41 @@ Changes:
 	var meanings_txt = data.meanings.length ? data.meanings.join(', ') : '-';
 	$('#meanings').html(meanings_txt);
 
+	var userModifiedHeisigStory = (data.mod_heisig_story !== null) || 
+				(data.mod_heisig_comment !== null)
+	$('#story_title').html(
+		`<span class="editable_title ${userModifiedHeisigStory ? ' -user-modified' : ''}" onclick="toggle_story_editing();">Stories</span>`
+	);
+
 	var stories = [];
-	if (data.usr_story) stories.push(data.usr_story.split('\n').join('<br>'));
-	if (!settings.only_custom_stories || stories.length < 1) {
-		if (data.heisig_story) {
-			var heisig_story = data.heisig_story;
-			if (data.heisig_comment) heisig_story += '<br><br>' + data.heisig_comment;
-			var detagged_heisig_story = ReplaceTagsWithImages(heisig_story)
-			stories.push(detagged_heisig_story);
+	if (data.usr_story) {
+		stories.push( ['usr_story',data.usr_story.split('\n').join('<br>')]);
+	}
+	if (data.heisig_story) {
+		var heisig_story = data.heisig_story;
+		var detagged_heisig_story = ReplaceTagsWithImages(heisig_story)
+		stories.push(['heisig_story',detagged_heisig_story]);
+
+		if (data.heisig_comment) {
+			var detagged_heisig_comment = ReplaceTagsWithImages(data.heisig_comment)
+			stories.push(['heisig_comment',detagged_heisig_comment])
+		} else {
+			stories.push(['heisig_comment','']);
 		}
-		for (const ks of data.koohi_stories) stories.push(ks);
+	} else {
+		stories.push(['heisig_story','<b>Add Heisig Story</b>']);
+	}
+	koohi_story_id = 0
+	for (const ks of data.koohi_stories) {
+		stories.push([koohi_story_id.toString(), ks]);
+		koohi_story_id += 1;
 	}
 
-	$('#stories').html(wrap_list(stories, '<p class="story">', '</p>'));
+	story_container = document.getElementById("stories_container")
+	story_container.stories = stories
+	story_container.edit_mode = false
+
+	update_story_section();
 </script>
 <!-- END - Addon script, Production, back -->
 

@@ -62,8 +62,9 @@ START - Migaku markup
 
 				<!-- START - Keyword and meaning -->
 				<div class="keyword-and-meaning__container">
-					<h2 id="keywords" class="keyword-and-meaning__keyword"></h2>
-
+					<h2 class="keyword-and-meaning__keyword">
+						<span id="keywords" class="editable_title" onclick="edit_item('primitive_keywords');"></span>
+					</h2>
 					<div class="meanings__container">
 						<h3 class="meanings__title">Meanings:</h3>
 						<span id="meanings"></span>
@@ -131,7 +132,7 @@ START - Migaku markup
 									<h2
 										class="title-tooltip__title primitives-and-radicals__title"
 									>
-										Primitives
+										<span class="editable_title" onclick="edit_item('primitives');">Primitives</span>
 										<button
 											type="button"
 											title="What's this?"
@@ -528,12 +529,12 @@ START - Migaku markup
 
 		<div class="layout__below">
 			<!-- START - Stories -->
-			<div class="stories__container">
+			<div id="stories_container" class="stories__container">
 				<hr class="separator -full" />
 
 				<div class="title-tooltip__container">
 					<h2 class="title-tooltip__title stories__title -left-aligned">
-						Stories
+						<span id="story_title"></span>
 						<button
 							type="button"
 							title="What's this?"
@@ -543,7 +544,6 @@ START - Migaku markup
 							<img src="_kanji_icon_help_black.svg" alt="" />
 						</button>
 					</h2>
-
 					<div
 						id="tooltip-id--stories__title"
 						class="title-tooltip__text"
@@ -8575,15 +8575,6 @@ Changes:
 			// CHANGES - END - stroke order diagram
 			// ==================================================================
 
-			function ReplaceTagsWithImages(src) {
-				if (src.includes('[')) {
-					// replace [tag] with image link to tag.svg, but skip strike counts (such as [3])
-					const reg =  /\[([a-zA-Z\-_]+)\]/g
-					return src.replace(reg, '<img src="' + primitives_uri + '$1.svg">');
-				}
-				return src;
-			}
-
 			$('.fontExample').html(ReplaceTagsWithImages(data.character));
 
 			tags = [];
@@ -8611,6 +8602,7 @@ Changes:
 			$('#nanori').html(data.nanori.length ? data.nanori.join(', ') : '-');
 
 			var primitives_pts = [];
+			var userModifiedPrimitives = data.mod_primitives !== null
 			for (const p_data of data.primitives_detail) {
 				var keywords = [];
 				if (!p_data.has_result) {
@@ -8657,7 +8649,8 @@ Changes:
 
 				primitives_pts.push(
 					`<button
-									class="primitive${primitiveHasAlts ? ' -has-alternative' : ''}"
+									class="primitive${primitiveHasAlts ? ' -has-alternative' : ''}
+									${userModifiedPrimitives ? ' -user-modified' : ''}"
 									data-character="${p_data.character}"
 								>
 									${ReplaceTagsWithImages(p_data.character)}
@@ -9015,8 +9008,11 @@ Changes:
 						data.usr_primitive_keyword +
 						'</span>',
 				);
+
+			var userModifiedPrimitiveKeywords = data.mod_primitive_keywords !== null
+
 			for (const pk of data.primitive_keywords) {
-				const kw = '<span class="primitive_keyword">' + pk + '</span>';
+				const kw = `<span class="primitive_keyword${userModifiedPrimitiveKeywords ? ' -user-modified' : ''}">` + pk + `</span>`;
 				if (!keywords.includes(kw)) keywords.push(kw);
 			}
 			$('#keywords').html(keywords.length ? keywords.join(', ') : '-');
@@ -9025,18 +9021,41 @@ Changes:
 				data.meanings.length ? data.meanings.join(', ') : '-',
 			);
 
+			var userModifiedHeisigStory = (data.mod_heisig_story !== null) || 
+				(data.mod_heisig_comment !== null)
+			$('#story_title').html(
+				`<span class="editable_title ${userModifiedHeisigStory ? ' -user-modified' : ''}" onclick="toggle_story_editing();">Stories</span>`
+			);
+
 			var stories = [];
-			if (data.usr_story) stories.push(data.usr_story.split('\n').join('<br>'));
+			if (data.usr_story) {
+				stories.push( ['usr_story',data.usr_story.split('\n').join('<br>')]);
+			}
 			if (data.heisig_story) {
 				var heisig_story = data.heisig_story;
-				if (data.heisig_comment)
-					heisig_story += '<br><br>' + data.heisig_comment;
 				var detagged_heisig_story = ReplaceTagsWithImages(heisig_story)
-				stories.push(detagged_heisig_story);
-			}
-			for (const ks of data.koohi_stories) stories.push(ks);
+				stories.push(['heisig_story',detagged_heisig_story]);
 
-			$('#stories').html(wrap_list(stories, '<p class="story">', '</p>'));
+				if (data.heisig_comment) {
+					var detagged_heisig_comment = ReplaceTagsWithImages(data.heisig_comment)
+					stories.push(['heisig_comment',detagged_heisig_comment])
+				} else {
+					stories.push(['heisig_comment','']);
+				}
+			} else {
+				stories.push(['heisig_story','<b>Add Heisig Story</b>']);
+			}
+			koohi_story_id = 0
+			for (const ks of data.koohi_stories) {
+				stories.push([koohi_story_id.toString(), ks]);
+				koohi_story_id += 1;
+			}
+
+			story_container = document.getElementById("stories_container")
+			story_container.stories = stories
+			story_container.edit_mode = false
+
+			update_story_section();
 
 			function setup_card_btn(id, data, name) {
 				txt = '';

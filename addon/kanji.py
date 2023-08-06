@@ -8,7 +8,7 @@ from collections import defaultdict, OrderedDict
 import anki
 import aqt
 
-from .util import addon_path, user_path, assure_user_dir, unique_characters, custom_list
+from .util import addon_path, user_path, assure_user_dir, unique_characters, custom_list, list_to_primitive_str
 from .errors import InvalidStateError, InvalidDeckError
 from .card_type import CardType
 from . import config
@@ -19,6 +19,50 @@ from .search_engine import SearchEngine
 kanji_db_path = addon_path("kanji.db")
 user_db_path = user_path("user.db")
 
+user_modifiable_fields = ['primitives','primitive_keywords','heisig_story','heisig_comment']
+
+convert_data_from_db_func = {
+    "onyomi"                    : json.loads,
+    "kunyomi"                   : json.loads,
+    "nanori"                    : json.loads,
+    "meanings"                  : json.loads,
+    "primitives"                : custom_list,
+    "primitive_of"              : custom_list,
+    "primitive_keywords"        : json.loads,
+    "primitive_alternatives"    : custom_list,
+    "words_default"             : json.loads,
+    "koohi_stories"             : json.loads,
+}
+
+convert_data_to_db_func = {
+    "onyomi"                    : json.dumps,
+    "kunyomi"                   : json.dumps,
+    "nanori"                    : json.dumps,
+    "meanings"                  : json.dumps,
+    "primitives"                : list_to_primitive_str,
+    "primitive_of"              : list_to_primitive_str,
+    "primitive_keywords"        : json.dumps,
+    "primitive_alternatives"    : list_to_primitive_str,
+    "words_default"             : json.dumps,
+    "koohi_stories"             : json.dumps,
+}
+
+def data_from_db(field_name,data):
+    if data is not None and field_name in convert_data_from_db_func:
+        f = convert_data_from_db_func[field_name]
+        return f(data)
+    return data
+
+def data_to_db(field_name,data):
+    if data is not None and field_name in convert_data_to_db_func:
+        f = convert_data_to_db_func[field_name]
+        return f(data)
+    return data
+
+def json_loads_or_none(l):
+    if l is None:
+        return None
+    return json.loads(l)
 
 def clean_character_field(f):
     f = f.lstrip()
@@ -79,6 +123,12 @@ class KanjiDB:
             ")"
         )
 
+        query = "CREATE TABLE IF NOT EXISTS usr.modified_values (" \
+                "character TEXT NOT NULL PRIMARY KEY,"
+
+        field_list = [ 'mod_' + field_name + ' TEXT' for field_name in user_modifiable_fields]
+        query += ', '.join(field_list) + ')'
+        self.crs.execute(query)
         self.con.commit()
 
         # Updates
@@ -144,16 +194,16 @@ class KanjiDB:
             return
 
         # Get primitives
-        self.crs.execute(
-            "SELECT primitives FROM characters " "WHERE character == (?)", (character,)
-        )
+        primitives = self.get_field(character,"primitives")
 
-        primitives_result = self.crs.fetchone()
-        if primitives_result is None:
+        # Use user modified primitives is available
+        modified_primitives = self.get_user_modified_field(character,"primitives")
+        if modified_primitives is not None:
+            primitives = modified_primitives
+
+        if primitives is None:
             print(f"Lookup of primitive {character} failed.")
             return
-        primitives = primitives_result[0]
-        primitives = custom_list(primitives)
 
         # Recusivly add primitives that need to be learned if enabled
         if card_type.add_primitives:
@@ -527,6 +577,127 @@ class KanjiDB:
 
         self.refresh_notes_for_character(character)
 
+
+    def _set_field(self, character, field_name, data):
+        # non-commiting update
+        data = data_to_db(field_name,data)
+        self.crs.execute(
+            f"UPDATE characters SET {field_name}=? WHERE character=?",
+            (data,character,),
+        )
+
+    def set_field(self, character, field_name, data):
+        self.set_field(character, field_name, data)
+        self.con.commit()
+
+    def get_character_usr_story(self, character):
+        self.crs.execute(
+            f"SELECT usr_story FROM usr.stories WHERE character=?",
+            (character,),
+        )
+        r = self.crs.fetchone()
+        if r:
+            return r[0]
+        else:
+            return ""
+
+    def get_field(self, character, field_name):
+        self.crs.execute(
+            f"SELECT {field_name} FROM characters WHERE character=?",
+            (character,),
+        )
+        r = self.crs.fetchone()
+        if r:
+            return data_from_db(field_name,r[0])
+        else:
+            return ""
+
+    def _get_user_modified_field(self, character, field_name):
+        assert field_name in user_modifiable_fields
+        self.crs.execute(
+            f"SELECT mod_{field_name} FROM usr.modified_values WHERE character=?",
+            (character,),
+        )
+        r = self.crs.fetchone()
+        if r:
+            return True, data_from_db(field_name,r[0])
+        else:
+            return False, None
+
+    def get_user_modified_field(self, character, field_name):
+        _, old_value = self._get_user_modified_field(character, field_name)
+        return old_value
+
+    def set_user_modified_field(self, character, field_name, data):
+        assert field_name in user_modifiable_fields
+        original_value = self.get_field(character,field_name)
+        if data == original_value:
+            # Let's not keep duplicate values in the user database
+            modified_data = None
+        else:
+            modified_data = data_to_db(field_name,data)
+        row_exists, previous_user_defined_value = self._get_user_modified_field(character, field_name)
+        previous_value = original_value if previous_user_defined_value is None else previous_user_defined_value
+        if row_exists:
+            self.crs.execute(
+                f"UPDATE usr.modified_values SET mod_{field_name}=? WHERE character=?",
+                (modified_data,character,),
+            )
+        else:
+            if data is not None:
+                self.crs.execute(
+                    f"INSERT OR REPLACE INTO usr.modified_values (character,mod_{field_name}) VALUES (?,?)",
+                    (character, modified_data),
+                )
+        if field_name == 'primitives':
+            self._recreate_primitive_of_references(character, previous_value, data)
+        self.con.commit()
+
+        self.refresh_notes_for_character(character)
+        print("Updated %s field '%s': %s -> %s" % (character, field_name, previous_value, data))
+
+    def does_character_exist(self, character):
+        self.crs.execute(
+            "SELECT character FROM characters WHERE character=?",
+            (character,),
+        )
+        r = self.crs.fetchone()
+        if r:
+            return True
+        return False
+
+    def _recreate_primitive_of_references(self, character, old_primitives, new_primitives ):
+        old_primitives_set = set(old_primitives or "")
+        new_primitives_set = set(new_primitives or "")
+        added_primitives = list(new_primitives_set - old_primitives_set)
+        if len(added_primitives)>0:
+            print("Character %s: Adding primitive_of reference to characters: %s" % (character,added_primitives))
+            for p in added_primitives:
+                p_of_set = set(self.get_field(p, "primitive_of"))
+                # sanity check
+                if character in p_of_set:
+                    raise Exception("%s has corrupted primitive_of list! Tried to add already existing %s!" % (p, character))
+                p_of_set.add(character)
+                p_of = ''.join(list(p_of_set))
+                # non-commiting update
+                self._set_field(p, "primitive_of", p_of)
+                print(p, p_of)
+
+        deleted_primitives = list(old_primitives_set - new_primitives_set)
+        if len(deleted_primitives)>0:
+            print("Character %s: Removing primitive_of reference from characters: %s" % (character,deleted_primitives))
+            for p in deleted_primitives:
+                p_of_set = set(self.get_field(p, "primitive_of"))
+                # sanity check
+                if character not in p_of_set:
+                    raise Exception("%s has corrupted primitive_of list! Tried to remove non-existing %s!" % (p, character))
+                p_of_set.remove(character)
+                p_of = ''.join(list(p_of_set))
+                # non-commiting update
+                self._set_field(p, "primitive_of", p_of)
+                print(p, p_of)
+
+        
     def mass_set_character_usr_story(self, character_stories):
         self.crs.executemany(
             "INSERT OR REPLACE INTO usr.stories (character,usr_story) VALUES (?,?)",
@@ -714,6 +885,10 @@ class KanjiDB:
             ("usr_keyword", _, "usr.keywords.usr_keyword"),
             ("usr_primitive_keyword", _, "usr.keywords.usr_primitive_keyword"),
             ("usr_story", _, "usr.stories.usr_story"),
+            ("mod_heisig_story", _, "usr.modified_values.mod_heisig_story"),
+            ("mod_heisig_comment", _, "usr.modified_values.mod_heisig_comment"),
+            ("mod_primitives", custom_list, "usr.modified_values.mod_primitives"),
+            ("mod_primitive_keywords", json_loads_or_none, "usr.modified_values.mod_primitive_keywords"),
         ]
 
         if card_ids:
@@ -727,6 +902,7 @@ class KanjiDB:
         joins = [
             f"LEFT OUTER JOIN usr.keywords ON characters.character == usr.keywords.character ",
             f"LEFT OUTER JOIN usr.stories ON characters.character == usr.stories.character ",
+            f"LEFT OUTER JOIN usr.modified_values ON characters.character == usr.modified_values.character "
         ]
         if card_ids:
             joins.extend(
@@ -747,6 +923,12 @@ class KanjiDB:
 
             for data, (name, load_func, _) in zip(raw_data, requested_fields):
                 ret[name] = load_func(data)
+
+            # overwrite with user modified values 
+            for field in user_modifiable_fields:
+                mod_field = 'mod_' + field
+                if ret[mod_field] is not None:
+                    ret[field] = ret[mod_field]
 
             if words:
                 ret["words"] = self.get_character_words(character)
