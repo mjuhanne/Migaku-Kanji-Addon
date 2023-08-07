@@ -24,13 +24,13 @@ unicode_conversion_table = {
     '｜' : '丨',
     '⺅' : '亻',
     '⺾' : '艹',
-    '⺹' : '老',
     '爿' : '丬',
     '辶' : '辶',
-    '氵' : '水',
-    '灬' : '火',
 }
 
+# When two characters reference each other as alternatives (for example 艹 -> 艸 and 艸 -> 艹 )
+# then we want to link to the character which is the primary primitive
+primary_primitives = ['艹','扌','⻖','⻏','川','罒','冫',]
 
 class SearchEngine:
 
@@ -38,10 +38,15 @@ class SearchEngine:
         self.crs = db_cursor
         self.create_cache()
 
-    def radical_to_primitive(self,c):
-        if c in unicode_conversion_table:
-            return unicode_conversion_table[c]
-        return c
+    def radical_to_primitive(self,r):
+        # First do unicode conversion because some radicals in the list might use slightly
+        # # different (albeit visually indistinguishable) unicode character.
+        if r in unicode_conversion_table:
+            r = unicode_conversion_table[r]
+        # .. then reference the main primitive instead if this is an alternative primitive
+        if r not in primary_primitives and r in self.primitive_alternative_cache:
+            r = self.primitive_alternative_cache[r]
+        return r
 
     def recursively_find_all_primitives(self, character):
         if character not in self.primitive_set_cache:
@@ -220,13 +225,9 @@ class SearchEngine:
             if len(radical_set) > 0:
                 radical_names_set = set()
                 for r in radical_set:
-                    # some radicals in the list might use slightly different 
-                    # (albeit visually indistinguishable) unicode character
+                    # We want to get keywords from the associated primitive
                     r = self.radical_to_primitive(r)
                     if r in self.keyword_set_cache:
-                        radical_names_set.update(self.keyword_set_cache[r])
-                    elif r in self.primitive_alternative_cache:
-                        r = self.primitive_alternative_cache[r]
                         radical_names_set.update(self.keyword_set_cache[r])
                     else:
                         if r not in ignore_radicals:

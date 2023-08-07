@@ -631,7 +631,7 @@ class KanjiDB:
     def set_user_modified_field(self, character, field_name, data):
         assert field_name in user_modifiable_fields
         original_value = self.get_field(character,field_name)
-        if data == original_value:
+        if (data == original_value) or (data == "" and original_value is None):
             # Let's not keep duplicate values in the user database
             modified_data = None
         else:
@@ -673,29 +673,31 @@ class KanjiDB:
         if len(added_primitives)>0:
             print("Character %s: Adding primitive_of reference to characters: %s" % (character,added_primitives))
             for p in added_primitives:
-                p_of_set = set(self.get_field(p, "primitive_of"))
-                # sanity check
-                if character in p_of_set:
-                    raise Exception("%s has corrupted primitive_of list! Tried to add already existing %s!" % (p, character))
-                p_of_set.add(character)
-                p_of = ''.join(list(p_of_set))
-                # non-commiting update
-                self._set_field(p, "primitive_of", p_of)
-                print(p, p_of)
+                if p != character: # even if the character is listed as it's own primitive, it's not in its primitive_of list
+                    p_of_set = set(self.get_field(p, "primitive_of"))
+                    # sanity check
+                    if character in p_of_set:
+                        raise Exception("%s has corrupted primitive_of list! Tried to add already existing %s!" % (p, character))
+                    p_of_set.add(character)
+                    p_of = ''.join(list(p_of_set))
+                    # non-commiting update
+                    self._set_field(p, "primitive_of", p_of)
+                    print(p, p_of)
 
         deleted_primitives = list(old_primitives_set - new_primitives_set)
         if len(deleted_primitives)>0:
             print("Character %s: Removing primitive_of reference from characters: %s" % (character,deleted_primitives))
             for p in deleted_primitives:
-                p_of_set = set(self.get_field(p, "primitive_of"))
-                # sanity check
-                if character not in p_of_set:
-                    raise Exception("%s has corrupted primitive_of list! Tried to remove non-existing %s!" % (p, character))
-                p_of_set.remove(character)
-                p_of = ''.join(list(p_of_set))
-                # non-commiting update
-                self._set_field(p, "primitive_of", p_of)
-                print(p, p_of)
+                if p != character: # even if the character is listed as it's own primitive, it's not in its primitive_of list
+                    p_of_set = set(self.get_field(p, "primitive_of"))
+                    # sanity check
+                    if character not in p_of_set:
+                        raise Exception("%s has corrupted primitive_of list! Tried to remove non-existing %s!" % (p, character))
+                    p_of_set.remove(character)
+                    p_of = ''.join(list(p_of_set))
+                    # non-commiting update
+                    self._set_field(p, "primitive_of", p_of)
+                    print(p, p_of)
 
         
     def mass_set_character_usr_story(self, character_stories):
@@ -842,6 +844,11 @@ class KanjiDB:
             if callback and ((i + 1) % 25) == 0:
                 callback(f"Refreshing kanji cards... ({i+1}/{num_notes})")
 
+        if callback:
+            callback("Refreshing learn ahead...")
+            
+        self.refresh_learn_ahead()
+
     def get_kanji_result_data(
         self,
         character,
@@ -979,3 +986,4 @@ class KanjiDB:
                     ret["user_data"][ct.label] = ct_user_data
 
         return ret
+

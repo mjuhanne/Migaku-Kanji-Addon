@@ -54,23 +54,24 @@ class ResultsBar():
     def set_contents(self, contents):
         idx = 0
         for r in contents:
-            btn = self.buttons[idx]
-            btn.setVisible(True)
-            if r[0] == '[':
-                # [primitive] tag -> convert to image
-                img = r[1:-1]
-                path = util.addon_path('primitives','%s.svg' % img)
-                btn.setText('')
-                icon_size = int(self.button_size*0.8)
-                icon = QIcon(path)
-                btn.setIcon(icon)
-                btn.setIconSize(QSize(icon_size,icon_size))
-            else:
-                # normal unicode kanji character
-                btn.setText(r)
-                btn.setIcon(QIcon())
-            btn.character = r
-            idx += 1
+            if idx < self.max_results:
+                btn = self.buttons[idx]
+                btn.setVisible(True)
+                if r[0] == '[':
+                    # [primitive] tag -> convert to image
+                    img = r[1:-1]
+                    path = util.addon_path('primitives','%s.svg' % img)
+                    btn.setText('')
+                    icon_size = int(self.button_size*0.8)
+                    icon = QIcon(path)
+                    btn.setIcon(icon)
+                    btn.setIconSize(QSize(icon_size,icon_size))
+                else:
+                    # normal unicode kanji character
+                    btn.setText(r)
+                    btn.setIcon(QIcon())
+                btn.character = r
+                idx += 1
         for i in range(idx,self.max_results):
             # clear/hide rest of the buttons
             btn = self.buttons[i]

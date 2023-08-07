@@ -128,7 +128,7 @@ class EditDialog(QDialog):
 
 
 class EditPrimitivesDialog(EditDialog):
-    def __init__(self, character, parent=None, max_search_results=10):
+    def __init__(self, character, parent=None, max_search_results=12):
         self.max_search_results = max_search_results
         super().__init__(character, "primitives", False, parent)
 

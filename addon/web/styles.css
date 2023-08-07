@@ -2332,6 +2332,11 @@ button.primitive.-user-modified:focus {
 	background: #770c92;
 	color: #d4c3d3;
 }
+.ankidroid_dark_mode button.primitive.-user-modified img,
+.nightMode button.primitive.-user-modified img,
+.dark button.primitive.-user-modified img {
+	filter: invert(99%) sepia(7%) saturate(2109%) hue-rotate(184deg) brightness(88%) contrast(81%);
+}
 
 .ankidroid_dark_mode button.primitive.-user-modified:hover,
 .ankidroid_dark_mode button.primitive.-user-modified:focus,

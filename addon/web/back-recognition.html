@@ -8916,41 +8916,8 @@ Changes:
 	$('#meanings').html(meanings_txt);
 	if (data.meanings.length) $('#meanings_front').html(meanings_txt);
 
-	var userModifiedHeisigStory = (data.mod_heisig_story !== null) || 
-				(data.mod_heisig_comment !== null)
-	$('#story_title').html(
-		`<span class="editable_title ${userModifiedHeisigStory ? ' -user-modified' : ''}" onclick="toggle_story_editing();">Stories</span>`
-	);
+	create_story_section();
 
-	var stories = [];
-	if (data.usr_story) {
-		stories.push( ['usr_story',data.usr_story.split('\n').join('<br>')]);
-	}
-	if (data.heisig_story) {
-		var heisig_story = data.heisig_story;
-		var detagged_heisig_story = ReplaceTagsWithImages(heisig_story)
-		stories.push(['heisig_story',detagged_heisig_story]);
-
-		if (data.heisig_comment) {
-			var detagged_heisig_comment = ReplaceTagsWithImages(data.heisig_comment)
-			stories.push(['heisig_comment',detagged_heisig_comment])
-		} else {
-			stories.push(['heisig_comment','']);
-		}
-	} else {
-		stories.push(['heisig_story','<b>Add Heisig Story</b>']);
-	}
-	koohi_story_id = 0
-	for (const ks of data.koohi_stories) {
-		stories.push([koohi_story_id.toString(), ks]);
-		koohi_story_id += 1;
-	}
-
-	story_container = document.getElementById("stories_container")
-	story_container.stories = stories
-	story_container.edit_mode = false
-
-	update_story_section();
 </script>
 <!-- END - Addon script, Recognition, back -->
 

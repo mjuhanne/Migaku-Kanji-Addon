@@ -12,6 +12,8 @@ import logging
 # Creates a list of single-character Unicode kanjis and [primitive] tags
 # For example '[banner]也' -> ['\[banner\]','也'] 
 def custom_list(l):
+    if l is None:
+        return None
     g = re.findall(r'([^\[]|\[[^\]]+\])',l)
     return g
 
@@ -21,9 +23,10 @@ def multiLine(src_list,n):
     lines = [ ''.join(chunk) for chunk in chunks ]            
     return '<br>'.join(lines)
 
-ext_tsv_path = sys.argv[1] if len(sys.argv) > 1 else "addon/kanji-ext3.tsv"
+ext_tsv_path = sys.argv[1] if len(sys.argv) > 1 else "addon/kanji-ext4.tsv"
 db_path = sys.argv[2] if len(sys.argv) > 2 else "addon/kanji.db"
-log_path = sys.argv[3] if len(sys.argv) > 3 else "db_merge_log.md"
+user_db_path = sys.argv[3] if len(sys.argv) > 3 else "addon/user_files/user.db"
+log_path = sys.argv[4] if len(sys.argv) > 4 else "db_merge_log.md"
 db_path = os.path.abspath(db_path)
 
 ### set up logging
@@ -32,6 +35,7 @@ logging.basicConfig(format='%(message)s', level=logging.INFO, handlers=targets)
 
 con = sqlite3.connect(db_path)
 crs = con.cursor()
+crs.execute(f'ATTACH DATABASE "{user_db_path}" AS usr;')
 
 fields = [
     "character",
@@ -211,7 +215,7 @@ logging.info("Processed %d items with total %d changes" % (len(processed_kanji_l
 ##################################################################
 print("Reconstructing primitive_of lists..")
 
-crs.execute("SELECT * FROM characters")
+crs.execute("SELECT * FROM characters LEFT OUTER JOIN usr.modified_values ON characters.character == usr.modified_values.character")
 data = crs.fetchall()
 
 column_names = [description[0] for description in crs.description]
@@ -225,6 +229,7 @@ fi_i = column_names.index('frequency_rank')
 hk_i = column_names.index('heisig_keyword6') 
 pk_i = column_names.index('primitive_keywords') 
 m_i = column_names.index('meanings') 
+mpi_i = column_names.index('mod_primitives')
 
 primitive_of_dict = dict()
 
@@ -232,13 +237,21 @@ primitive_of_dict = dict()
 for row in data:
     character = row[ci_i]
     primitives = custom_list(row[pi_i])
+    mod_primitives = custom_list(row[mpi_i])
     frequency_rank = row[fi_i]
 
-    for p in primitives:
-        if p not in primitive_of_dict:
-            primitive_of_dict[p] = ""
-        if p != character:
-            primitive_of_dict[p] += character
+    if mod_primitives is not None:
+        for p in mod_primitives:
+            if p not in primitive_of_dict:
+                primitive_of_dict[p] = ""
+            if p != character:
+                primitive_of_dict[p] += character
+    else:
+        for p in primitives:
+            if p not in primitive_of_dict:
+                primitive_of_dict[p] = ""
+            if p != character:
+                primitive_of_dict[p] += character
 
 
 # Re-calculate primitive_of references

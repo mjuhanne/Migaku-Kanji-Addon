@@ -72,6 +72,49 @@ function update_story_section() {
     $('#stories').html(html_stories);
 }	
 
+function create_story_section() {
+
+    var userModifiedHeisigStory = (data.mod_heisig_story !== null) || 
+    (data.mod_heisig_comment !== null)
+    $('#story_title').html(
+        `<span class="editable_title ${userModifiedHeisigStory ? ' -user-modified' : ''}" onclick="toggle_story_editing();">Stories</span>`
+    );
+
+    var stories = [];
+    if (data.usr_story) {
+        stories.push( ['usr_story',data.usr_story.split('\n').join('<br>')]);
+    }
+
+    if (data.heisig_story) {
+        var heisig_story = data.heisig_story;
+        var detagged_heisig_story = ReplaceTagsWithImages(heisig_story)
+        stories.push(['heisig_story',detagged_heisig_story]);
+    } else {
+        stories.push(['heisig_story','']);
+    }
+
+    if (data.heisig_comment) {
+        var detagged_heisig_comment = ReplaceTagsWithImages(data.heisig_comment)
+        stories.push(['heisig_comment',detagged_heisig_comment])
+    } else {
+        stories.push(['heisig_comment','']);
+    }
+
+    koohi_story_id = 0
+    for (const ks of data.koohi_stories) {
+        stories.push([koohi_story_id.toString(), ks]);
+        koohi_story_id += 1;
+    }
+
+    story_container = document.getElementById("stories_container")
+    story_container.stories = stories
+    if (!story_container.hasOwnProperty("edit_mode")) {
+        story_container.edit_mode = false
+    }
+
+    update_story_section();    
+}
+
 function toggle_story_editing(state) {
     var container = document.getElementById("stories_container");
 
