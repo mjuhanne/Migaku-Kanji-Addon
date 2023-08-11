@@ -90,6 +90,12 @@ class CardTypeSettingsWidget(QWidget):
         self.add_primitives_box.setChecked(self.card_type.add_primitives)
         lyt.addWidget(self.add_primitives_box)
 
+        self.use_secondary_primitives_box = QCheckBox(
+            "Use secondary or crowd-sourced 'non-Heisig' primitives if available"
+        )
+        self.use_secondary_primitives_box.setChecked(self.card_type.use_secondary_primitives)
+        lyt.addWidget(self.use_secondary_primitives_box)
+
         self.auto_card_creation_box = QCheckBox(
             'Automatically create kanji cards for unknown kanji in newly added cards (cards/fields must be setup in "Registered Fields" tab)'
         )
@@ -166,6 +172,7 @@ class CardTypeSettingsWidget(QWidget):
         if self.card_type == CardType.Production:
             self.card_type.hide_keywords = self.hide_keywords_box.isChecked()
         self.card_type.add_primitives = self.add_primitives_box.isChecked()
+        self.card_type.use_secondary_primitives = self.use_secondary_primitives_box.isChecked()
         self.card_type.auto_card_creation = self.auto_card_creation_box.isChecked()
         self.card_type.auto_card_creation_msg = (
             self.auto_card_creation_msg_box.isChecked()

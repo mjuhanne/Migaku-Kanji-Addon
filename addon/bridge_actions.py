@@ -179,8 +179,8 @@ def handle_bridge_action(
         item_name = args[2]
         if reviewer:
             aqt.mw.requireReset()
-        if item_name == "primitives":
-            r = EditPrimitivesDialog(character, parent).exec()
+        if item_name == "primitives" or item_name == "secondary_primitives":
+            r = EditPrimitivesDialog(character, parent, item_name == "secondary_primitives").exec()
             if r == QDialog.DialogCode.Accepted:
                 if reviewer:
                     aqt.mw.requireReset()

@@ -24,6 +24,7 @@ standard_fields = [
     "meanings",
     "primitive_alternatives",
     "primitives",
+    "sec_primitives",
     "heisig_keyword5",
     "heisig_keyword6",
     "primitive_keywords",
@@ -34,6 +35,7 @@ standard_fields = [
 
 user_modifiable_fields = {
     "primitives" : "usr.modified_values.mod_primitives",
+    "sec_primitives" : "usr.modified_values.mod_sec_primitives",
     "primitive_keywords": "usr.modified_values.mod_primitive_keywords",
     "heisig_story" : "usr.modified_values.mod_heisig_story",
     "heisig_comment" : "usr.modified_values.mod_heisig_comment",
@@ -80,7 +82,8 @@ def multiLine(src_list,n):
     return '<br>'.join(lines)
 
 #ext_tsv_path = sys.argv[1] if len(sys.argv) > 1 else "addon/kanji-ext4.tsv"
-ext_tsv_path = sys.argv[1] if len(sys.argv) > 1 else "kanji-usermod-patch-5.tsv"
+ext_tsv_path = sys.argv[1] if len(sys.argv) > 1 else "kanji-patch-6.tsv"
+
 db_path = sys.argv[2] if len(sys.argv) > 2 else "addon/kanji.db"
 user_db_path = sys.argv[3] if len(sys.argv) > 3 else "addon/user_files/user.db"
 log_path = sys.argv[4] if len(sys.argv) > 4 else "db_merge_log.md"
@@ -131,6 +134,7 @@ def create_field_selectors_and_convertors(fields):
 
 
 previous_kanji = None
+comment_field_enabled = False
 
 for l in open(ext_tsv_path, "r", encoding="utf-8"):
     
@@ -142,11 +146,16 @@ for l in open(ext_tsv_path, "r", encoding="utf-8"):
         continue
     if d[0] == 'Kanji' or d[0] == 'character':
         # process the header
-        if d == ['Kanji','Field','OldValue','NewValue']:
+        if d[:4] == ['Kanji','Field','OldValue','NewValue']:
             # File consists of 1 change per line
             line_format = LINE_FORMAT_SHORT
-            if len(d) != 4:
-                raise Exception("Error in file format!")
+            if len(d) == 5:
+                if d[4] != 'Comment':
+                    raise Exception("Error in file format!")
+                comment_field_enabled = True
+            else:
+                if len(d) != 4:
+                    raise Exception("Error in file format!")
         else:
             line_format = LINE_FORMAT_LONG
             if len(d) != 10:
@@ -181,8 +190,12 @@ for l in open(ext_tsv_path, "r", encoding="utf-8"):
         if len(d) != 10:
             raise Exception("Error! Line %d - wrong length in data: %s" % (line_number, str(d)))
     elif line_format == LINE_FORMAT_SHORT:
-        if len(d) != 4:
-            raise Exception("Error! Line %d - wrong length in data: %s" % (line_number, str(d)))
+        if len(d) == 5 and comment_field_enabled:
+            comment_field = d[4]
+        else:
+            if len(d) != 4:
+                raise Exception("Error! Line %d - wrong length in data: %s" % (line_number, str(d)))
+            comment_field = ''
         fields = [d[1]]
         create_field_selectors_and_convertors(fields)
         previous_value = d[2]
@@ -203,11 +216,17 @@ for l in open(ext_tsv_path, "r", encoding="utf-8"):
     for data, (field_name, load_func) in zip(new_data_list, field_conversion_to_db):
         converted_new_data_per_field[field_name] = load_func(data)
 
-    if kanji in processed_kanji_list:
-        if line_format == LINE_FORMAT_LONG:
-            raise Exception("Kanji %s already processed! Remove duplicate from line %d" % (kanji,line_number))
+    if line_format == LINE_FORMAT_LONG:
+        if kanji in processed_kanji_list:
+                raise Exception("Kanji %s already processed! Remove duplicate from line %d" % (kanji,line_number))
+        else:
+            processed_kanji_list.append(kanji)
     else:
-        processed_kanji_list.append(kanji)
+        character_field_tuple = (kanji,fields)
+        if character_field_tuple in processed_kanji_list:
+                raise Exception("Kanji %s already processed! Remove duplicate from line %d" % (character_field_tuple,line_number))
+        else:
+            processed_kanji_list.append(character_field_tuple)
 
     # create printable header
     pretty_header = kanji
@@ -254,10 +273,10 @@ for l in open(ext_tsv_path, "r", encoding="utf-8"):
                 if len(updated_fields)==0 and kanji != previous_kanji:
                     logging.info('#### ' + pretty_header)
 
-                    logging.info("| Field | Old value | New value |" )
-                    logging.info("|---|---|---|" )
+                    logging.info("| Field | Old value | New value | Comment |" )
+                    logging.info("|---|---|---|---|" )
 
-                logging.info("| %s | %s | %s |" % (field.ljust(20), existing_data_str_per_field[field], new_data_per_field[field]))
+                logging.info("| %s | %s | %s | %s |" % (field.ljust(20), existing_data_str_per_field[field], new_data_per_field[field], comment_field))
                 total_changes += 1
 
                 updated_fields.append(field)
@@ -302,9 +321,9 @@ for l in open(ext_tsv_path, "r", encoding="utf-8"):
 
 
         insert_sql = (
-            f'INSERT OR IGNORE into characters ({",".join(converted_new_data_per_field.keys())}) values ({",".join("?"*len(converted_new_data_per_field))})'
+            f'INSERT OR IGNORE into characters (character,{",".join(converted_new_data_per_field.keys())}) values ({",".join("?"*(len(converted_new_data_per_field)+1))})'
         )
-        insert_data_tuple = (*converted_new_data_per_field.values(), kanji)
+        insert_data_tuple = (kanji, *converted_new_data_per_field.values())
 
         crs.execute(insert_sql, insert_data_tuple)
         con.commit()
@@ -324,12 +343,14 @@ print("kanji.db column names:", column_names)
 
 poi_i = column_names.index('primitive_of')
 pi_i = column_names.index('primitives')
+spi_i = column_names.index('sec_primitives')
 ci_i = column_names.index('character')
 ri_i = column_names.index('radicals')
 hk_i = column_names.index('heisig_keyword6') 
 pk_i = column_names.index('primitive_keywords') 
 m_i = column_names.index('meanings') 
 mpi_i = column_names.index('mod_primitives')
+mspi_i = column_names.index('mod_sec_primitives')
 
 primitive_of_dict = dict()
 
@@ -339,6 +360,9 @@ for row in data:
     primitives = custom_list(row[pi_i])
     mod_primitives = custom_list(row[mpi_i])
 
+    sec_primitives = custom_list(row[spi_i])
+    mod_sec_primitives = custom_list(row[mspi_i])
+
     if mod_primitives is not None:
         for p in mod_primitives:
             if p not in primitive_of_dict:
@@ -347,6 +371,19 @@ for row in data:
                 primitive_of_dict[p] += character
     else:
         for p in primitives:
+            if p not in primitive_of_dict:
+                primitive_of_dict[p] = ""
+            if p != character:
+                primitive_of_dict[p] += character
+
+    if mod_sec_primitives is not None:
+        for p in mod_sec_primitives:
+            if p not in primitive_of_dict:
+                primitive_of_dict[p] = ""
+            if p != character:
+                primitive_of_dict[p] += character
+    else:
+        for p in sec_primitives:
             if p not in primitive_of_dict:
                 primitive_of_dict[p] = ""
             if p != character:

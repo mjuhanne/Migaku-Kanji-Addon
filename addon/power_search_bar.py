@@ -80,6 +80,7 @@ class ResultsBar():
                 btn.setVisible(False)
             else:
                 btn.setText('')
+                btn.setIcon(QIcon())
 
 
     def on_button_click(self, button):

@@ -19,7 +19,7 @@ from .search_engine import SearchEngine
 kanji_db_path = addon_path("kanji.db")
 user_db_path = user_path("user.db")
 
-user_modifiable_fields = ['primitives','primitive_keywords','heisig_story','heisig_comment']
+user_modifiable_fields = ['primitives','sec_primitives','primitive_keywords','heisig_story','heisig_comment']
 
 convert_data_from_db_func = {
     "onyomi"                    : json.loads,
@@ -27,6 +27,7 @@ convert_data_from_db_func = {
     "nanori"                    : json.loads,
     "meanings"                  : json.loads,
     "primitives"                : custom_list,
+    "sec_primitives"            : custom_list,
     "primitive_of"              : custom_list,
     "primitive_keywords"        : json.loads,
     "primitive_alternatives"    : custom_list,
@@ -40,6 +41,7 @@ convert_data_to_db_func = {
     "nanori"                    : json.dumps,
     "meanings"                  : json.dumps,
     "primitives"                : list_to_primitive_str,
+    "sec_primitives"            : list_to_primitive_str,
     "primitive_of"              : list_to_primitive_str,
     "primitive_keywords"        : json.dumps,
     "primitive_alternatives"    : list_to_primitive_str,
@@ -132,6 +134,22 @@ class KanjiDB:
         self.con.commit()
 
         # Updates
+        try:
+            self.crs.execute(
+                "ALTER TABLE usr.modified_values ADD COLUMN mod_sec_primitives TEXT"
+            )
+            self.con.commit()
+        except sqlite3.OperationalError:
+            pass
+
+        try:
+            self.crs.execute(
+                'ALTER TABLE characters ADD COLUMN sec_primitives TEXT DEFAULT ""'
+            )
+            self.con.commit()
+        except sqlite3.OperationalError:
+            pass
+
 
         try:
             self.crs.execute(
@@ -193,13 +211,14 @@ class KanjiDB:
         if self.crs.fetchone()[0] != 0:
             return
 
-        # Get primitives
-        primitives = self.get_field(character,"primitives")
+        # Get primitives. If user has modified the primitive list, then use that by default. Otherwise fall back to the standard list
+        primitives = self.get_user_modified_field_or_standard(character,"primitives")
 
-        # Use user modified primitives is available
-        modified_primitives = self.get_user_modified_field(character,"primitives")
-        if modified_primitives is not None:
-            primitives = modified_primitives
+        # Use secondary or crowd-source primitives if available and user has enabled this setting
+        if card_type.use_secondary_primitives:
+            sec_primitives = self.get_user_modified_field_or_standard(character,"sec_primitives")
+            if sec_primitives is not None and len(sec_primitives)>0:
+                primitives = sec_primitives
 
         if primitives is None:
             print(f"Lookup of primitive {character} failed.")
@@ -610,7 +629,20 @@ class KanjiDB:
         if r:
             return data_from_db(field_name,r[0])
         else:
+            # even if None, create an empty type (e.g. list) if that's the required type
+            return data_from_db(field_name,"")
+
+    def get_field_by_other_field_value(self, field_name, field_value, result_field):
+        self.crs.execute(
+            f"SELECT {result_field} FROM characters WHERE {field_name}=?",
+            (field_value,),
+        )
+        r = self.crs.fetchone()
+        if r:
+            return data_from_db(field_name,r[0])
+        else:
             return ""
+
 
     def _get_user_modified_field(self, character, field_name):
         assert field_name in user_modifiable_fields
@@ -625,8 +657,14 @@ class KanjiDB:
             return False, None
 
     def get_user_modified_field(self, character, field_name):
-        _, old_value = self._get_user_modified_field(character, field_name)
-        return old_value
+        _, value = self._get_user_modified_field(character, field_name)
+        return value
+
+    def get_user_modified_field_or_standard(self, character, field_name):
+        value = self.get_user_modified_field(character, field_name)
+        if value is None:
+            value = self.get_field(character, field_name)
+        return value
 
     def set_user_modified_field(self, character, field_name, data):
         assert field_name in user_modifiable_fields
@@ -649,8 +687,9 @@ class KanjiDB:
                     f"INSERT OR REPLACE INTO usr.modified_values (character,mod_{field_name}) VALUES (?,?)",
                     (character, modified_data),
                 )
-        if field_name == 'primitives':
-            self._recreate_primitive_of_references(character, previous_value, data)
+        if field_name == 'primitives' or field_name == 'sec_primitives':
+            self._recreate_primitive_of_references(character, field_name, previous_value, data)
+        self.search_engine.update_cache(character)
         self.con.commit()
 
         self.refresh_notes_for_character(character)
@@ -666,9 +705,20 @@ class KanjiDB:
             return True
         return False
 
-    def _recreate_primitive_of_references(self, character, old_primitives, new_primitives ):
+    def _recreate_primitive_of_references(self, character, updated_field_name, old_primitives, new_primitives ):
         old_primitives_set = set(old_primitives or "")
         new_primitives_set = set(new_primitives or "")
+
+        # if we are updating the 'secondary/crowd-sourced primitives' list, we have to compare it to the default one and vice versa
+        # so that no extra kanji is erroneusly added (or removed) when updating the primitive_of list
+        if updated_field_name == 'sec_primitives':
+            other_primitive_set = set(self.get_user_modified_field_or_standard(character,"primitives") or "")
+        else:
+            other_primitive_set = set(self.get_user_modified_field_or_standard(character,"sec_primitives") or "")
+        old_primitives_set |= other_primitive_set
+        new_primitives_set |= other_primitive_set
+
+        # add missing primitives from primitive_of list
         added_primitives = list(new_primitives_set - old_primitives_set)
         if len(added_primitives)>0:
             print("Character %s: Adding primitive_of reference to characters: %s" % (character,added_primitives))
@@ -684,6 +734,7 @@ class KanjiDB:
                     self._set_field(p, "primitive_of", p_of)
                     print(p, p_of)
 
+        # remove extra primitives from primitive_of list
         deleted_primitives = list(old_primitives_set - new_primitives_set)
         if len(deleted_primitives)>0:
             print("Character %s: Removing primitive_of reference from characters: %s" % (character,deleted_primitives))
@@ -854,6 +905,7 @@ class KanjiDB:
         character,
         card_ids=True,
         detail_primitives=True,
+        detail_secondary_primitives=True,
         detail_primitive_of=True,
         words=True,
         user_data=False,
@@ -876,6 +928,7 @@ class KanjiDB:
             ("jlpt", _, None),
             ("kanken", _, None),
             ("primitives", custom_list, None),
+            ("sec_primitives", custom_list, None),
             ("primitive_of", custom_list, None),
             ("primitive_keywords", json.loads, None),
             ("primitive_alternatives", custom_list, None),
@@ -895,6 +948,7 @@ class KanjiDB:
             ("mod_heisig_story", _, "usr.modified_values.mod_heisig_story"),
             ("mod_heisig_comment", _, "usr.modified_values.mod_heisig_comment"),
             ("mod_primitives", custom_list, "usr.modified_values.mod_primitives"),
+            ("mod_sec_primitives", custom_list, "usr.modified_values.mod_sec_primitives"),
             ("mod_primitive_keywords", json_loads_or_none, "usr.modified_values.mod_primitive_keywords"),
         ]
 
@@ -949,12 +1003,30 @@ class KanjiDB:
                             pc,
                             card_ids=False,
                             detail_primitives=False,
+                            detail_secondary_primitives=False,
                             detail_primitive_of=False,
                             words=False,
                         )
                     )
 
                 ret["primitives_detail"] = primitives_detail
+
+            if detail_secondary_primitives:
+                secondary_primitives_detail = []
+
+                for pc in ret["sec_primitives"]:
+                    secondary_primitives_detail.append(
+                        self.get_kanji_result_data(
+                            pc,
+                            card_ids=False,
+                            detail_primitives=False,
+                            detail_secondary_primitives=False,
+                            detail_primitive_of=False,
+                            words=False,
+                        )
+                    )
+
+                ret["secondary_primitives_detail"] = secondary_primitives_detail
 
             if detail_primitive_of:
                 primitive_of_detail = []
@@ -965,6 +1037,7 @@ class KanjiDB:
                             pc,
                             card_ids=False,
                             detail_primitives=False,
+                            detail_secondary_primitives=False,
                             detail_primitive_of=False,
                             words=False,
                         )

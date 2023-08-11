@@ -141,6 +141,41 @@ START - Migaku markup
 								id="primitives"
 								class="primitives-and-radicals__list kanji-char-font"
 							></div>
+							<div class="title-tooltip__container">
+								<h2
+								class="title-tooltip__title primitives-and-radicals__title"
+								>
+									<span class="editable_title" onclick="edit_item('secondary_primitives');">Secondary primitives</span>
+									<button
+										type="button"
+										title="What's this?"
+										aria-controls="tooltip-id--primtives__title"
+										onclick="toggleShow('tooltip-id--secondary_primtives__title')"
+									>
+										<img src="_kanji_icon_help_black.svg" alt="" />
+									</button>
+								</h2>
+
+								<div
+									id="tooltip-id--secondary_primtives__title"
+									class="title-tooltip__text"
+									style="display: none"
+									aria-expanded="false"
+								>
+									The secondary or crowd-sourced non-Heisig primitives. This list will be used to create new cards
+									if the list contains any primitives and user has enabled this option in Production/Recognition settings.
+									You can also edit this list yourself if you think a different set of primitives represent the kanji better
+									or if the default list is confusing to you. 
+									If you think the default list has clear errors or missing primitives consider editing it instead.
+								</div>
+
+								<hr class="separator" />
+							</div>
+
+							<div
+								id="secondary_primitives"
+								class="primitives-and-radicals__list kanji-char-font"
+							></div>
 						</div>
 						<div class="primitives-and-radicals__block">
 							<div class="title-tooltip__container">
@@ -8495,138 +8530,23 @@ Changes:
 	$('#kunyomi').html(data.kunyomi.length ? data.kunyomi.join(', ') : '-');
 	$('#nanori').html(data.nanori.length ? data.nanori.join(', ') : '-');
 
-	var primitives_pts = [];
 	var userModifiedPrimitives = data.mod_primitives !== null
-	for (const p_data of data.primitives_detail) {
-		var keywords = [];
-		if (!p_data.has_result) {
-			primitives_pts.push('MISSING DATA FOR ' + p_data.character);
-			continue
-		}
-		if (p_data.usr_keyword) keywords.push(p_data.usr_keyword);
-		if (p_data.heisig_keyword5 && !keywords.includes(p_data.heisig_keyword5))
-			keywords.push(p_data.heisig_keyword5);
-		if (p_data.heisig_keyword6 && !keywords.includes(p_data.heisig_keyword6))
-			keywords.push(p_data.heisig_keyword6);
-		if (p_data.usr_primitive_keyword)
-			keywords.push(
-				'<span class="primitive_keyword">' +
-					p_data.usr_primitive_keyword +
-					'</span>',
-			);
-		for (const pk of p_data.primitive_keywords) {
-			const kw = '<span class="primitive_keyword">' + pk + '</span>';
-			if (!keywords.includes(kw)) keywords.push(kw);
-		}
-		var keywords_txt = keywords.length ? keywords.join(', ') : '-';
-
-		var meanings_txt = p_data.meanings.length
-			? p_data.meanings.join(', ')
-			: '-';
-
-		var primitiveHasAlts = p_data.primitive_alternatives.length > 0
-		var new_primitive_alternatives = []
-		if (primitiveHasAlts) {
-			for (const prim_alt of p_data.primitive_alternatives) {
-				new_primitive_alternatives.push(ReplaceTagsWithImages(prim_alt))
-			}
-		}
-		primitive_alternatives_txt = primitiveHasAlts
-					? new_primitive_alternatives.join(', ')
-					: '-';
-
-		primitives_pts.push(
-			`<button
-				class="primitive${primitiveHasAlts ? ' -has-alternative' : ''}
-				${userModifiedPrimitives ? ' -user-modified' : ''}"
-				data-character="${p_data.character}"
-			>
-				${ReplaceTagsWithImages(p_data.character)}
-				<div class="primitiveDetails">
-					<div class="primitiveDetails-keywords">
-						<h3>Keywords:</h3>
-						<span>${keywords_txt}</span>
-					</div>
-					<div class="primitiveDetails-meanings">
-						<h3>Meanings:</h3>
-						<span>${meanings_txt}</span>
-					</div>
-					<div class="primitiveDetails-alternatives">
-						<h3><h3>${primitiveHasAlts ? '*' : ''}Alternatives:</h3></h3>
-						<span>${primitive_alternatives_txt}</span > </div>
-		</div>
-	</button>`,
-		);
-	}
-
+	var primitives_pts = create_primitive_section(data.primitives_detail, userModifiedPrimitives);
 	var hasPrimitives = primitives_pts.length > 0;
 	$('#primitives').empty();
 	$('#primitives').html(
 		hasPrimitives ? primitives_pts.join('') : noResultsSpan,
 	);
 
-	var primitive_of_pts = [];
-	for (const p_data of data.primitive_of_detail) {
-		var keywords = [];
-		if (!p_data.has_result) {
-			primitives_pts.push('MISSING DATA FOR ' + p_data.character);
-			continue
-		}
-		if (p_data.usr_keyword) keywords.push(p_data.usr_keyword);
-		if (p_data.heisig_keyword5 && !keywords.includes(p_data.heisig_keyword5))
-			keywords.push(p_data.heisig_keyword5);
-		if (p_data.heisig_keyword6 && !keywords.includes(p_data.heisig_keyword6))
-			keywords.push(p_data.heisig_keyword6);
-		if (p_data.usr_primitive_keyword)
-			keywords.push(
-				'<span class="primitive_keyword">' +
-					p_data.usr_primitive_keyword +
-					'</span>',
-			);
-		for (const pk of p_data.primitive_keywords) {
-			const kw = '<span class="primitive_keyword">' + pk + '</span>';
-			if (!keywords.includes(kw)) keywords.push(kw);
-		}
-		var keywords_txt = keywords.length ? keywords.join(', ') : '-';
+	var userModifiedSecondaryPrimitives = data.mod_sec_primitives !== null
+	var sec_primitives_pts = create_primitive_section(data.secondary_primitives_detail, userModifiedSecondaryPrimitives);
+	var hasSecondaryPrimitives = sec_primitives_pts.length > 0;
+	$('#secondary_primitives').empty();
+	$('#secondary_primitives').html(
+		hasSecondaryPrimitives ? sec_primitives_pts.join('') : noResultsSpan,
+	);
 
-		var meanings_txt = p_data.meanings.length
-			? p_data.meanings.join(', ')
-			: '-';
-
-		var primitiveOfHasAlts = p_data.primitive_alternatives.length > 0
-		var new_primitive_alternatives = []
-		if (primitiveHasAlts) {
-			for (const prim_alt of p_data.primitive_alternatives) {
-				new_primitive_alternatives.push(ReplaceTagsWithImages(prim_alt))
-			}
-		}
-		primitive_alternatives_txt = primitiveHasAlts
-			? new_primitive_alternatives.join(', ')
-			: '-';
-
-		primitive_of_pts.push(
-			`<button
-				class="primitive${primitiveOfHasAlts ? ' -has-alternative' : ''}"
-				data-character="${p_data.character}"
-			>
-				${ReplaceTagsWithImages(p_data.character)}
-				<div class="primitiveDetails">
-					<div class="primitiveDetails-keywords">
-						<h3>Keywords:</h3>
-						<span>${keywords_txt}</span>
-					</div>
-					<div class="primitiveDetails-meanings">
-						<h3>Meanings:</h3>
-						<span>${meanings_txt}</span>
-					</div>
-					<div class="primitiveDetails-alternatives">
-						<h3>${primitiveOfHasAlts ? '*' : ''}Alternatives:</h3>
-						<span>${primitive_alternatives_txt}</span > </div>
-		</div>
-	</button>`,
-		);
-	}
-
+	var primitive_of_pts = create_primitive_section(data.primitive_of_detail, false);
 	var hasPrimitivesOf = primitive_of_pts.length > 0;
 	$('#primitives_of').empty();
 	$('#primitive_of').html(
@@ -8634,7 +8554,6 @@ Changes:
 	);
 
 	var kanjiHasPrimitiveAlts = data.primitive_alternatives.length > 0;
-
 	$('#primitive_of_alts').hide();
 	$('#primitive_of_alts .primitive-alternatives').empty();
 

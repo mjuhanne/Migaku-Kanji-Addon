@@ -56,6 +56,8 @@ class EditDialog(QDialog):
         lyt.addWidget(QLabel(f"Enter new {readable_name}:"))
         if multi_line:
             self.new_value_edit = QTextEdit()
+            self.new_value_edit.setAcceptRichText(False)
+            self.new_value_edit.setWordWrapMode(QTextOption.WordWrap)
             self.new_value_edit.setPlainText(previous_modified_data)
         else:
             self.new_value_edit = QLineEdit(previous_modified_data)
@@ -122,15 +124,19 @@ class EditDialog(QDialog):
                 new_value= self.new_value_edit.toPlainText()
             else:
                 new_value= self.new_value_edit.text()
+            new_value = new_value.replace('\n',' ')
+            new_value = new_value.replace('\r','')
+            new_value = new_value.strip()
             data_to_db = self.process_data_to_db(new_value)
             self.save_value_to_db(data_to_db)
             super().accept()
 
 
 class EditPrimitivesDialog(EditDialog):
-    def __init__(self, character, parent=None, max_search_results=12):
+    def __init__(self, character, parent=None, secondary_primitives=False, max_search_results=12):
         self.max_search_results = max_search_results
-        super().__init__(character, "primitives", False, parent)
+        field_name = "primitives" if not secondary_primitives else "sec_primitives"
+        super().__init__(character, field_name, False, parent)
 
     def get_edit_line_style_sheet(self):
         return 'font-size: 20px'
@@ -161,23 +167,21 @@ class EditPrimitivesDialog(EditDialog):
         )
         self.radicals_bar.set_contents(radicals)
 
-
     def process_data_from_db(self, data):
         return ''.join(data)
 
     def process_data_to_db(self, data):
         return util.custom_list(data)
 
-
     def on_primitive_selected(self, primitive):
         current_primitives = self.new_value_edit.text()
-        if primitive not in current_primitives:
-            self.new_value_edit.setText(current_primitives + primitive)
-            self.power_search_bar.clear()
+        self.new_value_edit.setText(current_primitives + primitive)
+        self.power_search_bar.clear()
 
     def on_radical_selected(self, radical):
         primitive = aqt.mw.migaku_kanji_db.search_engine.radical_to_primitive(radical)
-        self.on_primitive_selected(primitive)
+        current_primitives = self.new_value_edit.text()
+        self.new_value_edit.setText(current_primitives + primitive)
 
     def validate_input(self):
         text = self.new_value_edit.text()

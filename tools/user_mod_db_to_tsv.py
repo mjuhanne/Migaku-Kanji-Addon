@@ -7,7 +7,7 @@ import re
 # A tool to extract user modified fields and output them to a .tsv patch file
 #
 
-user_modifiable_fields = ['primitives','primitive_keywords','heisig_story','heisig_comment']
+user_modifiable_fields = ['primitives','sec_primitives','primitive_keywords','heisig_story','heisig_comment']
 
 # Creates a list of single-character Unicode kanjis and [primitive] tags
 # For example '[banner]也' -> ['\[banner\]','也'] 
@@ -50,6 +50,7 @@ requested_fields = [
     ("jlpt", _, None),
     ("kanken", _, None),
     ("primitives", custom_list, None),
+    ("sec_primitives", custom_list, None),
     ("primitive_of", custom_list, None),
     ("primitive_keywords", json.loads, None),
     ("primitive_alternatives", custom_list, None),
@@ -69,6 +70,7 @@ requested_fields = [
     ("mod_heisig_story", _, "usr.modified_values.mod_heisig_story"),
     ("mod_heisig_comment", _, "usr.modified_values.mod_heisig_comment"),
     ("mod_primitives", custom_list, "usr.modified_values.mod_primitives"),
+    ("mod_sec_primitives", custom_list, "usr.modified_values.mod_sec_primitives"),
     ("mod_primitive_keywords", json_loads_or_none, "usr.modified_values.mod_primitive_keywords"),
 ]
 

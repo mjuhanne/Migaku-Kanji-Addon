@@ -12,6 +12,54 @@ def csv_to_list(csv):
     value_list = csv.split(',')
     return [value.strip() for value in value_list]
 
+# (field_name, load_function, column)
+_ = lambda x: x
+requested_fields = [
+    ("character", _, "characters.character"),
+    #("stroke_count", _, None),
+    ("onyomi", j2c, None),
+    ("kunyomi", j2c, None),
+    ("nanori", j2c, None),
+    ("meanings", j2c, None),
+    #("frequency_rank", _, None),
+    #("grade", _, None),
+    #("jlpt", _, None),
+    #("kanken", _, None),
+    ("primitives", _, None),
+    ("sec_primitives", _, None),
+    ("primitive_of", _, None),
+    ("primitive_keywords", j2c, None),
+    ("primitive_alternatives", _, None),
+    #("heisig_id5", _, None),
+    #("heisig_id6", _, None),
+    ("heisig_keyword5", _, None),
+    ("heisig_keyword6", _, None),
+    ("heisig_story", _, None),
+    ("heisig_comment", _, None),
+    ("radicals", _, None),
+    #("words_default", _, None),
+    ("koohi_stories", j2c, None),
+    #("wk", _, None),
+    ("usr_keyword", _, "usr.keywords.usr_keyword"),
+    ("usr_primitive_keyword", _, "usr.keywords.usr_primitive_keyword"),
+    ("usr_story", _, "usr.stories.usr_story"),
+    ("mod_heisig_story", _, "usr.modified_values.mod_heisig_story"),
+    ("mod_heisig_comment", _, "usr.modified_values.mod_heisig_comment"),
+    ("mod_primitives", _, "usr.modified_values.mod_primitives"),
+    ("mod_sec_primitives", _, "usr.modified_values.mod_sec_primitives"),
+    ("mod_primitive_keywords", j2c, "usr.modified_values.mod_primitive_keywords"),
+]
+
+sql_fields = ",".join((rf[2] if rf[2] else rf[0]) for rf in requested_fields)
+
+joins = [
+    f"LEFT OUTER JOIN usr.keywords ON characters.character == usr.keywords.character ",
+    f"LEFT OUTER JOIN usr.stories ON characters.character == usr.stories.character ",
+    f"LEFT OUTER JOIN usr.modified_values ON characters.character == usr.modified_values.character ",
+]
+sql_joins_txt = "".join(joins)
+
+
 # we ignore these radicals for now because they don't have a keyword containing 
 # kanji counterpart in our database
 ignore_radicals = ['亅','屮','禸','爻','尢','无','彑','黽','鬲','鬥','齊','龠','黹','黹','鬯']
@@ -30,13 +78,29 @@ unicode_conversion_table = {
 
 # When two characters reference each other as alternatives (for example 艹 -> 艸 and 艸 -> 艹 )
 # then we want to link to the character which is the primary primitive
-primary_primitives = ['艹','扌','⻖','⻏','川','罒','冫',]
+primary_primitives = ['艹','扌','⻖','⻏','川','罒','冫','月']
 
 class SearchEngine:
 
     def __init__(self, db_cursor):
         self.crs = db_cursor
-        self.create_cache()
+        self.keyword_set_cache = dict()
+        self.keyword_cache = dict()
+        self.radical_set_cache = dict()
+        self.radical_name_set_cache = dict()
+        self.radical_name_cache = dict()
+        self.primitive_set_cache = dict()
+        self.rec_primitive_set_cache = dict()
+        self.rec_primitive_name_set_cache = dict()
+        self.rec_primitive_name_cache = dict()
+        self.reading_set_cache = dict()
+        self.reading_cache = dict()
+        self.meaning_set_cache = dict()
+        self.meaning_cache = dict()
+        self.stories_cache = dict()
+        self.primitive_alternative_cache = dict()
+
+        self.init_cache()
 
     def radical_to_primitive(self,r):
         # First do unicode conversion because some radicals in the list might use slightly
@@ -62,69 +126,57 @@ class SearchEngine:
                 found_primitives |= self.recursively_find_all_primitives(p)
         return set(found_primitives)
 
-    def create_cache(self):
+    def update_recursive_primitive_cache(self,character):
+        rec_primitive_set = self.recursively_find_all_primitives(character)
+        if len(rec_primitive_set) > 0:
+            rec_primitive_names_set = set()
+            for ps in rec_primitive_set:
+                if ps in self.keyword_set_cache:
+                    rec_primitive_names_set.update(self.keyword_set_cache[ps])
+                else:
+                    print("Note! Kanji %s references primitive %s without a keyword" % (character,ps))
 
-        # (field_name, load_function, column)
-        _ = lambda x: x
-        requested_fields = [
-            ("character", _, "characters.character"),
-            #("stroke_count", _, None),
-            ("onyomi", j2c, None),
-            ("kunyomi", j2c, None),
-            ("nanori", j2c, None),
-            ("meanings", j2c, None),
-            #("frequency_rank", _, None),
-            #("grade", _, None),
-            #("jlpt", _, None),
-            #("kanken", _, None),
-            ("primitives", _, None),
-            ("primitive_of", _, None),
-            ("primitive_keywords", j2c, None),
-            ("primitive_alternatives", _, None),
-            #("heisig_id5", _, None),
-            #("heisig_id6", _, None),
-            ("heisig_keyword5", _, None),
-            ("heisig_keyword6", _, None),
-            ("heisig_story", _, None),
-            ("heisig_comment", _, None),
-            ("radicals", _, None),
-            #("words_default", _, None),
-            ("koohi_stories", j2c, None),
-            #("wk", _, None),
-            ("usr_keyword", _, "usr.keywords.usr_keyword"),
-            ("usr_primitive_keyword", _, "usr.keywords.usr_primitive_keyword"),
-            ("usr_story", _, "usr.stories.usr_story"),
-        ]
+            rec_primitive_names = ','.join(rec_primitive_names_set)
+            self.rec_primitive_set_cache[character] = rec_primitive_set
+            self.rec_primitive_name_set_cache[character] = rec_primitive_names_set
+            self.rec_primitive_name_cache[character] = rec_primitive_names
 
-        fields = ",".join((rf[2] if rf[2] else rf[0]) for rf in requested_fields)
+    def init_cache(self):
+        self.update_cache()
 
-        joins = [
-            f"LEFT OUTER JOIN usr.keywords ON characters.character == usr.keywords.character ",
-            f"LEFT OUTER JOIN usr.stories ON characters.character == usr.stories.character ",
-        ]
-        joins_txt = "".join(joins)
+        # By iterating through a radicals list of each kanji,
+        # create a cache set of radical names and also a free text cache for partial matching
+        for c,radical_set in self.radical_set_cache.items():
+            if len(radical_set) > 0:
+                radical_names_set = set()
+                for r in radical_set:
+                    # We want to get keywords from the associated primitive
+                    r = self.radical_to_primitive(r)
+                    if r in self.keyword_set_cache:
+                        radical_names_set.update(self.keyword_set_cache[r])
+                    else:
+                        if r not in ignore_radicals:
+                            print("Note! Kanji %s has unknown radical %s" % (c,r))
+                radical_names = ','.join(radical_names_set)
+                self.radical_name_set_cache[c] = radical_names_set
+                self.radical_name_cache[c] = radical_names
 
-        self.crs.execute(
-            f"SELECT {fields} FROM characters {joins_txt} "
-        )
+        print("Search engine cache initialization complete!")
+
+    # Update cache for a character. If character is None, then update cache for all characters
+    def update_cache(self, character=None):
+
+        if character:
+            self.crs.execute(
+                f"SELECT {sql_fields} FROM characters {sql_joins_txt} WHERE characters.character=?",
+                (character,),
+            )
+        else:
+            self.crs.execute(
+                f"SELECT {sql_fields} FROM characters {sql_joins_txt} " 
+            )
 
         raw_data = self.crs.fetchall()
-
-        self.keyword_set_cache = dict()
-        self.keyword_cache = dict()
-        self.radical_set_cache = dict()
-        self.radical_name_set_cache = dict()
-        self.radical_name_cache = dict()
-        self.primitive_set_cache = dict()
-        self.rec_primitive_set_cache = dict()
-        self.rec_primitive_name_set_cache = dict()
-        self.rec_primitive_name_cache = dict()
-        self.reading_set_cache = dict()
-        self.reading_cache = dict()
-        self.meaning_set_cache = dict()
-        self.meaning_cache = dict()
-        self.stories_cache = dict()
-        self.primitive_alternative_cache = dict()
 
         if raw_data:
             for raw_row in raw_data:
@@ -143,9 +195,12 @@ class SearchEngine:
                 kw_set= set()
                 kw_set.add(d['heisig_keyword5'])
                 kw_set.add(d['heisig_keyword6'])
-                kw_set.add(d['usr_keyword'])
-                kw_set.update(csv_to_list(d['primitive_keywords']))
-                kw_set.update(csv_to_list(d['usr_primitive_keyword']))
+                kw_set.add(d['usr_keyword'].lower())
+                if d['mod_primitive_keywords']:
+                    kw_set.update(csv_to_list(d['mod_primitive_keywords'].lower()))
+                else:
+                    kw_set.update(csv_to_list(d['primitive_keywords'].lower()))
+                kw_set.update(csv_to_list(d['usr_primitive_keyword'].lower()))
                 if '' in kw_set:
                     kw_set.remove('')
                 if len(kw_set)>0:
@@ -154,8 +209,11 @@ class SearchEngine:
                     self.keyword_set_cache[c] = kw_set
 
                 # Primitives..
-                if len(d['primitives'])>0:
-                    self.primitive_set_cache[c] = set(custom_list(d['primitives']))
+                if d['mod_primitives']:
+                    self.primitive_set_cache[c] = set(custom_list(d['mod_primitives']))
+                else:
+                    if len(d['primitives'])>0:
+                        self.primitive_set_cache[c] = set(custom_list(d['primitives']))
 
                 # Radicals..                
                 if len(d['radicals'])>0:
@@ -183,16 +241,20 @@ class SearchEngine:
                     self.meaning_set_cache[c] = meaning_set
 
                 # Stories..
-                st = set([
-                    d['heisig_story'].lower(),
-                    d['heisig_comment'].lower(),
-                    d['usr_story'].lower(),
-                    d['koohi_stories'].lower(),
-                    ])
-                if '' in st:
-                    st.remove('')
-                if len(st)>0:
-                    self.stories_cache[c] = ','.join(st)
+                st = d['usr_story'].lower() + \
+                    d['koohi_stories'].lower()
+                
+                if d['mod_heisig_story']:
+                    st += d['mod_heisig_story'].lower()
+                else:
+                    st += d['heisig_story'].lower()
+
+                if d['mod_heisig_comment']:
+                    st += d['mod_heisig_comment'].lower()
+                else:
+                    st += d['heisig_comment'].lower()
+
+                self.stories_cache[c] = st
 
                 # create a reverse lookup table for primitive alternatives
                 if len(d['primitive_alternatives']) > 0:
@@ -200,43 +262,16 @@ class SearchEngine:
                     for p in prim_alt_list:
                         self.primitive_alternative_cache[p] = c
 
-
         # Recursively iterate through a primitives list of each kanji
         # (i.e. create a list of primitives the kanji uses, down to the basic building blocks)
         # With this list create a cache set of primitives, their names and also a free text cache for partial matching
-        for c in self.primitive_set_cache.keys():
-            rec_primitive_set = self.recursively_find_all_primitives(c)
-            if len(rec_primitive_set) > 0:
-                rec_primitive_names_set = set()
-                for ps in rec_primitive_set:
-                    if ps in self.keyword_set_cache:
-                        rec_primitive_names_set.update(self.keyword_set_cache[ps])
-                    else:
-                        print("Note! Kanji %s references primitive %s without a keyword" % (c,ps))
+        if not character:
+            for c in self.primitive_set_cache.keys():
+                self.update_recursive_primitive_cache(c)
+        else:
+            if character in self.primitive_set_cache.keys():
+                self.update_recursive_primitive_cache(c)
 
-                rec_primitive_names = ','.join(rec_primitive_names_set)
-                self.rec_primitive_set_cache[c] = rec_primitive_set
-                self.rec_primitive_name_set_cache[c] = rec_primitive_names_set
-                self.rec_primitive_name_cache[c] = rec_primitive_names
-
-        # By iterating through a radicals list of each kanji,
-        # create a cache set of radical names and also a free text cache for partial matching
-        for c,radical_set in self.radical_set_cache.items():
-            if len(radical_set) > 0:
-                radical_names_set = set()
-                for r in radical_set:
-                    # We want to get keywords from the associated primitive
-                    r = self.radical_to_primitive(r)
-                    if r in self.keyword_set_cache:
-                        radical_names_set.update(self.keyword_set_cache[r])
-                    else:
-                        if r not in ignore_radicals:
-                            print("Note! Kanji %s has unknown radical %s" % (c,r))
-                radical_names = ','.join(radical_names_set)
-                self.radical_name_set_cache[c] = radical_names_set
-                self.radical_name_cache[c] = radical_names
-
-        print("Search engine cache initialization complete!")
 
 
     def get_matching_characters(self, search_terms, pool, results, max_results):
