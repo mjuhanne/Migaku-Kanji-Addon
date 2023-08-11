@@ -89,9 +89,9 @@ class SearchEngine:
         self.radical_set_cache = dict()
         self.radical_name_set_cache = dict()
         self.radical_name_cache = dict()
-        self.primitive_set_cache = dict()
-        self.rec_primitive_set_cache = dict()
-        self.rec_primitive_name_set_cache = dict()
+        self.primitive_list_cache = dict()
+        self.rec_primitive_list_cache = dict()
+        self.rec_primitive_name_list_cache = dict()
         self.rec_primitive_name_cache = dict()
         self.reading_set_cache = dict()
         self.reading_cache = dict()
@@ -113,32 +113,38 @@ class SearchEngine:
         return r
 
     def recursively_find_all_primitives(self, character):
-        if character not in self.primitive_set_cache:
-            return set()
-        primitives = self.primitive_set_cache[character] or set
+        if character not in self.primitive_list_cache:
+            return [character]
+        primitives = self.primitive_list_cache[character] or list()
         if len(primitives) == 1 and character in primitives:
             # skip all the primitives that have only themselves listed as primitives
-            return set()
-        found_primitives = set(primitives)
+            return [character]
+        found_primitives = primitives.copy()
         # recursively find all primitives
         for p in primitives:
             if p != character:
-                found_primitives |= self.recursively_find_all_primitives(p)
-        return set(found_primitives)
+                new_primitives = self.recursively_find_all_primitives(p)
+                for np in new_primitives:
+                    if np not in found_primitives:
+                        found_primitives.append(np)
+        return found_primitives
 
     def update_recursive_primitive_cache(self,character):
-        rec_primitive_set = self.recursively_find_all_primitives(character)
-        if len(rec_primitive_set) > 0:
-            rec_primitive_names_set = set()
-            for ps in rec_primitive_set:
-                if ps in self.keyword_set_cache:
-                    rec_primitive_names_set.update(self.keyword_set_cache[ps])
+        rec_primitive_list = self.recursively_find_all_primitives(character)
+        if len(rec_primitive_list) > 0:
+            rec_primitive_names_list = list()
+            for p in rec_primitive_list:
+                if p in self.keyword_set_cache:
+                    kw_set = self.keyword_set_cache[p]
+                    for kw in kw_set:
+                        #if kw not in rec_primitive_names_list:
+                        rec_primitive_names_list.append(kw)
                 else:
-                    print("Note! Kanji %s references primitive %s without a keyword" % (character,ps))
+                    print("Note! Kanji %s references primitive %s without a keyword" % (character,p))
 
-            rec_primitive_names = ','.join(rec_primitive_names_set)
-            self.rec_primitive_set_cache[character] = rec_primitive_set
-            self.rec_primitive_name_set_cache[character] = rec_primitive_names_set
+            rec_primitive_names = ','.join(rec_primitive_names_list)
+            self.rec_primitive_list_cache[character] = rec_primitive_list
+            self.rec_primitive_name_list_cache[character] = rec_primitive_names_list
             self.rec_primitive_name_cache[character] = rec_primitive_names
 
     def init_cache(self):
@@ -210,10 +216,10 @@ class SearchEngine:
 
                 # Primitives..
                 if d['mod_primitives']:
-                    self.primitive_set_cache[c] = set(custom_list(d['mod_primitives']))
+                    self.primitive_list_cache[c] = custom_list(d['mod_primitives'])
                 else:
                     if len(d['primitives'])>0:
-                        self.primitive_set_cache[c] = set(custom_list(d['primitives']))
+                        self.primitive_list_cache[c] = custom_list(d['primitives'])
 
                 # Radicals..                
                 if len(d['radicals'])>0:
@@ -266,20 +272,29 @@ class SearchEngine:
         # (i.e. create a list of primitives the kanji uses, down to the basic building blocks)
         # With this list create a cache set of primitives, their names and also a free text cache for partial matching
         if not character:
-            for c in self.primitive_set_cache.keys():
+            for c in self.primitive_list_cache.keys():
                 self.update_recursive_primitive_cache(c)
         else:
-            if character in self.primitive_set_cache.keys():
+            if character in self.primitive_list_cache.keys():
                 self.update_recursive_primitive_cache(c)
 
 
 
-    def get_matching_characters(self, search_terms, pool, results, max_results):
+    def get_matching_characters(self, search_terms, pool, is_set, results, max_results):
+        for search_term,required_count in search_terms.items():
+            if is_set and required_count>1:
+                # we want more than 1 occurence but this is a set -> not found
+                return results
+
         for character, data in pool.items():
             found = True
-            for search_term in search_terms:
-                if search_term not in data and character != search_term:
-                    found = False
+            for search_term,required_count in search_terms.items():
+                if required_count>1:
+                    if data.count(search_term) < required_count:
+                        found = False
+                else:
+                    if search_term not in data and character != search_term:
+                        found = False
             if found:
                 if character not in results:
                     results.append(character)
@@ -288,10 +303,23 @@ class SearchEngine:
         return results
 
 
-    def get_matching_characters_with_scoring(self, search_terms, pool, pool_priority, kanji_scores, kanji_matches):
+    def get_matching_characters_with_scoring(self, search_terms, pool, is_set, pool_priority, kanji_scores, kanji_matches):
+        for search_term,required_count in search_terms.items():
+            if is_set and required_count>1:
+                # we want more than 1 occurence but this is a set -> not found
+                return
+
         for character, data in pool.items():
-            for search_term in search_terms:
-                if search_term in data or character == search_term:
+            for search_term, required_count in search_terms.items():
+                found = False
+                if required_count>1:
+                    if data.count(search_term) >= required_count:
+                        found = True
+                else:
+                    if search_term in data or character == search_term:
+                        found = True
+
+                if found:
                     if character in kanji_scores:
                         kanji_scores[character] += pool_priority
                         kanji_matches[character].add(search_term)
@@ -307,8 +335,8 @@ class SearchEngine:
             # Search goes through all search pools (keywords, primitive names, free text search) starting
             # from the most prioritized one
             results = []
-            for pool_priority, pool in pool_list:
-                self.get_matching_characters(search_terms, pool, results, max_results)
+            for pool_priority, pool, is_set in pool_list:
+                self.get_matching_characters(search_terms, pool, is_set, results, max_results)
                 if len(results)>=max_results:
                     return results
             return results
@@ -317,12 +345,12 @@ class SearchEngine:
             # In the case of many search terms it's a bit trickier. We want to give each kanji
             # points - the higher points the more matched search terms in high priority pools
                 
-            pool_priority = len(pool_list)
+            #pool_priority = len(pool_list)
             kanji_scores = dict()   # score for each kanji
             kanji_matches = dict() # how many search terms were matched
 
-            for pool_priority, pool in pool_list:
-                self.get_matching_characters_with_scoring(search_terms, pool, pool_priority, kanji_scores, kanji_matches)
+            for pool_priority, pool, is_set in pool_list:
+                self.get_matching_characters_with_scoring(search_terms, pool, is_set, pool_priority, kanji_scores, kanji_matches)
 
             # remove those kanjis that didn't match all the search terms
             for kanji, matched_search_terms in kanji_matches.items():
@@ -344,28 +372,49 @@ class SearchEngine:
             return []
 
         # clean up search terms
-        search_terms = search_str.split(',')
-        if '' in search_terms:
-            search_terms.remove('')
-        search_terms = [x.strip() for x in search_terms]
+        search_terms_list = search_str.split(',')
+        if '' in search_terms_list:
+            search_terms_list.remove('')
+        search_terms_list = [x.strip() for x in search_terms_list]
 
+        # check if a required occurrence multiplier for the search term is given..
+        search_terms_dict = dict()
+        for term in search_terms_list:
+            if '*' in term:
+                elements = term.split('*')
+                if len(elements)==2:
+                    try:
+                        elements = [x.strip() for x in elements]
+                        if elements[0].isdigit():
+                            search_terms_dict[elements[1]] = int(elements[0])
+                        elif elements[1].isdigit():
+                            search_terms_dict[elements[0]] = int(elements[1])
+                    except:
+                        # incomplete/invalid search term
+                        pass
+            else:
+                if term in search_terms_dict:
+                    search_terms_dict[term] += 1
+                else:
+                    search_terms_dict[term] = 1
+                
         # A list of search pools, each having a distinct priority
         priority_list = [ 
-            [30,self.keyword_set_cache],
-            [26,self.keyword_cache],
-            [20,self.rec_primitive_set_cache], 
-            [18,self.rec_primitive_name_set_cache],
-            [16,self.rec_primitive_name_cache],
-            [14,self.meaning_set_cache],
-            [12,self.meaning_cache],
-            [10,self.stories_cache],
-            [8,self.radical_set_cache],
-            [7,self.radical_name_set_cache],
-            [6,self.radical_name_cache],
-            [5,self.reading_set_cache],
-            [4,self.reading_cache],
+            [30,self.keyword_set_cache,True],
+            [26,self.keyword_cache,False],
+            [20,self.rec_primitive_list_cache,False], 
+            [18,self.rec_primitive_name_list_cache,False],
+            [16,self.rec_primitive_name_cache,False],
+            [14,self.meaning_set_cache,True],
+            [12,self.meaning_cache,False],
+            [10,self.stories_cache,False],
+            [8,self.radical_set_cache,True],
+            [7,self.radical_name_set_cache,True],
+            [6,self.radical_name_cache,False],
+            [5,self.reading_set_cache,True],
+            [4,self.reading_cache,False],
         ]
 
-        results = self.get_matching_characters_from_list_of_pools(search_terms, priority_list, max_results)
+        results = self.get_matching_characters_from_list_of_pools(search_terms_dict, priority_list, max_results)
 
         return list(results)
