@@ -167,7 +167,7 @@ class KanjiDB:
         except sqlite3.OperationalError:
             pass
 
-        self.search_engine = SearchEngine(self.crs)
+        self.search_engine = SearchEngine(self)
 
     # Close db
     def shutdown(self):

@@ -83,7 +83,6 @@ class EditDialog(QDialog):
             data = self.process_data_from_db(data)
         return data
 
-
     def get_previous_modified_data(self):
         data = aqt.mw.migaku_kanji_db.get_user_modified_field(self.character,self.item_name)
         if data is not None:
@@ -157,15 +156,15 @@ class EditPrimitivesDialog(EditDialog):
 
         lyt.addItem(QSpacerItem(20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
 
-        radicals = aqt.mw.migaku_kanji_db.get_field(self.character,"radicals")
-        lyt.addWidget(QLabel(f"Add primitives from radicals:"))
-        self.radicals_lyt = QVBoxLayout()
-        lyt.addLayout(self.radicals_lyt)
-
-        self.radicals_bar = ResultsBar( self.radicals_lyt, self.max_search_results,
-            bar_height, self.on_radical_selected, hide_empty_buttons=True
+        suggested_primitives = aqt.mw.migaku_kanji_db.search_engine.suggest_primitives(self.character, self.max_search_results)
+        lyt.addWidget(QLabel(f"Suggested primitives:"))
+        self.suggestions_lyt = QVBoxLayout()
+        lyt.addLayout(self.suggestions_lyt)
+        self.suggestions_bar = ResultsBar( self.suggestions_lyt, self.max_search_results,
+            bar_height, self.on_suggestion_selected, hide_empty_buttons=True
         )
-        self.radicals_bar.set_contents(radicals)
+        self.suggestions_bar.set_contents(suggested_primitives)
+
 
     def process_data_from_db(self, data):
         return ''.join(data)
@@ -178,10 +177,9 @@ class EditPrimitivesDialog(EditDialog):
         self.new_value_edit.setText(current_primitives + primitive)
         self.power_search_bar.clear()
 
-    def on_radical_selected(self, radical):
-        primitive = aqt.mw.migaku_kanji_db.search_engine.radical_to_primitive(radical)
+    def on_suggestion_selected(self, suggested_primitive):
         current_primitives = self.new_value_edit.text()
-        self.new_value_edit.setText(current_primitives + primitive)
+        self.new_value_edit.setText(current_primitives + suggested_primitive)
 
     def validate_input(self):
         text = self.new_value_edit.text()
