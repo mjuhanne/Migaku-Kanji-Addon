@@ -200,17 +200,6 @@ class KanjiDB:
         if character in out:
             return
 
-        # Check if card already exists for character
-        table = f"usr.{card_type.label}_card_ids"
-        self.crs.execute(
-            f"SELECT COUNT(*) FROM {table} "
-            "WHERE character == (?) AND card_id NOT NULL",
-            (character,),
-        )
-
-        if self.crs.fetchone()[0] != 0:
-            return
-
         # Get primitives. If user has modified the primitive list, then use that by default. Otherwise fall back to the standard list
         primitives = self.get_user_modified_field_or_standard(character,"primitives")
 
@@ -233,6 +222,17 @@ class KanjiDB:
 
         # Check if max characters already reached
         if max_characters >= 0 and len(out) >= max_characters:
+            return
+
+        # Check if card already exists for character
+        table = f"usr.{card_type.label}_card_ids"
+        self.crs.execute(
+            f"SELECT COUNT(*) FROM {table} "
+            "WHERE character == (?) AND card_id NOT NULL",
+            (character,),
+        )
+
+        if self.crs.fetchone()[0] != 0:
             return
 
         out.append(character)
@@ -871,6 +871,30 @@ class KanjiDB:
         if do_flush:
             note.flush()
 
+    # If the deck has cards that have now references for new primitives 
+    # which are not yet included in the stack, add them.
+    def add_missing_characters(self):
+        new_kanji_for_msg = OrderedDict()
+
+        for ct in CardType:
+            if not ct.add_primitives:
+                continue
+
+            find_filter = f'"note:{ct.model_name}"'
+            note_ids = aqt.mw.col.find_notes(find_filter)
+
+            all_characters_in_the_deck = []
+            for i, note_id in enumerate(note_ids):
+                note = aqt.mw.col.getNote(note_id)
+                c = clean_character_field(note["Character"])
+                all_characters_in_the_deck.append(c)
+
+            new_characters = self.new_characters(ct, all_characters_in_the_deck, -1)
+            new_kanji_for_msg[ct] = new_characters
+
+        if len(new_kanji_for_msg) > 0:
+            KanjiConfirmDialog.show_new_kanji(new_kanji_for_msg, aqt.mw)
+
     # Recalc everything
     def recalc_all(self, callback=None):
         if callback:
@@ -883,6 +907,8 @@ class KanjiDB:
             callback("Refreshing collection words...")
 
         self.recalc_user_words()
+
+        self.add_missing_characters()
 
         find_filter = [f'"note:{ct.model_name}"' for ct in CardType]
         note_ids = aqt.mw.col.find_notes(" OR ".join(find_filter))
