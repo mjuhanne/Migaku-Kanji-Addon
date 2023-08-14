@@ -317,7 +317,7 @@ class KanjiDB:
 
         recognized_types.append(
             {
-                "deck": "All",
+                "deck": card_type.deck_name,
                 "note": card_type.model_name,
                 "card": 0,
                 "field": "Character",
@@ -902,7 +902,7 @@ class KanjiDB:
             if not ct.add_primitives:
                 continue
 
-            find_filter = f'"note:{ct.model_name}"'
+            find_filter = f'"deck:{ct.deck_name}"'
             note_ids = aqt.mw.col.find_notes(find_filter)
 
             all_characters_in_the_deck = []
