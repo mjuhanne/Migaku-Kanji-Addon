@@ -25,6 +25,12 @@ START - Migaku kanji stylesheet
 	margin-bottom: 20px;
 }
 
+.smaller-title{
+	color: #000000;
+	font-size: 16px;
+	font-weight: 300;
+}
+
 .mobile .faded-info-msg.-hide-on-mobile {
 	display: none !important;
 }

@@ -165,7 +165,8 @@ START - Migaku markup
 									<h2
 									class="title-tooltip__title primitives-and-radicals__title"
 									>
-										<span class="editable_title" onclick="edit_item('secondary_primitives');">Secondary primitives</span>
+										<span id="secondary_primitive_title" class="editable_title" onclick="edit_item('secondary_primitives');">Secondary primitives</span>
+										<span id="secondary_primitive_add_link" class="editable_title smaller-title" style="display: none" onclick="edit_item('secondary_primitives');">Add secondary<br>primitives</span>
 										<button
 											type="button"
 											title="What's this?"
@@ -189,7 +190,7 @@ START - Migaku markup
 										If you think the default list has clear errors or missing primitives consider editing it instead.
 									</div>
 
-									<hr class="separator" />
+									<hr id="secondary_primitive_separator" class="separator" />
 								</div>
 
 								<div
@@ -8647,11 +8648,20 @@ Changes:
 			var userModifiedSecondaryPrimitives = data.mod_sec_primitives !== null
 			var sec_primitives_pts = create_primitive_section(data.secondary_primitives_detail, userModifiedSecondaryPrimitives, true);
 			var hasSecondaryPrimitives = sec_primitives_pts.length > 0;
+			sec_prim_title = document.getElementById("secondary_primitive_title")
+			sec_prim_add = document.getElementById("secondary_primitive_add_link")
+			sec_prim_sep = document.getElementById("secondary_primitive_separator")
 			$('#secondary_primitives').empty();
-			$('#secondary_primitives').html(
-				hasSecondaryPrimitives ? sec_primitives_pts.join('') : noResultsSpan,
-			);
-
+			if (hasSecondaryPrimitives) {
+				sec_prim_title.style.display = "block"
+				sec_prim_sep.style.display = "block"
+				sec_prim_add.style.display = "none"
+				$('#secondary_primitives').html(sec_primitives_pts.join(''));
+			} else {
+				sec_prim_title.style.display = "none"
+				sec_prim_add.style.display = "block"
+				sec_prim_sep.style.display = "none"
+			}
 
 			var primitive_of_pts = create_primitive_section(data.primitive_of_detail, false, false);
 			var hasPrimitivesOf = primitive_of_pts.length > 0;
