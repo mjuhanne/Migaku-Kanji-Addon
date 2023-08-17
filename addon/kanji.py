@@ -1,9 +1,9 @@
 import os
-import shutil
 import json
 import base64
 import sqlite3
 from collections import defaultdict, OrderedDict
+from threading import RLock
 
 import anki
 import aqt
@@ -85,6 +85,7 @@ class KanjiDB:
         # check_same_thread set to false to allow gui thread updating while stuff is updated
         # only one thread ever accesses the db
         self.con = sqlite3.connect(kanji_db_path, check_same_thread=False)
+        self.lock = RLock()
 
         self.crs = self.con.cursor()
         self.crs.execute("PRAGMA case_sensitive_like=OFF")
@@ -174,21 +175,52 @@ class KanjiDB:
         self.crs.close()
         self.con.close()
 
+    def crs_execute(self, __sql: str, __parameters=()):
+        self.lock.acquire(True)
+        self.crs.execute(__sql, __parameters)
+        self.lock.release()
+
+    def crs_execute_and_commit(self, __sql: str, __parameters=()):
+        self.lock.acquire(True)
+        self.crs.execute(__sql, __parameters)
+        self.con.commit()
+        self.lock.release()
+
+    def crs_executemany_and_commit(self, __sql: str, __seq_of_parameters):
+        self.lock.acquire(True)
+        self.crs.executemany(__sql, __seq_of_parameters)
+        self.con.commit()
+        self.lock.release()
+
+    def crs_execute_and_fetch_one(self, __sql: str, __parameters=()):
+        self.lock.acquire(True)
+        self.crs.execute(__sql, __parameters)
+        r = self.crs.fetchone()
+        self.lock.release()
+        return r
+
+    def crs_execute_and_fetch_all(self, __sql: str, __parameters=()):
+        self.lock.acquire(True)
+        self.crs.execute(__sql, __parameters)
+        r = self.crs.fetchall()
+        self.lock.release()
+        return r
+
     def reset(self):
         for ct in CardType:
-            self.crs.execute(f"DELETE FROM usr.{ct.label}_card_ids")
-        self.crs.execute("DELETE FROM usr.words")
-        self.crs.execute("DELETE FROM usr.keywords")
-        self.crs.execute("DELETE FROM usr.stories")
+            self.crs_execute(f"DELETE FROM usr.{ct.label}_card_ids")
+        self.crs_execute("DELETE FROM usr.words")
+        self.crs_execute("DELETE FROM usr.keywords")
+        self.crs_execute("DELETE FROM usr.stories")
 
     def reset_marked_known(self, card_type):
-        self.crs.execute(f"DELETE FROM usr.{card_type.label}_card_ids WHERE card_id=-1")
+        self.crs_execute(f"DELETE FROM usr.{card_type.label}_card_ids WHERE card_id=-1")
 
     def reset_custom_keywods(self):
-        self.crs.execute("DELETE FROM usr.keywords")
+        self.crs_execute("DELETE FROM usr.keywords")
 
     def reset_custom_stories(self):
-        self.crs.execute("DELETE FROM usr.stories")
+        self.crs_execute("DELETE FROM usr.stories")
 
     # Recursivly finds new characters given a specific character
     def _new_characters_find(self, card_type, character, out, max_characters=-1):
@@ -230,13 +262,13 @@ class KanjiDB:
 
         # Check if card already exists for character
         table = f"usr.{card_type.label}_card_ids"
-        self.crs.execute(
+        r = self.crs_execute_and_fetch_one(
             f"SELECT COUNT(*) FROM {table} "
             "WHERE character == (?) AND card_id NOT NULL",
             (character,),
         )
 
-        if self.crs.fetchone()[0] != 0:
+        if r[0] != 0:
             return
 
         out.append(character)
@@ -266,7 +298,7 @@ class KanjiDB:
         else:
             condition = f"AND {column} {condition} "
 
-        self.crs.execute(
+        r = self.crs_execute_and_fetch_all(
             "SELECT characters.character FROM characters "
             f"LEFT OUTER JOIN {table} ON characters.character == {table}.character "
             f"WHERE {table}.card_id IS NULL "
@@ -275,15 +307,16 @@ class KanjiDB:
             "LIMIT (?)",
             (max_characters,),
         )
-        candidates = [x[0] for x in self.crs.fetchall()]
+        candidates = [x[0] for x in r]
 
         return self.new_characters(card_type, candidates, max_characters)
 
     # Recalc all kanji cards created
     def recalc_user_cards(self, card_type):
+        self.lock.acquire(True)
         table = f"usr.{card_type.label}_card_ids"
 
-        self.crs.execute(
+        self.crs_execute(
             f"DELETE FROM {table} WHERE card_id >= 0"
         )  # don't nuke words manually marked known!
 
@@ -320,12 +353,11 @@ class KanjiDB:
                 character = clean_character_field(note[entry_field])
                 character_card_ids[character] = card_id
 
-        self.crs.executemany(
+        self.crs_executemany_and_commit(
             f"INSERT OR REPLACE INTO {table} (character, card_id) values (?,?)",
             character_card_ids.items(),
         )
-
-        self.con.commit()
+        self.lock.release()
 
     # Recalc user all works associated with kanji from notes
     def recalc_user_words(self):
@@ -366,7 +398,7 @@ class KanjiDB:
                     for word in words:
                         note_id_words.add((note_id, *word))
 
-        self.crs.execute("DELETE FROM usr.words")
+        self.crs_execute("DELETE FROM usr.words")
 
         insert_note_id_words = set()
         for note_id, word, reading in note_id_words:
@@ -374,12 +406,10 @@ class KanjiDB:
             insert_note_id_words.add((note_id, word, reading, is_new))
 
         # Insert new mapping
-        self.crs.executemany(
+        self.crs_executemany_and_commit(
             "INSERT INTO usr.words (note_id,word,reading,is_new) VALUES (?,?,?,?)",
             insert_note_id_words,
         )
-
-        self.con.commit()
 
     def on_note_update(self, note_id, deck_id, is_new=False):
         try:
@@ -393,7 +423,7 @@ class KanjiDB:
             return
 
         # Remove existing word entries for note
-        self.crs.execute("DELETE FROM usr.words WHERE note_id = (?)", (note_id,))
+        self.crs_execute_and_commit("DELETE FROM usr.words WHERE note_id = (?)", (note_id,))
 
         # Add words from note
         words = set()
@@ -419,7 +449,7 @@ class KanjiDB:
             field_value = note[wr_field]
             words.update(text_parser.get_cjk_words(field_value, reading=True))
 
-        self.crs.executemany(
+        self.crs_executemany_and_commit(
             "INSERT INTO usr.words (note_id,word,reading,is_new) VALUES (?,?,?,?)",
             [(note_id, w, r, is_new) for (w, r) in words],
         )
@@ -437,11 +467,10 @@ class KanjiDB:
 
             mid = ct.model_id()
             for k in kanji:
-                self.crs.execute(
+                r = self.crs_execute_and_fetch_one(
                     f"SELECT card_id FROM usr.{ct.label}_card_ids WHERE character = (?)",
                     (k,),
                 )
-                r = self.crs.fetchone()
                 if r:
                     cid = r[0]
                     try:
@@ -539,12 +568,10 @@ class KanjiDB:
     # Seen ones first, then sorted by amount of note ids.
     def get_character_words(self, character):
         character_wildcard = f"%{character}%"
-        self.crs.execute(
+        r = self.crs_execute_and_fetch_all(
             "SELECT note_id, word, reading, is_new FROM usr.words WHERE word LIKE (?)",
             (character_wildcard,),
         )
-
-        r = self.crs.fetchall()
 
         words_dict = defaultdict(list)
         words_not_new = set()
@@ -564,20 +591,18 @@ class KanjiDB:
         return word_list
 
     def set_character_usr_keyowrd(self, character, keyword, primitive_keyword):
-        self.crs.execute(
+        self.crs_execute_and_commit(
             "INSERT OR REPLACE INTO usr.keywords (character,usr_keyword,usr_primitive_keyword) VALUES (?,?,?)",
             (character, keyword, primitive_keyword),
         )
-        self.con.commit()
 
         self.refresh_notes_for_character(character)
 
     def get_character_usr_keyowrd(self, character):
-        self.crs.execute(
+        r = self.crs_execute_and_fetch_one(
             "SELECT usr_keyword, usr_primitive_keyword FROM usr.keywords WHERE character=?",
             (character,),
         )
-        r = self.crs.fetchone()
         if r:
             return (r[0], r[1])
         else:
@@ -585,18 +610,16 @@ class KanjiDB:
 
     # TODO: Also allow setting primitive keywords
     def mass_set_character_usr_keyowrd(self, character_keywords):
-        self.crs.executemany(
+        self.crs_executemany_and_commit(
             "INSERT OR REPLACE INTO usr.keywords (character,usr_keyword) VALUES (?,?)",
             character_keywords.items(),
         )
-        self.con.commit()
 
     def set_character_usr_story(self, character, story):
-        self.crs.execute(
+        self.crs_execute_and_commit(
             "INSERT OR REPLACE INTO usr.stories (character,usr_story) VALUES (?,?)",
             (character, story),
         )
-        self.con.commit()
 
         self.refresh_notes_for_character(character)
 
@@ -604,7 +627,7 @@ class KanjiDB:
     def _set_field(self, character, field_name, data):
         # non-commiting update
         data = data_to_db(field_name,data)
-        self.crs.execute(
+        self.crs_execute(
             f"UPDATE characters SET {field_name}=? WHERE character=?",
             (data,character,),
         )
@@ -614,22 +637,20 @@ class KanjiDB:
         self.con.commit()
 
     def get_character_usr_story(self, character):
-        self.crs.execute(
+        r = self.crs_execute_and_fetch_one(
             f"SELECT usr_story FROM usr.stories WHERE character=?",
             (character,),
         )
-        r = self.crs.fetchone()
         if r:
             return r[0]
         else:
             return ""
 
     def get_field(self, character, field_name):
-        self.crs.execute(
+        r = self.crs_execute_and_fetch_one(
             f"SELECT {field_name} FROM characters WHERE character=?",
             (character,),
         )
-        r = self.crs.fetchone()
         if r:
             return data_from_db(field_name,r[0])
         else:
@@ -637,24 +658,21 @@ class KanjiDB:
             return data_from_db(field_name,"")
 
     def get_field_by_other_field_value(self, field_name, field_value, result_field):
-        self.crs.execute(
+        r = self.crs_execute_and_fetch_one(
             f"SELECT {result_field} FROM characters WHERE {field_name}=?",
             (field_value,),
         )
-        r = self.crs.fetchone()
         if r:
             return data_from_db(field_name,r[0])
         else:
             return ""
 
-
     def _get_user_modified_field(self, character, field_name):
         assert field_name in user_modifiable_fields
-        self.crs.execute(
+        r = self.crs_execute_and_fetch_one(
             f"SELECT mod_{field_name} FROM usr.modified_values WHERE character=?",
             (character,),
         )
-        r = self.crs.fetchone()
         if r:
             return True, data_from_db(field_name,r[0])
         else:
@@ -672,6 +690,7 @@ class KanjiDB:
 
     def set_user_modified_field(self, character, field_name, data):
         assert field_name in user_modifiable_fields
+        self.lock.acquire(True)
         original_value = self.get_field(character,field_name)
         if (data == original_value) or (data == "" and original_value is None):
             # Let's not keep duplicate values in the user database
@@ -681,13 +700,13 @@ class KanjiDB:
         row_exists, previous_user_defined_value = self._get_user_modified_field(character, field_name)
         previous_value = original_value if previous_user_defined_value is None else previous_user_defined_value
         if row_exists:
-            self.crs.execute(
+            self.crs_execute(
                 f"UPDATE usr.modified_values SET mod_{field_name}=? WHERE character=?",
                 (modified_data,character,),
             )
         else:
             if data is not None:
-                self.crs.execute(
+                self.crs_execute(
                     f"INSERT OR REPLACE INTO usr.modified_values (character,mod_{field_name}) VALUES (?,?)",
                     (character, modified_data),
                 )
@@ -695,16 +714,16 @@ class KanjiDB:
             self._recreate_primitive_of_references(character, field_name, previous_value, data)
         self.search_engine.update_cache(character)
         self.con.commit()
+        self.lock.release()
 
         self.refresh_notes_for_character(character)
         print("Updated %s field '%s': %s -> %s" % (character, field_name, previous_value, data))
 
     def does_character_exist(self, character):
-        self.crs.execute(
+        r = self.crs_execute_and_fetch_one(
             "SELECT character FROM characters WHERE character=?",
             (character,),
         )
-        r = self.crs.fetchone()
         if r:
             return True
         return False
@@ -756,31 +775,28 @@ class KanjiDB:
 
         
     def mass_set_character_usr_story(self, character_stories):
-        self.crs.executemany(
+        self.crs_executemany_and_commit(
             "INSERT OR REPLACE INTO usr.stories (character,usr_story) VALUES (?,?)",
             character_stories.items(),
         )
-        self.con.commit()
 
     def set_character_known(self, card_type, character, known=True):
         if known == True:
-            self.crs.execute(
+            self.crs_execute_and_commit(
                 f"INSERT OR REPLACE INTO usr.{card_type.label}_card_ids (character,card_id) VALUES (?,?)",
                 (character, -1),
             )
         else:
-            self.crs.execute(
+            self.crs_execute_and_commit(
                 f"DELETE FROM usr.{card_type.label}_card_ids WHERE character == ?",
                 (character,),
             )
-        self.con.commit()
 
     def mass_set_characters_known(self, card_type, characters):
-        self.crs.executemany(
+        self.crs_executemany_and_commit(
             f"INSERT OR IGNORE INTO usr.{card_type.label}_card_ids (character,card_id) VALUES (?,?)",
             [(c, -1) for c in characters],
         )
-        self.con.commit()
 
     def refresh_notes_for_character(self, character):
         ct_find_filter = [f'"note:{ct.model_name}"' for ct in CardType]
@@ -1044,13 +1060,12 @@ class KanjiDB:
             )
         joins_txt = "".join(joins)
 
-        self.crs.execute(
+        raw_data = self.crs_execute_and_fetch_one(
             f"SELECT {fields} FROM characters {joins_txt} "
             "WHERE characters.character = (?)",
             (character,),
         )
 
-        raw_data = self.crs.fetchone()
         if raw_data:
             ret["has_result"] = True
 
