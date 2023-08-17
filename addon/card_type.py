@@ -7,7 +7,7 @@ import json
 import anki
 import aqt
 
-from .util import addon_path, col_media_path
+from .util import addon_path, col_media_path, read_web_file, read_web_file_with_includes
 from . import config
 from . import fonts
 
@@ -79,11 +79,6 @@ class CardTypeData(metaclass=CardTypeDataMeta):
 
     # Updates the associated model (aka note type)
     def upsert_model(self):
-        def web_file_data(name):
-            path = addon_path("web", name)
-            with open(path, "r", encoding="UTF-8") as file:
-                data = file.read()
-            return data
 
         # Get or create model
         model = aqt.mw.col.models.by_name(self.model_name)
@@ -101,7 +96,7 @@ class CardTypeData(metaclass=CardTypeDataMeta):
 
         # Set CSS
         font_css = fonts.card_css()
-        static_css = web_file_data("styles.css")
+        static_css = read_web_file("styles.css")
         model["css"] = font_css + "\n\n" + static_css
 
         # Get or create standard template
@@ -136,14 +131,27 @@ class CardTypeData(metaclass=CardTypeDataMeta):
             </script>
         """
 
-        common_js = "<script>" + web_file_data("common.js") + "</script>"
+        common_js = "<script>" + read_web_file("common.js") + "</script>\n\n"
+        common_back_js = "<script>" + read_web_file("common_back.js") + "</script>\n\n"
+        dmak_js = "<script>" + read_web_file("dmak.js") + "</script>\n\n"
+        raphael_js = "<script>" + read_web_file("raphael.js") + "</script>\n\n"
+        japanese_util_js = "<script>" + read_web_file("japanese-util.js") + "</script>\n\n"
 
         # Set template html
         template["qfmt"] = (
-            settings_html + "\n\n" + common_js + "\n\n" + web_file_data(f"front-{self.label}.html")
+            settings_html + "\n\n" +
+            common_js +
+            japanese_util_js +
+            read_web_file_with_includes(f"front-{self.label}.html")
         )
         template["afmt"] = (
-            settings_html + "\n\n" + common_js + "\n\n" + web_file_data(f"back-{self.label}.html")
+            settings_html + "\n\n" +
+            common_js +
+            dmak_js +
+            raphael_js +
+            japanese_util_js +
+            common_back_js +
+            read_web_file_with_includes(f"back-{self.label}.html")
         )
 
         aqt.mw.col.models.save(model)
