@@ -127,6 +127,7 @@ class CardTypeData(metaclass=CardTypeDataMeta):
             </script>
         """
 
+        common_js = "<script>" + read_web_file("common.js") + "</script>\n\n"
         common_back_js = "<script>" + read_web_file("common_back.js") + "</script>\n\n"
         dmak_js = "<script>" + read_web_file("dmak.js") + "</script>\n\n"
         raphael_js = "<script>" + read_web_file("raphael.js") + "</script>\n\n"
@@ -136,6 +137,7 @@ class CardTypeData(metaclass=CardTypeDataMeta):
         template["qfmt"] = (
             settings_html + "\n\n" +
             japanese_util_js +
+            common_js +
             read_web_file_with_includes(f"front-{self.label}.html")
         )
         template["afmt"] = (
@@ -143,6 +145,7 @@ class CardTypeData(metaclass=CardTypeDataMeta):
             dmak_js +
             raphael_js +
             japanese_util_js +
+            common_js +
             common_back_js +
             read_web_file_with_includes(f"back-{self.label}.html")
         )
