@@ -12,7 +12,7 @@ from . import reviewer
 from . import version
 from . import util
 from . import updater
-
+import debugpy
 
 import anki
 import aqt
@@ -29,6 +29,7 @@ def setup_menu():
     submenu = QMenu("Kanji", aqt.mw)
 
     lookup_action = QAction("Lookup", aqt.mw)
+    lookup_action.setShortcut(_("Ctrl+L"))
     lookup_action.triggered.connect(on_loopup)
     submenu.addAction(lookup_action)
 
@@ -45,8 +46,13 @@ def setup_menu():
     submenu.addAction(mark_known_action)
 
     recalc_action = QAction("Refresh Cards", aqt.mw)
+    recalc_action.setShortcut(_("Ctrl+R"))
     recalc_action.triggered.connect(on_recalc)
     submenu.addAction(recalc_action)
+
+    refresh_ext_stories_action = QAction("Refresh external stories", aqt.mw)
+    refresh_ext_stories_action.triggered.connect(on_refresh_ext_stories)
+    submenu.addAction(refresh_ext_stories_action)
 
     settings_action = QAction("Settings", aqt.mw)
     settings_action.setMenuRole(QAction.MenuRole.NoRole)
@@ -72,11 +78,15 @@ def on_mark_known():
     MarkKnownDialog.show_modal(parent=aqt.mw)
 
 
+def on_refresh_ext_stories():
+    aqt.mw.migaku_kanji_db.external_stories.convert_external_stories("RTKK")
+
 def on_recalc():
     class RecalcThread(QThread):
         progress_update = pyqtSignal(str)
 
         def run(self):
+            debugpy.debug_this_thread()
             aqt.mw.migaku_kanji_db.recalc_all(callback=self.on_callback)
 
         def on_callback(self, txt):

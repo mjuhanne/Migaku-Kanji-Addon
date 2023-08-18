@@ -15,6 +15,7 @@ from . import config
 from . import text_parser
 from .kanji_confirm_dialog import KanjiConfirmDialog
 from .search_engine import SearchEngine
+from .external_stories import ExternalStoryDatabase
 
 kanji_db_path = addon_path("kanji.db")
 user_db_path = user_path("user.db")
@@ -167,6 +168,7 @@ class KanjiDB:
         except sqlite3.OperationalError:
             pass
 
+        self.external_stories = ExternalStoryDatabase()
         self.search_engine = SearchEngine(self)
 
     # Close db
@@ -1070,6 +1072,9 @@ class KanjiDB:
                 ret["words"] = self.get_character_words(character)
 
             ret["is_rare"] = self.is_primitive_rare(character, card_type)
+
+            ret["external_stories"] = self.external_stories.get_external_stories(character)
+
             if detail_primitives:
                 primitives_detail = []
 

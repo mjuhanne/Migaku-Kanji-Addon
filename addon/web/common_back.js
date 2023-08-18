@@ -175,10 +175,16 @@ function create_story_section() {
         stories.push(['heisig_comment','']);
     }
 
-    koohi_story_id = 0
+    if (data.external_stories) {
+        for (const story_item of data.external_stories) {
+            stories.push([story_item.Collection, story_item.Keyword + ': ' + story_item.Story]);
+        }    
+    }
+
+    story_id = 0
     for (const ks of data.koohi_stories) {
-        stories.push([koohi_story_id.toString(), ks]);
-        koohi_story_id += 1;
+        stories.push([story_id.toString(), ks]);
+        story_id += 1;
     }
 
     story_container = document.getElementById("stories_container")
