@@ -8,7 +8,7 @@ from collections import defaultdict, OrderedDict
 import anki
 import aqt
 
-from .util import addon_path, user_path, assure_user_dir, unique_characters, custom_list, list_to_primitive_str
+from .util import addon_path, user_path, assure_user_dir, unique_characters, custom_list, list_to_primitive_str, get_proficiency_level_direction
 from .errors import InvalidStateError, InvalidDeckError
 from .card_type import CardType
 from . import config
@@ -203,11 +203,15 @@ class KanjiDB:
         # Get primitives. If user has modified the primitive list, then use that by default. Otherwise fall back to the standard list
         primitives = self.get_user_modified_field_or_standard(character,"primitives")
 
-        # Use secondary or crowd-source primitives if available and user has enabled this setting
+        # Use secondary or crowd-source primitives if available,
+        # user has enabled this setting and the referred primitive isn't rare 
+        # according to this card type settings
         if card_type.use_secondary_primitives:
             sec_primitives = self.get_user_modified_field_or_standard(character,"sec_primitives")
             if sec_primitives is not None and len(sec_primitives)>0:
-                primitives = sec_primitives
+                for p in sec_primitives:
+                    if not self.is_primitive_rare(p, card_type):
+                        primitives.append(p)
 
         if primitives is None:
             print(f"Lookup of primitive {character} failed.")
@@ -847,7 +851,14 @@ class KanjiDB:
             return
         note["Character"] = c
 
-        r = self.get_kanji_result_data(c, card_ids=False)
+        # get the card type for this note
+        model_name = note.note_type()['name']
+        card_type = None
+        for ct in CardType:
+            if ct.model_name == model_name:
+                card_type = ct
+
+        r = self.get_kanji_result_data(c, card_type=card_type, card_ids=False)
         data_json = json.dumps(r, ensure_ascii=True)
         data_json_b64_b = base64.b64encode(data_json.encode("utf-8"))
         data_json_b64 = str(data_json_b64_b, "utf-8")
@@ -927,6 +938,39 @@ class KanjiDB:
             
         self.refresh_learn_ahead()
 
+    def is_included_in_proficiency_level(self, character, proficiency_type, proficiency_level):
+        value = self.get_field(character, proficiency_type)
+        direction = get_proficiency_level_direction(proficiency_type)
+        if value is not None:
+            if value == '':
+                return False
+            if direction == "ASC":
+                if value <= proficiency_level:
+                    return True
+            else:
+                if value >= proficiency_level:
+                    return True
+        return False
+
+    # The primitive is defined rare if it's not included in target proficiency level 
+    # curriculum and if it is referenced by less than 'minimum_primitive_occurrence' 
+    # references from kanjis that match the target level
+    # (e.g. Kanken level 2 or more common)
+    def is_primitive_rare(self, character, card_type):
+                
+        proficiency_fields = card_type.target_proficiency_level.split('_')
+        proficiency_type = proficiency_fields[0]
+        proficiency_level = float(proficiency_fields[1])
+
+        if self.is_included_in_proficiency_level(character, proficiency_type, proficiency_level):
+            return False
+        count = 0
+        primitive_of = self.get_field(character,"primitive_of")
+        for p in primitive_of:
+            if self.is_included_in_proficiency_level(p, proficiency_type, proficiency_level):
+                count += 1
+        return count < card_type.minimum_primitive_occurrence
+
     def get_kanji_result_data(
         self,
         character,
@@ -936,6 +980,7 @@ class KanjiDB:
         detail_primitive_of=True,
         words=True,
         user_data=False,
+        card_type=None,
     ):
         ret = {
             "character": character,
@@ -1021,6 +1066,7 @@ class KanjiDB:
             if words:
                 ret["words"] = self.get_character_words(character)
 
+            ret["is_rare"] = self.is_primitive_rare(character, card_type)
             if detail_primitives:
                 primitives_detail = []
 
@@ -1033,6 +1079,7 @@ class KanjiDB:
                             detail_secondary_primitives=False,
                             detail_primitive_of=False,
                             words=False,
+                            card_type=card_type,
                         )
                     )
 
@@ -1050,6 +1097,7 @@ class KanjiDB:
                             detail_secondary_primitives=False,
                             detail_primitive_of=False,
                             words=False,
+                            card_type=card_type,
                         )
                     )
 
@@ -1067,6 +1115,7 @@ class KanjiDB:
                             detail_secondary_primitives=False,
                             detail_primitive_of=False,
                             words=False,
+                            card_type=card_type,
                         )
                     )
 

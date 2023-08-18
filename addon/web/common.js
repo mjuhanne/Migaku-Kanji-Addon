@@ -128,7 +128,7 @@ function toggle_story_editing(state) {
     container.className = "stories__container" + (container.edit_mode ? " edit_mode" : "")
 }
 
-function create_primitive_section(primitives_detail, user_modified_primitives) {
+function create_primitive_section(primitives_detail, user_modified_primitives, mark_rare_primitives) {
 
     var primitives_pts = [];
     for (const p_data of primitives_detail) {
@@ -165,6 +165,7 @@ function create_primitive_section(primitives_detail, user_modified_primitives) {
             : '-';
 
         var primitiveHasAlts = p_data.primitive_alternatives.length > 0
+        var isRare = p_data.is_rare && mark_rare_primitives
         var new_primitive_alternatives = []
         if (primitiveHasAlts) {
             for (const prim_alt of p_data.primitive_alternatives) {
@@ -183,7 +184,8 @@ function create_primitive_section(primitives_detail, user_modified_primitives) {
             `<button
                             class="primitive${primitiveHasAlts ? ' -has-alternative' : ''}
                             ${user_modified_primitives ? ' -user-modified' : ''}
-                            ${isIncomplete ? ' -incomplete' : ''}"
+                            ${isIncomplete ? ' -incomplete' : ''}
+                            ${isRare ? ' -is-rare' : ''}"
                             data-character="${p_data.character}"
                         >
                             ${ReplaceTagsWithImages(p_data.character)}

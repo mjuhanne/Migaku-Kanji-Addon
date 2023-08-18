@@ -8637,7 +8637,7 @@ Changes:
 			$('#nanori').html(data.nanori.length ? data.nanori.join(', ') : '-');
 
 			var userModifiedPrimitives = data.mod_primitives !== null
-			var primitives_pts = create_primitive_section(data.primitives_detail, userModifiedPrimitives);
+			var primitives_pts = create_primitive_section(data.primitives_detail, userModifiedPrimitives, true);
 			var hasPrimitives = primitives_pts.length > 0;
 			$('#primitives').empty();
 			$('#primitives').html(
@@ -8645,7 +8645,7 @@ Changes:
 			);
 
 			var userModifiedSecondaryPrimitives = data.mod_sec_primitives !== null
-			var sec_primitives_pts = create_primitive_section(data.secondary_primitives_detail, userModifiedSecondaryPrimitives);
+			var sec_primitives_pts = create_primitive_section(data.secondary_primitives_detail, userModifiedSecondaryPrimitives, true);
 			var hasSecondaryPrimitives = sec_primitives_pts.length > 0;
 			$('#secondary_primitives').empty();
 			$('#secondary_primitives').html(
@@ -8653,7 +8653,7 @@ Changes:
 			);
 
 
-			var primitive_of_pts = create_primitive_section(data.primitive_of_detail, false);
+			var primitive_of_pts = create_primitive_section(data.primitive_of_detail, false, false);
 			var hasPrimitivesOf = primitive_of_pts.length > 0;
 			$('#primitives_of').empty();
 			$('#primitive_of').html(

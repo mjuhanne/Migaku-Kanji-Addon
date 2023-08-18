@@ -2310,6 +2310,17 @@ button.primitive.-has-alternative::before {
 	top: 3px;
 }
 
+button.primitive.-is-rare::before {
+	content: '';
+	content: '#';
+	font-size: 16px;
+	line-height: 1;
+	position: absolute;
+	position: absolute;
+	right: 3px;
+	bottom: 3px;
+}
+
 @media only screen and (min-width: 36.25em) {
 	button.primitive.-has-alternative::before {
 		font-size: 20px;
