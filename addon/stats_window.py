@@ -12,7 +12,7 @@ from . import fonts
 from .card_type import CardType
 from .lookup_window import LookupWindow
 from .card_type_radio_buttons import CardTypeRadioButtons
-
+from .util import proficiency_level_options
 
 class OrderedDefaultListDict(OrderedDict):
     def __missing__(self, key):
@@ -26,15 +26,6 @@ def card_ival(card):
     if card.ivl < 0:
         return (-card.ivl) / (24 * 60 * 60)
     return card.ivl
-
-
-def format_grade(n):
-    if n > 6:
-        return "中学校"
-
-    numbers = "０１２３４５６７８９"
-    return f"小学校{numbers[n]}年"
-
 
 class WordKanjiWorker(QObject):
     finished = pyqtSignal()
@@ -69,38 +60,6 @@ class WordKanjiWorker(QObject):
 
 class StatsWindow(QDialog):
     # Label, sort column, additional filter, order, level decorator function, only show ones with existing card
-    options = [
-        ("日本語能力試験 (JLPT)", "jlpt", None, "DESC", lambda x: f"N{x}", False),
-        ("日本漢字能力検定 (Kanken)", "kanken", None, "DESC", lambda x: f"Level {x}", False),
-        ("学年 (School Year)", "grade", "grade <= 8", "ASC", format_grade, False),
-        ("常用 (Jōyō)", "frequency_rank", "grade <= 8", "ASC", None, False),
-        (
-            "人名用 (Jinmeiyō)",
-            "frequency_rank",
-            "grade >= 9 AND grade <= 10",
-            "ASC",
-            None,
-            False,
-        ),
-        (
-            "Remembering the Kanji (1st-5th edition)",
-            "heisig_id5",
-            None,
-            "ASC",
-            None,
-            False,
-        ),
-        (
-            "Remembering the Kanji (6th+ edition)",
-            "heisig_id6",
-            None,
-            "ASC",
-            None,
-            False,
-        ),
-        ("WaniKani", "wk", None, "ASC", lambda x: f"Level {x}", False),
-        ("All with Card in Collection", "frequency_rank", None, "ASC", None, True),
-    ]
 
     instance = None
 
@@ -137,7 +96,7 @@ class StatsWindow(QDialog):
         self.ct_selector.add_custom_radio_button(self.registered_btn)
 
         self.options_box = QComboBox()
-        for label, *_ in self.options:
+        for label, *_ in proficiency_level_options:
             self.options_box.addItem(label)
         options_lyt.addWidget(self.options_box)
 
@@ -279,7 +238,7 @@ class StatsWindow(QDialog):
         self.refresh()
 
     def refresh(self):
-        option = self.options[self.options_box.currentIndex()]
+        option = proficiency_level_options[self.options_box.currentIndex()]
         option_label = option[0]
         column = option[1]
         additional_filter = option[2]

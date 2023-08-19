@@ -43,6 +43,8 @@ class CardTypeData(metaclass=CardTypeDataMeta):
         "deck_name": None,
         "add_primitives": True,
         "use_secondary_primitives": False,
+        "minimum_primitive_occurrence" : 3,
+        "target_proficiency_level": "kanken_2",
         "auto_card_creation": False,
         "auto_card_creation_msg": True,
         "auto_card_refresh": False,
