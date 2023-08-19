@@ -30,6 +30,7 @@ requested_fields = [
     ("heisig_comment", _, None),
     ("radicals", _, None),
     ("heisig_id6", _, None),
+    ("stroke_count", _, None),
 ]
 
 
@@ -52,14 +53,20 @@ processed_kanji = dict()
 kanji_primitives = dict()
 kanji_id = dict()
 
+kanji_parent_candidate = dict()
+kanji_stroke_count = dict()
+
 for row in rows:
 
     c = row[0]
     p = row[3]
     p = custom_list(p)
     h_id = row[10]
+    sc = row[11]
+
     kanji_id[c] = h_id
     kanji_primitives[c] = p
+    kanji_stroke_count[c] = sc
 
 def copyfile(c, alphabet_name, parent, parent_alphabet_name, input,output):
     fo = open(output,"w",encoding="utf-8")
@@ -93,17 +100,28 @@ def check_recursively_kanjivg(c, parent,parent_alphabet_name,  parent_svg_path):
         kanji_name = c
 
     if not os.path.exists(svg_path):
-        print(c,"not found")
-        supp_svg_path = "addon/kanjivg-supplementary/" + not_found_name
-        if parent_svg_path is not None:
-            copyfile(kanji_name, alphabet_name, parent, parent_alphabet_name, parent_svg_path,supp_svg_path)
-        else:
-            print("Even parent %s of %s kanjivg not found!" % (parent,c))
-        svg_path = None
+        supp_svg_path = "addon/kanjivg-supplementary/" + svg_name
+        if not os.path.exists(supp_svg_path):
+
+            print(c,"not found")
+            supp_svg_path = "addon/kanjivg-supplementary/" + not_found_name
+            if parent_svg_path is not None:
+                if c not in kanji_parent_candidate:
+                    kanji_parent_candidate[c] = parent
+                    copyfile(kanji_name, alphabet_name, parent, parent_alphabet_name, parent_svg_path,supp_svg_path)
+                else:
+                    if kanji_stroke_count[parent] < kanji_stroke_count[kanji_parent_candidate[c]]:
+                        print("---",c,": ",parent,"is better than", kanji_parent_candidate[c])
+                        kanji_parent_candidate[c] = parent
+                        copyfile(kanji_name, alphabet_name, parent, parent_alphabet_name, parent_svg_path,supp_svg_path)
+            else:
+                print("Even parent %s of %s kanjivg not found!" % (parent,c))
+            svg_path = None
     processed_kanji[c] = c
 
     for p in kanji_primitives[c]:
-        if p not in processed_kanji:
+        #if p not in processed_kanji:
+        if p != c:
             check_recursively_kanjivg(p, c, alphabet_name, svg_path)
     
 
