@@ -2239,6 +2239,16 @@ button.primitive.-has-alternative::before {
 	}
 }
 
+button.primitive.-incomplete:hover,
+button.primitive.-incomplete:focus {
+	background: #b2b2b2 !important;
+}
+
+button.primitive.-incomplete {
+	background: #cbcbcb !important;
+	color: #363c4a !important;
+}
+
 button.radical {
 	background: #cbcbcb;
 	color: #363c4a;

@@ -19,6 +19,24 @@ from .search_engine import SearchEngine
 kanji_db_path = addon_path("kanji.db")
 user_db_path = user_path("user.db")
 
+convert_data_from_db_func = {
+    "onyomi"                    : json.loads,
+    "kunyomi"                   : json.loads,
+    "nanori"                    : json.loads,
+    "meanings"                  : json.loads,
+    "primitives"                : custom_list,
+    "primitive_of"              : custom_list,
+    "primitive_keywords"        : json.loads,
+    "primitive_alternatives"    : custom_list,
+    "words_default"             : json.loads,
+    "koohi_stories"             : json.loads,
+}
+
+def data_from_db(field_name,data):
+    if data is not None and field_name in convert_data_from_db_func:
+        f = convert_data_from_db_func[field_name]
+        return f(data)
+    return data
 
 def clean_character_field(f):
     f = f.lstrip()
@@ -83,6 +101,13 @@ class KanjiDB:
         self.con.commit()
 
         # Updates
+        try:
+            self.crs.execute(
+                'ALTER TABLE characters ADD COLUMN sec_primitives TEXT DEFAULT ""'
+            )
+            self.con.commit()
+        except sqlite3.OperationalError:
+            pass
 
         try:
             self.crs.execute(
@@ -165,15 +190,14 @@ class KanjiDB:
             return
 
         # Get primitives
-        primitives_result = self.crs_execute_and_fetch_one(
-            "SELECT primitives FROM characters " "WHERE character == (?)", (character,)
-        )
+        primitives = self.get_field(character, "primitives")
 
-        if primitives_result is None:
-            print(f"Lookup of primitive {character} failed.")
-            return
-        primitives = primitives_result[0]
-        primitives = custom_list(primitives)
+        # Add secondary or crowd-source primitives if available and user has enabled this setting
+        if card_type.use_secondary_primitives:
+            sec_primitives = self.get_field(character,"sec_primitives")
+            for p in sec_primitives:
+                if p not in primitives:
+                    primitives.append(p)
 
         # Recusivly add primitives that need to be learned if enabled
         if card_type.add_primitives:
@@ -490,6 +514,16 @@ class KanjiDB:
 
         return aqt.mw.migaku_kanji_db.new_characters(card_type, kanji)
 
+    def get_field(self, character, field_name):
+        r = self.crs_execute_and_fetch_one(
+            f"SELECT {field_name} FROM characters WHERE character=?",
+            (character,),
+        )
+        if r:
+            return data_from_db(field_name,r[0])
+        else:
+            return data_from_db(field_name, "") # return anyway a correct type
+
     # Returns a list of tuples: (word, reading, note id list, is_new)
     # Seen ones first, then sorted by amount of note ids.
     def get_character_words(self, character):
@@ -722,6 +756,7 @@ class KanjiDB:
         character,
         card_ids=True,
         detail_primitives=True,
+        detail_secondary_primitives=True,
         detail_primitive_of=True,
         words=True,
         user_data=False,
@@ -744,6 +779,7 @@ class KanjiDB:
             ("jlpt", _, None),
             ("kanken", _, None),
             ("primitives", custom_list, None),
+            ("sec_primitives", custom_list, None),
             ("primitive_of", custom_list, None),
             ("primitive_keywords", json.loads, None),
             ("primitive_alternatives", custom_list, None),
@@ -805,12 +841,30 @@ class KanjiDB:
                             pc,
                             card_ids=False,
                             detail_primitives=False,
+                            detail_secondary_primitives=False,
                             detail_primitive_of=False,
                             words=False,
                         )
                     )
 
                 ret["primitives_detail"] = primitives_detail
+
+            if detail_secondary_primitives:
+                secondary_primitives_detail = []
+
+                for pc in ret["sec_primitives"]:
+                    secondary_primitives_detail.append(
+                        self.get_kanji_result_data(
+                            pc,
+                            card_ids=False,
+                            detail_primitives=False,
+                            detail_secondary_primitives=False,
+                            detail_primitive_of=False,
+                            words=False,
+                        )
+                    )
+
+                ret["secondary_primitives_detail"] = secondary_primitives_detail
 
             if detail_primitive_of:
                 primitive_of_detail = []
@@ -821,6 +875,7 @@ class KanjiDB:
                             pc,
                             card_ids=False,
                             detail_primitives=False,
+                            detail_secondary_primitives=False,
                             detail_primitive_of=False,
                             words=False,
                         )
