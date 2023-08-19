@@ -788,9 +788,9 @@ class KanjiDB:
         )
 
     def refresh_notes_for_character(self, character):
-        ct_find_filter = [f'"note:{ct.model_name}"' for ct in CardType]
+        ct_find_filter = [f'"note:{ct.model_name}" AND "Character:{character}"' for ct in CardType]
         note_ids = aqt.mw.col.find_notes(
-            " OR ".join(ct_find_filter) + f' AND "Character:{character}"'
+            " OR ".join(ct_find_filter) 
         )
 
         for note_id in note_ids:
