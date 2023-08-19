@@ -7,7 +7,7 @@ from . import util
 from .lookup_window import LookupWindow
 from .kanji_forms_url import KANJI_FORMS_URL
 from .card_type import CardType
-
+from .edit_dialog import *
 
 class CustomKeywordsDialog(QDialog):
     def __init__(self, character, parent=None):
@@ -116,19 +116,12 @@ def handle_bridge_action(
 
     elif args[0] == "custom_story":
         character = args[1]
-        old_story = arg_from(2)
-        new_story, r = QInputDialog.getMultiLineText(
-            parent,
-            "Migaku Kanji - Set custom story",
-            f"Set custom story for {character}:",
-            text=old_story,
-        )
-        if r:
-            if not lookup_window:
+        old_or_new_suggested_story = arg_from(2)
+
+        r = EditUserStoryDialog(character, old_or_new_suggested_story, parent).exec()
+        if r == QDialog.DialogCode.Accepted:
+            if reviewer:
                 aqt.mw.requireReset()
-            aqt.mw.migaku_kanji_db.set_character_usr_story(character, new_story)
-            if not lookup_window:
-                aqt.mw.maybeReset()
             else:
                 lookup_window.refresh()
         return True
@@ -180,5 +173,37 @@ def handle_bridge_action(
             aqt.mw.app.clipboard().setText(character)
             aqt.utils.openLink(KANJI_FORMS_URL)
         return True
+
+    elif args[0] == "edit_item":
+        character = args[1]
+        item_name = args[2]
+        if reviewer:
+            aqt.mw.requireReset()
+        if item_name == "primitives" or item_name == "secondary_primitives":
+            r = EditPrimitivesDialog(character, parent, item_name == "secondary_primitives").exec()
+            if r == QDialog.DialogCode.Accepted:
+                if reviewer:
+                    aqt.mw.requireReset()
+                else:
+                    lookup_window.refresh()
+            return True
+
+        elif item_name == "primitive_keywords":
+            r = EditListTypeDialog(character, item_name, parent).exec()
+            if r == QDialog.DialogCode.Accepted:
+                if reviewer:
+                    aqt.mw.requireReset()
+                else:
+                    lookup_window.refresh()
+            return True
+
+        elif (item_name == "heisig_story") or (item_name == "heisig_comment"):
+            r = EditStringTypeDialog(character, item_name, True, parent).exec()
+            if r == QDialog.DialogCode.Accepted:
+                if reviewer:
+                    aqt.mw.requireReset()
+                else:
+                    lookup_window.refresh()
+            return True
 
     return False

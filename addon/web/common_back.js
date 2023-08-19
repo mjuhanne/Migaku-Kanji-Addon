@@ -1,7 +1,7 @@
 var dmak = null;
 var data = null;
 
-function create_primitive_section(primitives_detail, mark_rare_primitives) {
+function create_primitive_section(primitives_detail, user_modified_primitives, mark_rare_primitives) {
 
     var primitives_pts = [];
     for (const p_data of primitives_detail) {
@@ -56,6 +56,7 @@ function create_primitive_section(primitives_detail, mark_rare_primitives) {
         primitives_pts.push(
             `<button
                             class="primitive${primitiveHasAlts ? ' -has-alternative' : ''}
+                            ${user_modified_primitives ? ' -user-modified' : ''}
                             ${isIncomplete ? ' -incomplete' : ''}
                             ${isRare ? ' -is-rare' : ''}"
                             data-character="${p_data.character}"
@@ -78,6 +79,128 @@ function create_primitive_section(primitives_detail, mark_rare_primitives) {
         );
     }
     return primitives_pts;
+}
+
+
+function edit_item(item_name) {
+    pycmd(
+        'edit_item-' +
+            data.character +
+            '-' +
+            item_name 
+    );
+}
+
+function edit_story(story_id) {
+    if ( (story_id == "heisig_story") || (story_id == "heisig_comment")) {
+        edit_item(story_id);
+    } else {
+
+        if (story_id == "usr_story") {
+            set_custom_story();			
+        } else {
+            selected_koohi_story = data.koohi_stories[parseInt(story_id)];
+            // strip away the commentator
+            idx = selected_koohi_story.indexOf(':')
+            if (idx != -1) {
+                idx += 2
+                selected_koohi_story = selected_koohi_story.substring(idx)
+            }
+            pycmd(
+            'custom_story-' +
+                data.character +
+                '-' + selected_koohi_story,
+            );		
+        }
+    }
+}
+
+function update_story_section() {
+    var container = document.getElementById("stories_container");
+    stories = container.stories;
+    html_stories = '';
+
+    var hide_non_usr_story = false
+	if (settings.only_custom_stories && data.usr_story && (!container.edit_mode))
+        hide_non_usr_story = true
+
+
+    for (idx in stories) {
+        story_tuple = stories[idx];
+        var story_id = story_tuple[0]
+        var story = story_tuple[1]
+        if ((story_id == "usr_story") || !hide_non_usr_story) {
+
+            if (container.edit_mode) {
+                if ((story_id=="heisig_story") && (story=="")) {
+                    story="<b>Add Heisig story</b>";
+                }
+                if ((story_id=="heisig_comment") && (story=="")) {
+                    story="<b>Add Heisig comment</b>";
+                }
+            }
+            html_stories += `<p class="story ${container.edit_mode ? 'editable_title' : ''}" 
+                ${container.edit_mode ? 'onClick=edit_story("' + story_id + '") ' : ''}
+                story_id=${story_id}">` + story + '</p>';
+        }
+    }
+    $('#stories').html(html_stories);
+}	
+
+function create_story_section() {
+
+    var userModifiedHeisigStory = (data.mod_heisig_story !== null) || 
+    (data.mod_heisig_comment !== null)
+    $('#story_title').html(
+        `<span class="editable_title ${userModifiedHeisigStory ? ' -user-modified' : ''}" onclick="toggle_story_editing();">Stories</span>`
+    );
+
+    var stories = [];
+    if (data.usr_story) {
+        stories.push( ['usr_story',data.usr_story.split('\n').join('<br>')]);
+    }
+
+    if (data.heisig_story) {
+        var heisig_story = data.heisig_story;
+        var detagged_heisig_story = ReplaceTagsWithImages(heisig_story)
+        stories.push(['heisig_story',detagged_heisig_story]);
+    } else {
+        stories.push(['heisig_story','']);
+    }
+
+    if (data.heisig_comment) {
+        var detagged_heisig_comment = ReplaceTagsWithImages(data.heisig_comment)
+        stories.push(['heisig_comment',detagged_heisig_comment])
+    } else {
+        stories.push(['heisig_comment','']);
+    }
+
+    koohi_story_id = 0
+    for (const ks of data.koohi_stories) {
+        stories.push([koohi_story_id.toString(), ks]);
+        koohi_story_id += 1;
+    }
+
+    story_container = document.getElementById("stories_container")
+    story_container.stories = stories
+    if (!story_container.hasOwnProperty("edit_mode")) {
+        story_container.edit_mode = false
+    }
+
+    update_story_section();    
+}
+
+function toggle_story_editing(state) {
+    var container = document.getElementById("stories_container");
+
+    if (typeof state === 'boolean') {
+        container.edit_mode = state;
+        update_story_section();
+    } else {
+        container.edit_mode = !container.edit_mode;
+        update_story_section();
+    }
+    container.className = "stories__container" + (container.edit_mode ? " edit_mode" : "")
 }
 
 function toggleShow(targetId, state) {
@@ -531,25 +654,38 @@ function render_page(page_type) {
     $('#kunyomi').html(data.kunyomi.length ? data.kunyomi.join(', ') : '-');
     $('#nanori').html(data.nanori.length ? data.nanori.join(', ') : '-');
 
-    var primitives_pts = create_primitive_section(data.primitives_detail, true);
+    var userModifiedPrimitives = data.mod_primitives !== null
+    var primitives_pts = create_primitive_section(data.primitives_detail, userModifiedPrimitives, true);
 	var hasPrimitives = primitives_pts.length > 0;
 	$('#primitives').empty();
 	$('#primitives').html(
 		hasPrimitives ? primitives_pts.join('') : noResultsSpan,
 	);
 
-	var sec_primitives_pts = create_primitive_section(data.secondary_primitives_detail, true);
+    var userModifiedSecondaryPrimitives = data.mod_sec_primitives !== null
+	var sec_primitives_pts = create_primitive_section(data.secondary_primitives_detail, userModifiedSecondaryPrimitives, true);
 	var hasSecondaryPrimitives = sec_primitives_pts.length > 0;
-	sec_prim_container = document.getElementById("secondary_primitive_container")
+	sec_prim_title = document.getElementById("secondary_primitive_title")
+	sec_prim_add = document.getElementById("secondary_primitive_add_link")
+	sec_prim_sep = document.getElementById("secondary_primitive_separator")
 	$('#secondary_primitives').empty();
 	if (hasSecondaryPrimitives) {
-		sec_prim_container.style.display = "block"
+		sec_prim_title.style.display = "block"
+		sec_prim_sep.style.display = "block"
+		sec_prim_add.style.display = "none"
 		$('#secondary_primitives').html(sec_primitives_pts.join(''));
 	} else {
-        sec_prim_container.style.display = "none"
+		if (isMobileDevice) {
+			sec_prim_cont = document.getElementById("secondary_primitive_container")
+			sec_prim_cont.style.display = "none"
+		} else {
+			sec_prim_title.style.display = "none"
+			sec_prim_add.style.display = "block"
+			sec_prim_sep.style.display = "none"
+		}
 	}
 
-    var primitive_of_pts = create_primitive_section(data.primitive_of_detail, false);
+    var primitive_of_pts = create_primitive_section(data.primitive_of_detail, false, false);
     var hasPrimitivesOf = primitive_of_pts.length > 0;
 	$('#primitives_of').empty();
 	$('#primitive_of').html(
@@ -834,8 +970,9 @@ function render_page(page_type) {
                     data.usr_primitive_keyword +
                     '</span>',
             );
+        var userModifiedPrimitiveKeywords = data.mod_primitive_keywords !== null
         for (const pk of data.primitive_keywords) {
-            const kw = '<span class="primitive_keyword">' + pk + '</span>';
+            const kw = `<span class="primitive_keyword${userModifiedPrimitiveKeywords ? ' -user-modified' : ''}">` + pk + `</span>`;
             if (!keywords.includes(kw)) keywords.push(kw);
         }
     }
@@ -852,24 +989,7 @@ function render_page(page_type) {
         if (data.meanings.length) $('#meanings_front').html(meanings_txt);
     }
 
-	var stories = [];
-	if (data.usr_story) stories.push(data.usr_story.split('\n').join('<br>'));
-	if (!settings.only_custom_stories || stories.length < 1 || page_type == 'lookup') {
-        if (data.heisig_story) {
-            var heisig_story = data.heisig_story;
-            stories.push(ReplaceTagsWithImages(heisig_story));
-        }
-        if (data.heisig_comment) {
-            var detagged_heisig_comment = ReplaceTagsWithImages(data.heisig_comment)
-            if (data.heisig_story) {
-                detagged_heisig_comment = '<br><br>' + detagged_heisig_comment
-            }			
-            stories.push(detagged_heisig_comment)
-        }
-		for (const ks of data.koohi_stories) stories.push(ks);
-	}
-
-    $('#stories').html(wrap_list(stories, '<p class="story">', '</p>'));
+    create_story_section();
 
     if (page_type == "lookup") {
 
