@@ -42,6 +42,7 @@ class CardTypeData(metaclass=CardTypeDataMeta):
     config_properties = {
         "deck_name": None,
         "add_primitives": True,
+        "use_secondary_primitives": False,
         "auto_card_creation": False,
         "auto_card_creation_msg": True,
         "auto_card_refresh": False,
@@ -111,6 +112,7 @@ class CardTypeData(metaclass=CardTypeDataMeta):
         settings = {
             "show_readings_front": self.show_readings_front,
             "words_max": self.words_max,
+            "use_secondary_primitives": self.use_secondary_primitives,
             "only_custom_keywords": self.only_custom_keywords,
             "only_custom_stories": self.only_custom_stories,
             "hide_default_words": self.hide_default_words,

@@ -26,6 +26,7 @@ requested_fields = [
     #("jlpt", _, None),
     #("kanken", _, None),
     ("primitives", _, None),
+    ("sec_primitives", _, None),
     ("primitive_of", _, None),
     ("primitive_keywords", j2c, None),
     ("primitive_alternatives", _, None),
@@ -205,8 +206,13 @@ class SearchEngine:
                     self.keyword_set_cache[c] = kw_set
 
                 # Primitives..
-                if len(d['primitives'])>0:
-                    self.primitive_list_cache[c] = custom_list(d['primitives'])
+                primitives_set = set()
+                if len(d['primitives']) > 0:
+                    primitive_set = set(custom_list(d['primitives']))
+                if len(d['sec_primitives']) > 0:
+                    primitive_set |= set(custom_list(d['sec_primitives']))
+                if len(primitives_set) > 0:
+                    self.primitive_list_cache[c] = list(primitive_set)
 
                 # Radicals..                
                 if len(d['radicals'])>0:
