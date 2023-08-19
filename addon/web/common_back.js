@@ -1,7 +1,7 @@
 var dmak = null;
 var data = null;
 
-function create_primitive_section(primitives_detail) {
+function create_primitive_section(primitives_detail, mark_rare_primitives) {
 
     var primitives_pts = [];
     for (const p_data of primitives_detail) {
@@ -38,6 +38,7 @@ function create_primitive_section(primitives_detail) {
             : '-';
 
         var primitiveHasAlts = p_data.primitive_alternatives.length > 0
+        var isRare = p_data.is_rare && mark_rare_primitives        
         var new_primitive_alternatives = []
         if (primitiveHasAlts) {
             for (const prim_alt of p_data.primitive_alternatives) {
@@ -55,7 +56,8 @@ function create_primitive_section(primitives_detail) {
         primitives_pts.push(
             `<button
                             class="primitive${primitiveHasAlts ? ' -has-alternative' : ''}
-                            ${isIncomplete ? ' -incomplete' : ''}"
+                            ${isIncomplete ? ' -incomplete' : ''}
+                            ${isRare ? ' -is-rare' : ''}"
                             data-character="${p_data.character}"
                         >
                             ${ReplaceTagsWithImages(p_data.character)}
@@ -529,14 +531,14 @@ function render_page(page_type) {
     $('#kunyomi').html(data.kunyomi.length ? data.kunyomi.join(', ') : '-');
     $('#nanori').html(data.nanori.length ? data.nanori.join(', ') : '-');
 
-    var primitives_pts = create_primitive_section(data.primitives_detail);
+    var primitives_pts = create_primitive_section(data.primitives_detail, true);
 	var hasPrimitives = primitives_pts.length > 0;
 	$('#primitives').empty();
 	$('#primitives').html(
 		hasPrimitives ? primitives_pts.join('') : noResultsSpan,
 	);
 
-	var sec_primitives_pts = create_primitive_section(data.secondary_primitives_detail);
+	var sec_primitives_pts = create_primitive_section(data.secondary_primitives_detail, true);
 	var hasSecondaryPrimitives = sec_primitives_pts.length > 0;
 	sec_prim_container = document.getElementById("secondary_primitive_container")
 	$('#secondary_primitives').empty();
@@ -547,7 +549,7 @@ function render_page(page_type) {
         sec_prim_container.style.display = "none"
 	}
 
-    var primitive_of_pts = create_primitive_section(data.primitive_of_detail);
+    var primitive_of_pts = create_primitive_section(data.primitive_of_detail, false);
     var hasPrimitivesOf = primitive_of_pts.length > 0;
 	$('#primitives_of').empty();
 	$('#primitive_of').html(

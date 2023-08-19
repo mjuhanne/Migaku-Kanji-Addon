@@ -15,6 +15,54 @@ addon_id = os.path.basename(addon_dir)
 user_files_dir = os.path.join(addon_dir, "user_files")
 addon_web_base = f'/_addons/{__name__.split(".")[0]}'  # uhhh
 
+def format_grade(n):
+    if n > 6:
+        return "中学校"
+
+    numbers = "０１２３４５６７８９"
+    return f"小学校{numbers[n]}年"
+
+
+def get_proficiency_level_direction(classification):
+    for (_,c,_,direction,_,_) in proficiency_level_options:
+        if classification == c:
+            return direction
+
+proficiency_level_options = [
+    ("日本語能力試験 (JLPT)", "jlpt", None, "DESC", lambda x: f"N{x}", False),
+    ("日本漢字能力検定 (Kanken)", "kanken", None, "DESC", lambda x: f"Level {x}", False),
+    ("学年 (School Year)", "grade", "grade <= 8", "ASC", format_grade, False),
+    ("常用 (Jōyō)", "frequency_rank", "grade <= 8", "ASC", None, False),
+    (
+        "人名用 (Jinmeiyō)",
+        "frequency_rank",
+        "grade >= 9 AND grade <= 10",
+        "ASC",
+        None,
+        False,
+    ),
+    (
+        "Remembering the Kanji (1st-5th edition)",
+        "heisig_id5",
+        None,
+        "ASC",
+        None,
+        False,
+    ),
+    (
+        "Remembering the Kanji (6th+ edition)",
+        "heisig_id6",
+        None,
+        "ASC",
+        None,
+        False,
+    ),
+    ("WaniKani", "wk", None, "ASC", lambda x: f"Level {x}", False),
+    ("All with Card in Collection", "frequency_rank", None, "ASC", None, True),
+]
+
+
+
 def assure_user_dir():
     os.makedirs(user_files_dir, exist_ok=True)
 

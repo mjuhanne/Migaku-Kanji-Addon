@@ -96,6 +96,27 @@ class CardTypeSettingsWidget(QWidget):
         self.use_secondary_primitives_box.setChecked(self.card_type.use_secondary_primitives)
         lyt.addWidget(self.use_secondary_primitives_box)
 
+        cs_settings_lyt = QHBoxLayout()
+        cs_settings_lyt.addSpacing(35)
+        cs_settings_lyt.addWidget(QLabel("Only add crowdsourced primitives if they occur at least "))
+        self.cs_num_box = QSpinBox()
+        self.cs_num_box.setMinimum(1)
+        self.cs_num_box.setMaximum(5)
+        self.cs_num_box.setValue(self.card_type.minimum_primitive_occurrence)
+        cs_settings_lyt.addWidget(self.cs_num_box)
+        self.target_proficiency_level_box = QComboBox()
+        self.target_proficiency_level_box.addItem("JLPT N1 / Kanken 2 / RTK", "kanken_2")
+        self.target_proficiency_level_box.addItem("Kanken 1.5 / RTK3", "kanken_1.5")
+        self.target_proficiency_level_box.addItem("Kanken 1", "kanken_1")
+        self.target_proficiency_level_box.addItem("any", "all")
+        self.target_proficiency_level_box.setCurrentIndex(
+            self.target_proficiency_level_box.findData(self.card_type.target_proficiency_level)
+        )
+        lyt_add_with_label(
+            cs_settings_lyt, self.target_proficiency_level_box, "times at the level of"
+        )
+        lyt.addLayout(cs_settings_lyt)
+
         self.auto_card_creation_box = QCheckBox(
             'Automatically create kanji cards for unknown kanji in newly added cards (cards/fields must be setup in "Registered Fields" tab)'
         )
@@ -173,6 +194,8 @@ class CardTypeSettingsWidget(QWidget):
             self.card_type.hide_keywords = self.hide_keywords_box.isChecked()
         self.card_type.add_primitives = self.add_primitives_box.isChecked()
         self.card_type.use_secondary_primitives = self.use_secondary_primitives_box.isChecked()
+        self.card_type.minimum_primitive_occurrence = self.cs_num_box.value()
+        self.card_type.target_proficiency_level = str(self.target_proficiency_level_box.currentData())
         self.card_type.auto_card_creation = self.auto_card_creation_box.isChecked()
         self.card_type.auto_card_creation_msg = (
             self.auto_card_creation_msg_box.isChecked()
