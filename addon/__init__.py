@@ -50,6 +50,10 @@ def setup_menu():
     recalc_action.triggered.connect(on_recalc)
     submenu.addAction(recalc_action)
 
+    refresh_learn_ahead_action = QAction("Refresh learn ahead", aqt.mw)
+    refresh_learn_ahead_action.triggered.connect(on_refresh_learn_ahead)
+    submenu.addAction(refresh_learn_ahead_action)
+
     refresh_ext_stories_action = QAction("Refresh external stories", aqt.mw)
     refresh_ext_stories_action.triggered.connect(on_refresh_ext_stories)
     submenu.addAction(refresh_ext_stories_action)
@@ -123,6 +127,10 @@ def on_recalc():
     thread.finished.connect(box.accept)
     thread.progress_update.connect(box.on_progress)
     thread.start()
+
+
+def on_refresh_learn_ahead():
+    aqt.mw.migaku_kanji_db.refresh_learn_ahead()
 
 
 def on_settings():

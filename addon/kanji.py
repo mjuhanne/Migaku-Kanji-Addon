@@ -504,7 +504,12 @@ class KanjiDB:
                     continue
                 deck_id = deck["id"]
 
+                old = self.new_learn_ahead_kanji(ct, deck_id, 1000, 2)
+                old_new = self.new_learn_ahead_kanji(ct, deck_id, 500, 1)
                 new = self.new_learn_ahead_kanji(ct, deck_id, max_num)
+                print("***** NEW from old studying: ", old)
+                print("***** NEW from currently studying: ", old_new)
+                print("***** NEW from unstudied: ", new)
 
                 if len(new) < 1:
                     continue
@@ -516,9 +521,9 @@ class KanjiDB:
                     pass
 
     # checks learn ahead for a given deck
-    def new_learn_ahead_kanji(self, card_type, deck_id, max_cards):
+    def new_learn_ahead_kanji(self, card_type, deck_id, max_cards, status_type=0):
         nids = aqt.mw.col.db.all(
-            f"SELECT c.nid FROM cards as c WHERE did={deck_id} AND type=0 ORDER BY c.due AND queue>=0 LIMIT {max_cards}"
+            f"SELECT c.nid FROM cards as c WHERE did={deck_id} AND type={status_type} ORDER BY c.due AND queue>=0 LIMIT {max_cards}"
         )
 
         kanji_seen = set()
