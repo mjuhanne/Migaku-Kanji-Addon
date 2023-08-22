@@ -513,7 +513,9 @@ button.primitive:focus .kanji-addon__hover-tooltip,
 	opacity: 1;
 }
 
-.title-tooltip__container button {
+.title-tooltip__container button,
+.character-and-examples__container button,
+.keyword-and-meaning__container button {
 	-webkit-appearance: none !important;
 	-moz-appearance: none !important;
 	appearance: none !important;

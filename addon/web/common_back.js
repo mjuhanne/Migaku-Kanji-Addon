@@ -945,6 +945,11 @@ function render_page(page_type) {
         $('.word').click(word_click);
     }
 
+    // map 'keyword search button' click to clicking the <a href> defined later
+    $('.keyword_search_button').click(function () {
+        this.querySelector('a.keyword-search').click();
+    });
+
     if (page_type == "production") {        
         if (settings.hide_keywords && word_front_pts.length > 0)
             document.getElementById('keywords_front').style.display = 'none';
@@ -965,12 +970,15 @@ function render_page(page_type) {
     );
 
     var keywords = [];
+    var search_keyword = "";
     if (data.usr_keyword) keywords.push(data.usr_keyword);
     if (!settings.only_custom_keywords || keywords.length < 1 || page_type == "lookup") {
         if (data.heisig_keyword5 && !keywords.includes(data.heisig_keyword5))
             keywords.push(data.heisig_keyword5);
+            search_keyword = data.heisig_keyword5;
         if (data.heisig_keyword6 && !keywords.includes(data.heisig_keyword6))
             keywords.push(data.heisig_keyword6);
+            search_keyword = data.heisig_keyword6;
         if (data.usr_primitive_keyword)
             keywords.push(
                 '<span class="primitive_keyword">' +
@@ -981,6 +989,7 @@ function render_page(page_type) {
         for (const pk of data.primitive_keywords) {
             const kw = `<span class="primitive_keyword${userModifiedPrimitiveKeywords ? ' -user-modified' : ''}">` + pk + `</span>`;
             if (!keywords.includes(kw)) keywords.push(kw);
+            if (search_keyword == "") search_keyword = data.primitive_keywords;
         }
     }
     keywords_txt = keywords.length ? keywords.join(', ') : '-';
@@ -989,6 +998,12 @@ function render_page(page_type) {
     keywords_front_txt = keywords.length ? keywords.join(', ') : '-';
     if (page_type != "lookup") {
         $('#keywords_front').html(keywords_front_txt); }
+
+    // add keyword search link
+    if (search_keyword != null) {
+        elem = document.getElementById("keyword_search_link")
+        elem.setAttribute("href",`https://fi.m.wiktionary.org/wiki/${search_keyword}`);
+    }
 
     var meanings_txt = data.meanings.length ? data.meanings.join(', ') : '-';
     $('#meanings').html(meanings_txt);
