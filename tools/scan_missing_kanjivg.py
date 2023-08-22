@@ -31,6 +31,7 @@ requested_fields = [
     ("radicals", _, None),
     ("heisig_id6", _, None),
     ("stroke_count", _, None),
+    ("sec_primitives", _, None),
 ]
 
 
@@ -56,17 +57,36 @@ kanji_id = dict()
 kanji_parent_candidate = dict()
 kanji_stroke_count = dict()
 
+kanji_ref_count = dict()
+
 for row in rows:
 
     c = row[0]
-    p = row[3]
-    p = custom_list(p)
+    prim = row[3]
+    prim = custom_list(prim)
+    sec_p = custom_list(row[12])
     h_id = row[10]
     sc = row[11]
 
+    for p in prim:
+        if p not in kanji_ref_count:
+            kanji_ref_count[p] = 1
+        else:
+            kanji_ref_count[p] += 1
+    for p in sec_p:
+        if p not in kanji_ref_count:
+            kanji_ref_count[p] = 1
+        else:
+            kanji_ref_count[p] += 1
+
+
+
+    if c == "葉":
+        print("fsd")
     kanji_id[c] = h_id
-    kanji_primitives[c] = p
+    kanji_primitives[c] = prim + sec_p
     kanji_stroke_count[c] = sc
+
 
 def copyfile(c, alphabet_name, parent, parent_alphabet_name, input,output):
     fo = open(output,"w",encoding="utf-8")
@@ -98,6 +118,15 @@ def check_recursively_kanjivg(c, parent,parent_alphabet_name,  parent_svg_path):
         svg_path = "addon/kanjivg/" + svg_name
         alphabet_name = "%05x" % ord(c)
         kanji_name = c
+    
+
+    if c in kanji_ref_count:
+        if kanji_ref_count[c] < 3:
+            not_found_name = '_' + not_found_name
+        if kanji_ref_count[c] < 2:
+            not_found_name = '_' + not_found_name
+    else:
+        not_found_name = '_x_' + not_found_name
 
     if not os.path.exists(svg_path):
         supp_svg_path = "addon/kanjivg-supplementary/" + svg_name
