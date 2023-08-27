@@ -201,9 +201,9 @@ arg('--kanji', '-k', type=str, default="", help='Kanji')
 arg('--path', metavar='N', type=str, default="addon/kanjivg-supplementary", help='Kanji')
 args = parser.parse_args()
 
-args.path = 'migaku/addon/kanjivg-supplementary'
+#args.path = 'migaku/addon/kanjivg-supplementary'
 #args.kanji = "quarter"
-args.kanji = "ALL"
+#args.kanji = "ALL"
 
 if args.path[-1] != '/':
     args.path = args.path + '/'
