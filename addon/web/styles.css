@@ -2266,6 +2266,10 @@ button.primitive {
 	position: relative;
 }
 
+button.primitive.-is-rare {
+	background: #19519e;
+}
+
 button.primitive img {
 	filter: invert(99%) sepia(50%) saturate(2%) hue-rotate(181deg) brightness(114%) contrast(101%);
 }
@@ -2289,6 +2293,13 @@ button.primitive:active {
 .nightMode button.primitive,
 .dark button.primitive {
 	background: #f2994a;
+	color: #363c4a;
+}
+
+.ankidroid_dark_mode button.primitive.-is-rare,
+.nightMode button.primitive.-is-rare,
+.dark button.primitive.-is-rare {
+	background: #99602f;
 	color: #363c4a;
 }
 
@@ -2318,17 +2329,6 @@ button.primitive.-has-alternative::before {
 	top: 3px;
 }
 
-button.primitive.-is-rare::before {
-	content: '';
-	content: '#';
-	font-size: 16px;
-	line-height: 1;
-	position: absolute;
-	position: absolute;
-	right: 3px;
-	bottom: 3px;
-}
-
 @media only screen and (min-width: 36.25em) {
 	button.primitive.-has-alternative::before {
 		font-size: 20px;
@@ -2338,6 +2338,9 @@ button.primitive.-is-rare::before {
 button.primitive.-user-modified {
 	background: #dd6bfa;
 	color: #f7f1f6;
+}
+button.primitive.-user-modified.-is-rare {
+	background: #803e90;
 }
 
 button.primitive.-incomplete:hover,
@@ -2374,6 +2377,12 @@ button.primitive.-user-modified:focus {
 .dark button.primitive.-user-modified:hover,
 .dark button.primitive.-user-modified:focus {
 	background: #ce2cf7;
+}
+
+.ankidroid_dark_mode button.primitive.-user-modified.-is-rare,
+.nightMode button.primitive.-user-modified.-is-rare,
+.dark button.primitive.-user-modified.-is-rare {
+	background: #470756;
 }
 
 button.radical {

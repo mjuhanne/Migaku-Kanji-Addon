@@ -689,7 +689,7 @@ function render_page(page_type) {
 		}
 	}
 
-    var primitive_of_pts = create_primitive_section(data.primitive_of_detail, false, false);
+    var primitive_of_pts = create_primitive_section(data.primitive_of_detail, false, true);
     var hasPrimitivesOf = primitive_of_pts.length > 0;
 	$('#primitives_of').empty();
 	$('#primitive_of').html(
