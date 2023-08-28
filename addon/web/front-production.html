@@ -45,7 +45,7 @@ START - Migaku markup
 <!-- NOTE: Unchanged -->
 <script>
 	if (!settings.show_header) {
-		$('.migaku-header').hide();
+		document.querySelector('.migaku-header').style.display="none";
 	}
 
 	var data_b64 = document.getElementById('migaku_data').innerHTML;
@@ -97,9 +97,8 @@ START - Migaku markup
 				'</div>',
 		);
 	}
-	$('#words_front').html(
-		word_front_pts.join('').split(data.character).join('＿'),
-	);
+	document.getElementById('words_front').innerHTML =
+		word_front_pts.join('').split(data.character).join('＿');
 
 	if (settings.hide_keywords && word_front_pts.length > 0)
 		document.getElementById('keywords_front').style.display = 'none';
@@ -122,13 +121,13 @@ START - Migaku markup
 				keywords.push('<span class="primitive_keyword">' + pk + '</span>');
 		}
 	}
-	keywords_txt = keywords.length ? keywords.join(', ') : '-';
-	$('#keywords').html(keywords_txt);
+
 	if (keywords.length < 1) keywords = data.meanings;
 	keywords_front_txt = keywords.length ? keywords.join(', ') : '-';
-	$('#keywords_front').html(keywords_front_txt);
+	document.getElementById('keywords_front').innerHTML = keywords_front_txt;
 
-	if (!settings.show_readings_front) $('rt').css({ visibility: 'hidden' });
+	if (!settings.show_readings_front) document.getElementById('rt').style.display="none";
+
 </script>
 <!-- END - Addon script, Production, front -->
 
