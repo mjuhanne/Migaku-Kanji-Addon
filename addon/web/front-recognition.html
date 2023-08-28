@@ -50,7 +50,7 @@ START - Migaku markup
 <!-- NOTE: Unchanged -->
 <script>
 	if (!settings.show_header) {
-		$('.migaku-header').hide();
+		document.querySelector('.migaku-header').style.display="none";
 	}
 
 	function wrap_list(list, intro, outro) {
@@ -72,7 +72,7 @@ START - Migaku markup
 	var data_json = atob(data_b64);
 	var data = JSON.parse(data_json);
 
-	$('.keyword-kanji').html(data.character);
+	document.querySelectorAll('.keyword-kanji').forEach(node => node.innerHTML = data.character);
 
 	var max_words = settings.words_max;
 	var word_front_pts = [];
@@ -118,9 +118,9 @@ START - Migaku markup
 				'</div>',
 		);
 	}
-	$('#words_front').html(word_front_pts.join(''));
+	document.getElementById('words_front').innerHTML = word_front_pts.join('');
 
-	if (!settings.show_readings_front) $('rt').css({ visibility: 'hidden' });
+	if (!settings.show_readings_front) document.getElementById('rt').style.display="none";
 </script>
 <!-- END - Addon script, Recognition, front -->
 
