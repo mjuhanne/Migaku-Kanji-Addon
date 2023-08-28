@@ -1,9 +1,9 @@
 from collections import namedtuple, OrderedDict, defaultdict
 
 import anki
-
 import aqt
 from aqt.qt import *
+from time import process_time
 
 from . import util
 from . import config
@@ -364,7 +364,10 @@ class StatsWindow(QDialog):
 
                 if kanji[0] == "[":
                     img = kanji[1:-1]
-                    path = util.addon_web_uri('primitives','%s.svg' % img)
+
+                    rnd = str(int(process_time()*100))
+                    
+                    path = util.addon_web_uri('primitives','%s.svg?%s' % (img,rnd))
                     kanji = f'<img src="{path}">'
                 entry_pts.append(f'<span class="kanji {class_}">' + kanji + "</span>")
 

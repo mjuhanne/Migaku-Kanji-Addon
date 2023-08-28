@@ -730,6 +730,7 @@ Changes:
 		}
 
 		xhr.open('GET', this.uri + code + '.svg', true);
+		xhr.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
 		xhr.secondary_uri = this.secondary_uri
 		xhr.onreadystatechange = function () {
 			if (xhr.readyState === 4) {
@@ -742,6 +743,7 @@ Changes:
 				} else {
 					if ( (xhr.status === 404) && (xhr.secondary_uri != '') ) {
 						xhr.open('GET', xhr.secondary_uri + code + '.svg', true);
+						xhr.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
 						xhr.secondary_uri = '';
 						xhr.send();
 					} else {

@@ -1,8 +1,9 @@
 function ReplaceTagsWithImages(src, img_uri=primitives_uri) {
     if (src.includes('[')) {
         // replace [tag] with image link to tag.svg, but skip strike counts (such as [3])
+        rnd = performance.now()
         const reg =  /\[([a-zA-Z\-_]+)\]/g
-        return src.replace(reg, '<' + 'img src="' + img_uri + '$1.svg">');
+        return src.replace(reg, '<' + 'img src="' + img_uri + '$1.svg?' + rnd + '">');
     }
     return src;
 }
