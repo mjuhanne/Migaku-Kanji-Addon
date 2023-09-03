@@ -1,0 +1,232 @@
+Kanji	Field	OldValue	NewValue
+帰	sec_primitives		[spear]帚
+落	sec_primitives		[seaweed]各
+正	heisig_comment	Editor's note: Please compare also to 正 (kanji for 'correct') and mending ([mending])	Editor's note: Please compare also to 疋 (critters) and [mending] (mending)
+数	sec_primitives		娄攵
+買	heisig_comment		Editor's note: With enough <i>money</i> you can <b>buy</b> anything on <i>internet</i>
+寝	sec_primitives		宀丬[french_maid]
+飛	primitives	乙升丶	乙丶丶升乙丶丶
+飛	sec_primitives		乙丶丶丨人乙丶丶
+飛	heisig_comment		Editor's comment: Alternative set of primitives to keep the stroke order correct.
+遠	sec_primitives		袁辶
+半	primitives	半	小十
+壊	sec_primitives		土[hacker]衣
+壊	heisig_comment		Editor's note: Evil <i>hacker</i> appropriately wearing black <i>garments</i> while hacking away and causing <b>demolition</b> and destruction. In internet there are no borders - no <i>land</i> is safe!
+満	sec_primitives		[seaweed]両
+園	sec_primitives		囗袁
+派	sec_primitives		水𠂢
+派	heisig_comment	Editor's note: You can use the non-Heisig <i>bifurcate</i> primitive instead of <i>rags</i> and <i>drag</i>	
+迎	sec_primitives		卬辶
+髪	sec_primitives		髟友
+論	sec_primitives		言侖
+襲	sec_primitives		龍衣
+博	primitives	十専丶尃	十専丶
+博	sec_primitives		十尃
+聴	sec_primitives		耳[hacker]心
+聴	heisig_comment		Editor's note: <i>Hackers</i> often don't use their wetware ears for <b>listening</b>, but instead use passive reconnaisance techniques (<b>listening</b> to network traffic and social media feed) before engaging in more active tactics of catfishing (exploiting emotions and trying to win their victims <i>hearts</i>)
+紹	heisig_comment		Editor's note: You'd need to pull few <i>strings</i> to get <b>introduced</b> to <i>Queen Elisabeth</i>
+輪	sec_primitives		車侖
+隣	sec_primitives		⻖粦
+徳	sec_primitives		彳[hacker]心
+徳	heisig_comment		Editor's note: Not all <i>hackers</i> are evil. There is long <i>line</i> of <b>benevolent</b> <i>hackers</i> with good <i>hearts</i> fighting for the blue team.
+診	sec_primitives		言㐱
+侵	sec_primitives		人[french_maid]
+掃	sec_primitives		扌帚
+延	primitives	正廴	丶止廴
+脈	sec_primitives		肉𠂢
+珍	sec_primitives		王㐱
+薄	sec_primitives		[seaweed]尃
+抑	sec_primitives		扌卬
+懐	sec_primitives		心[hacker]衣
+懐	heisig_comment		Editor's note: <i>Data</i> has been trying to <b>pocket</b> his nostalgic feelings towards the famous 18th century hacker (Sherlock Holmes) but every now and then he just can't stop himself putting on the old-fashioned detective <i>garments</i> and take out the wooden pipe from his <b>breast pocket</b>.
+仰	sec_primitives		人卬
+哀	sec_primitives		亠袁
+哀	heisig_comment		Editor's note: Story for the secondary primitives: Isn't there anything more pathetic than a <i>samurai</i> who has left his profession and instead of <i>kimono</i> wears now a <i>top hat</i>? (= 'kimono' - 'samurai' + 'top hat')
+猿	sec_primitives		犬袁
+倫	sec_primitives		人侖
+浸	sec_primitives		水[french_maid]
+漠	sec_primitives		[seaweed]旲
+憐	sec_primitives		心粦
+騙	sec_primitives		馬扁
+藻	sec_primitives		[seaweed]品木
+藻	heisig_comment		Editor's note: Even though it's an unofficial primitive, the primitive of <b>seaweed</b> [seaweed] matches up quite nicely with this complete kanji.  The <b>seaweed</b> are <i>goods</i> that are hang out to dry from a <i>tree</i> during the manufacturing process. Whether that actually happens is irrelevant.
+蒲	sec_primitives		[seaweed]甫
+楼	sec_primitives		木娄
+藩	sec_primitives		[seaweed]番
+蕩	sec_primitives		[seaweed]昜
+甫	sec_primitives		弋肉
+甫	heisig_comment	This character, none other than the element we learned as dog tag, is a nickname for a male child. It is used chiefly in personal names. [7]	This character, none other than the element we learned as dog tag, is a nickname for a male child. It is used chiefly in personal names. [7]  Editor's note: Story for alternative primitives: If you get hit by an explosive <i>arrow</i> to your <i>flesh</i> during combat, <b>dog tag</b> becomes handy (from the point of view of your relatives..)
+扁	primitive_keywords		Jehova's Witnesses
+扁	heisig_story		Jehovah's Witnesses (扁) go from door to door (戸) giving out their magazines (冊).
+扁	heisig_comment		Editor's note: This is a crowd-sourced non-Heisig primitive.
+袁	primitive_keywords		long kimono
+袁	heisig_comment		This is a crowdsourced non-Heisig primitive. Use the kanji according to its original meaning.
+轅	primitives		車袁
+潾	primitives		水粦
+撛	primitives		扌粦
+斴	primitives		粦斤
+祲	primitives		示[french_maid]
+梫	primitives		木[french_maid]
+綅	primitives		糸[french_maid]
+璘	primitives		王粦
+橉	primitives		木桀
+娄	primitives		米女
+娄	primitive_keywords		constellation
+娄	heisig_story		The stars of the <b>constellation</b> are like <i>grains of rice</i>, forming the shape of a <i>woman</i> in the sky.
+娄	heisig_comment		Editor's note: This is a crowdsourced non-Heisig primitive.
+葠	primitives		艹人[french_maid]
+旲	primitives		日大
+駸	primitives		馬[french_maid]
+蝼	primitives		虫娄
+寢	primitives		宀丬[french_maid]
+寖	primitives		宀水[french_maid]
+侖	primitive_keywords		Comic-Con
+侖	heisig_story	-	Meeting.. Scrapbook..
+侖	heisig_comment	Editors' note: Non-Heisig keyword	Editors' note: This is a crowd-sourced Non-Heisig primitive
+鏻	primitives		金粦
+卬	primitive_keywords		parcel
+卬	heisig_story		<i>Box</i> and <i>stamp</i> are conveniently combined into <b>parcel</b>
+卬	heisig_comment		Editor's note: This is a crowd-sourced non-Heisig primitive
+瘘	primitives		疒娄
+𥻘	primitives		粦川
+鋟	primitives		金[french_maid]
+粦	primitive_keywords	shoeshine	shoeshine, Tom Cruise
+粦	heisig_comment	This combination of elements has already been learned from the character 隣 (1.1311). The assignation of the primitive meaning is almost entirely arbitrary.	This combination of elements has already been learned from the character 隣 (1.1311). The assignation of the primitive meaning is almost entirely arbitrary.  Editor's note: Crowdsourcing tells us that we should rename this primitive as <b>Tom Cruise</b> (the <i>American</i> with the <i>sunglasses</i>
+瞵	primitives		目粦
+匚	primitive_keywords	box, hook	box
+遴	primitives		粦辶
+鮼	primitives		魚[french_maid]
+僯	primitives		人粦
+磷	primitives		石粦
+驎	primitives		馬粦
+帚	heisig_comment		This is a crowdsourced non-Heisig primitive. Its elements <i>broom</i> and <i>apron</i> paints a scenery of an efficient <b>house maid</b>, working diligently to keep the house clean and owners well fed. Let's keep this primitive separate from the similarly themed 'french maid' [french_maid] which has more sultry connotations.
+[silage]	primitives		一一丨丨一丨
+[quarter]	primitives		半
+[condor]	sec_primitives		爪干山
+㐱	heisig_comment		This is a crowd-sourced Heisig primitive.
+亏	primitives		一丂
+亏	radicals		一勹
+亏	primitive_keywords		deficiency
+修	sec_primitives		攸彡
+庫	heisig_comment		Editor's comment: Note the kanji with similar keyword: 蔵 (storehouse)
+蔵	sec_primitives		茂臣
+蔵	heisig_comment		Editor's comment: Note the kanji with similar keyword: 庫 (warehouse)
+系	primitive_keywords	yam	yarn
+誇	sec_primitives		言夸
+謀	heisig_comment		Editor's note:  Who could be in a better position to <b>conspire</b> or <b>cheat</b> than <i>Mr X</i>? His unremarkable features let him slip by unnoticed and whatever he <i>says</i> will be forgotten quickly.
+悠	sec_primitives		攸心
+篠	sec_primitives		竹攸木
+某	primitive_keywords		Mr X
+某	heisig_comment		Editor's comment: Since <b>so-and-so</b> is so hard to use as a primitive, let's assign this kanji a more memorable keyword: <b>Mr X</b>.  Imagine a very generic looking person, an ubiquitous John Smith, in a bland grey suit. His body is sort of like a <i>tree</i> trunk and head like a <i>wicker basket</i>.
+脩	sec_primitives		攸肉
+攸	primitives		人丨攵
+攸	primitive_keywords		yoda
+攸	heisig_story		<b>Yoda</b> (攸) is a <i>Jedi</i> (亻) with a <i>walking stick</i> (|) that trains other <i>Jedis</i> (亻), and so he can be as harsh as a <i>taskmaster</i> (攵) sometimes. The real meaning of 攸 is "calm, at ease", a meaning that really fits <b>Yoda</b> as he's a defender of the light side of the force, which makes you feel that way!
+攸	heisig_comment		This is a crowd-sourced non-Heisig primitive.
+儵	primitives		攸黒
+雩	sec_primitives		雨亏
+咢	sec_primitives		口口亏
+筱	primitives		竹攸
+冘	primitive_keywords	crown tied around leg of person.	crown tied around leg of person, garter
+冘	heisig_comment		Editor's comment:  Crowd-sourced primitive <b>garter</b>: a band worn around the <i>leg</i> to keep up a stocking or sock.
+夸	sec_primitives		大亏
+莜	primitives		艹攸
+巩	primitive_keywords		noob
+巩	heisig_story		A <b>noob</b> (newbie) as a beginner is very <i>mediocre</i> in his <i>craft</i> at best
+巩	heisig_comment		This is a crowd-sourced non-Heisig primitive.
+臤	primitive_keywords		wise
+臤	heisig_story		A <b>wise</b> man is not a <i>slave</i> to his <i>crotch</i>
+臤	heisig_comment		Editor's note: A crowd-sourced non-Heisig primitive
+滌	sec_primitives		水攸木
+[seaweed]	primitives		艹水
+[french_maid]	primitives		ヨ冖又
+[hacker]	primitives		十罒
+無	sec_primitives	[oaken_tub]	
+高	heisig_comment	As a primitive, this character keeps its sense of <i>tall</i> and its position at the top of other primitives, but its writing is abbreviated to the first 5 strokes.	As a primitive, this character keeps its sense of <i>tall</i> and its position at the top of other primitives, but its writing is abbreviated to the first 5 strokes ([tall]).
+満	heisig_story	<i>Water</i> . . . <i>flowers</i> . . . <i>both</i>. Given the abstract nature of this last primitive, you may want to borrow the image from the previous frame.	<i>Water</i> . . . <i>flowers</i> . . . <i>both</i>.
+熱	sec_primitives		坴丸火
+雄	sec_primitives		厷隹
+勢	sec_primitives		坴丸力
+衣	heisig_comment	Used as a primitive, the additional meaning of a <i>cloak</i> will come in handy. What has to be noted particularly are the changes in shape the kanji can undergo when it becomes an element in other kanji. In fact, it is the most volatile of all the kanji we shall treat, and for that reason deserves special attention here. When it appears to the left, it looks like a hiragana ne (ネ) with an extra drop on the right (衤), and we shall take it to mean <i>cloak</i>.  On rare occasions, the element can be torn right across the middle, with the first 2 strokes appearing at the top and the last 4 at the bottom of another primitive or cluster of primitive, in which cases we shall speak of a <i>top hat and scarf</i>. And finally, of course, it can keep its original kanji shape, along with its original meaning of <i>garment</i> in general. 	Used as a primitive, the additional meaning of a <i>cloak</i> will come in handy. What has to be noted particularly are the changes in shape the kanji can undergo when it becomes an element in other kanji. In fact, it is the most volatile of all the kanji we shall treat, and for that reason deserves special attention here. When it appears to the left, it looks like a hiragana ne (ネ) with an extra drop on the right (衤), and we shall take it to mean <i>cloak</i>.  On rare occasions, the element can be torn right across the middle, with the first 2 strokes appearing at the top and the last 4 at the bottom of another primitive or cluster of primitive, in which cases we shall speak of a <i>top hat and scarf</i>([top_hat_and_scarf]). And finally, of course, it can keep its original kanji shape, along with its original meaning of <i>garment</i> in general.
+陸	sec_primitives		⻖坴
+暇	primitives	日[staples]口又匚	日口[staples]又匚
+編	sec_primitives		糸扁
+召	primitive_keywords		Queen Elisabeth
+召	heisig_comment	The primitive meaning remains the same: <i>seduce</i>. Just be sure to associate it with a very concrete image.  Editor's note: The primary meaning of this kanji has no sexual connotations but is usually used for respectful forms of various activities (eating, drinking, wearing) instead. For this reason let's associate it with late <b>Queen Elisabeth</b> as she would certainly have been addressed with these polite forms (this association will come handy in few later stories).. Queen doesn't need a <i>sword</i> - she only needs to open her <i>mouth</i> and things will happen!	The primitive meaning remains the same: <i>seduce</i>. Just be sure to associate it with a very concrete image.  Editor's note: The primary meaning of this kanji has no sexual connotations but is usually used for respectful forms of various activities (eating, drinking, wearing) instead. For this reason let's associate it with late <b>Queen Elisabeth</b> as she would certainly have been addressed with these polite forms (this association will come handy in later stories).. Queen doesn't need a <i>sword</i> for coercing - she only needs to open her <i>mouth</i> and things will happen!
+凶	primitive_keywords	vilain	
+縫	sec_primitives	糸夆	糸逢
+偏	sec_primitives		人扁
+陵	sec_primitives		⻖夌
+睦	sec_primitives		目坴
+吏	sec_primitives		一史
+遍	sec_primitives		人扁
+稜	sec_primitives		禾夌
+愕	primitives		心咢
+蝙	primitives		虫扁
+菱	sec_primitives		艹夌
+篇	sec_primitives		竹扁
+囁	sec_primitives		口聶
+藝	sec_primitives	蓺云	艹坴丸云
+廛	sec_primitives		广田坴
+夆	primitive_keywords		pointy
+夆	heisig_comment	This is a non-Heisig primitive. For inspiration how to name it, see the related Koohi stories for those kanjis that are using this.	This is a crowd-sourced non-Heisig primitive.
+斒	primitives		亠乂扁
+厷	primitive_keywords		Superman Pose
+厷	heisig_story		<i>By one's side</i> and <i>elbow</i> combines into a classic <b>Superman Pose</b>. Think of the George Reeve's <b>Superman Pose</b> for a mental image.
+厷	heisig_comment		This is a crowd-sourced non-Heisig primitive.
+糄	primitives		米扁
+咢	primitive_keywords		crocodile
+咢	heisig_story		This looks like a pictograph of an <b>crocodile</b> with its two eyes (the <i>mouths</i>), and one <i>snare</i> mouth waiting the unaware fishes to go inside.  In fact its mouth is so large that there will definitely be no <i>deficiency 亏</i> of tasty prey.
+咢	heisig_comment		This is a crowd-sourced non-Heisig primitive.  The full kanji for <b>alligator/crocodile</b> is 鰐
+坴	primitives		圥土
+坴	primitive_keywords		Mushroom Kingdom
+坴	heisig_story		<i>Mushroom</i> (original meaning of kanji 圥) and <i>land</i> (土) makes a <b>Mushroom Kingdom</b> (the primary setting of Super Mario franchise)
+坴	heisig_comment		This is a crowd-sourced non-Heisig primitive
+褊	primitives		衤扁
+朿	primitives		木冂
+諞	primitives		言扁
+夌	primitive_keywords		Goomba
+夌	heisig_story		<i>Mushroom</i> (original meaning of kanji 圥) and <i>walking legs</i> (夂) combine to make a <b>goomba</b> (the Shiitake mushroom shaped character with walking legs which serves as the run-of-the-mill enemy in the Super Mario franchise).
+咠	primitive_keywords		murmur
+咠	heisig_story		<i>Mouth</i> <b>murmuring</b> low, quiet noise near ones <i>ear</i>
+咠	heisig_comment		This is a non-Heisig primitive.  Notice the resemblance with <i>whisper</i> (囁)
+弗	heisig_story	Composed of two walking <i>stick</i>s running through a <i>bow</i>, this character is infrequent as a primitive, and yet easy to remember for what it looks like (which is also what the Japanese adopted it to mean in days gone by): the <b>dollar sign</b>, $. When it is written under another element, the first vertical stroke is abbreviated to a short "tail" as the final stroke, and the second vertical stroke is cut off at the top. Examples follow in FRAMEs 1239 and 1240. [5]	Composed of two walking <i>stick</i>s running through a <i>bow</i>, this character is infrequent as a primitive, and yet easy to remember for what it looks like (which is also what the Japanese adopted it to mean in days gone by): the <b>dollar sign</b>, $. When it is written under another element, the first vertical stroke is abbreviated to a short "tail" as the final stroke, and the second vertical stroke is cut off at the top ([dollar_sign-below]). [5]
+聶	primitives		耳耳耳
+莿	primitives	艹朿刀	艹刺
+[receipt]	heisig_story	This primitive element is actually the mirror-image of that for stamp, but since Japanese does not permit a stroke to go to the left and bottom in one swoop, the visual similarity is not perfectly clear. If you play with the idea with pen and paper, its logic will become obvious. [3]	This primitive element is actually the mirror-image of that for stamp, but since Japanese does not permit a stroke to go to the left and bottom in one swoop, the visual similarity is not perfectly clear. If you play with the idea with pen and paper, its logic will become obvious. When the primitive is situated to the left or sandwiched between two elements it is cramped a bit ([receipt-left])  [3]
+㐱	heisig_story		<b>Parasol</b> has the same <i>shape</i> as an <i>umbrella</i>.
+[seaweed]	primitive_keywords		seaweed
+[seaweed]	heisig_story		water..  flowers.. This combination insinuates the common ingredient of Japanese cuisine - the seaweed.
+[seaweed]	heisig_comment		This is a crowdsourced non-Heisig primitive.
+[french_maid]	primitive_keywords		french maid
+[french_maid]	heisig_story		<i>broom</i>... <i>crown</i>... <i>crotch</i>..
+[french_maid]	heisig_comment		This is a crowdsourced non-Heisig primitive.  Compare this to the 'house maid' 帚 primitive which has less sultry connotations.
+[hacker]	primitive_keywords		hacker
+[hacker]	heisig_story		Needle.. Net..  A world class <b>hacker</b>, sharp as a <i>needle</i> and traversing the <i>internet</i>, either wreaking havoc or solving problems for the benefit of the mankind.
+[hacker]	heisig_comment		This is a crowdsourced non-Heisig primitive. Try to imagine someone from Top <i>ten</i> list of FBI's most wanted <i>net</i> criminals, like late Kevin Mitnick for example.
+失	primitives	丶丿夫	丶夫
+命	sec_primitives		亼叩
+離	sec_primitives		离隹
+保	sec_primitives		人呆
+風	sec_primitives		几䖝
+瞬	sec_primitives		目舜
+属	primitives	尸丿丶虫冂	尸䖝冂
+煙	sec_primitives		火垔
+融	sec_primitives		鬲虫
+隔	primitives	⻖一口儿冂丁	⻖一口冂儿丁
+隔	sec_primitives		⻖鬲
+県	heisig_comment		Editor's comment: Some <i>small</i> <b>prefectures</b> are so boring that while visiting there the most dangerous thing that could happen to you would be getting a <i>fish hook</i> stuck into your <i>eye</i> while fishing.
+朱	primitives	丿丶未	丶未
+麟	heisig_comment	The camelopard is a motley-colored mythical creature from China with the body of a deer, the tail of a cow, and the crest and claws of abird.	The camelopard is a motley-colored mythical creature from China with the body of a deer, the tail of a cow, and the crest and claws of a bird.
+甄	primitives		垔瓦
+擒	primitives		扌禽
+鬲	primitives		一口冂儿丁
+鬲	primitive_keywords		old camera
+鬲	heisig_story		<b>Old camera</b>: From the subject's point of view, the light is captured by one (一) mouth (口)  (the lens). The photographer is under a big hood (冂), we only see his legs (儿), and he is holding a spike (丅) in his right hand, which is the shutter release. This goes quite well with the original meaning of the kanji (<b>tripod</b>), which is the way how old cameras are usually erected.
+鬲	heisig_comment		This is a crowd-sourced non-Heisig primitive
+垔	primitive_keywords		mound
+鬻	primitives		弓米弓鬲
+獻	primitives		虎鬲犬
+膈	primitives		肉鬲
+离	primitive_keywords	sheik	sheik, detacho
+离	heisig_comment	This element is already familiar from the character 離 (1.1492). The reason the element for elbow requires 3 strokes instead of the usual 2 is that the combination of elements 髏 is actually a radical classically defined as having 5 strokes.	This element is already familiar from the character 離 (1.1492). The reason the element for elbow requires 3 strokes instead of the usual 2 is that the combination of elements 禸 is actually a radical classically defined as having 5 strokes. Editor's note: Crowd-sourced <b>detacho</b> primitive story: <b>Detacho</b> (离), the comic top-hat (亠) wearing villain (凶)  who is able to detach his body parts for use as weapons. His most powerful weapons are his elbows (厶), which he can detach, tie together with his belt (冂) and use as detachable boomerang (禸)

@@ -1,0 +1,30 @@
+<svg height="109" viewbox="0 0 109 109" width="109" xmlns="http://www.w3.org/2000/svg">
+	<g id="kvg:StrokePaths_05f55" style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;" xmlns:kvg="http://kanjivg.tagaini.net">
+		<g id="kvg:05f55" kvg:element="录">
+			<g id="kvg:05f55-g1" kvg:position="left">
+				<g id="kvg:05f55-g2" kvg:element="⺕" kvg:original="彑" kvg:variant="true">
+					<path d="M32,19.8c2.83,0.75,4.67,0.65,7.57,0.5c9.46-0.5,23-2.75,29.3-3c4.09-0.16,6.84,1.24,6.31,3.75c-1.58,7.5-3.16,11.2-4.42,21" id="kvg:05f55-s1" kvg:type="㇕"></path>
+					<path d="M32.7,31.3c2.21,0.12,3.95,0.99,6.36,0.75C49.3,31,61.9,30.5,72.8,30" id="kvg:05f55-s2" kvg:type="㇐c"></path>
+					<path d="M22.3,44.6c1.6,0.21,6.38,0.32,8.28,0.21c17.5-1.03,35.4-2.67,51.4-3.08c2.54-0.07,7.97,0,9.88,0.21" id="kvg:05f55-s3" kvg:type="㇐c"></path>
+				</g>
+				<g id="kvg:05f55-g3" kvg:element="氺" kvg:original="水" kvg:variant="true">
+					<path d="M55.8,46.8c0.13,0.48,1.68,2.49,1.81,5.52c0.576,14.6-0.374,33.2-0.374,38.1c0,10.8-8.22,2-10.4,0.75" id="kvg:05f55-s4" kvg:type="㇚"></path>
+					<path d="M28,55.8c4.58,1.41,11.8,5.8,13,8" id="kvg:05f55-s5" kvg:type="㇔"></path>
+					<path d="M20.8,83.1c2.88,0.9,5.59,0.86,7.85-0.55c1.34-0.84,9.91-6.77,15.6-10.8" id="kvg:05f55-s6" kvg:type="㇀"></path>
+					<path d="M83.1,52.1c0.0432,0.28,0.0864,0.73-0.072,1.14c-0.95,2.41-6.42,7.7-13.9,10.9" id="kvg:05f55-s7" kvg:type="㇒"></path>
+					<path d="M67.3,70.8c6.11,2.1,15.7,8.83,19.9,14.5" id="kvg:05f55-s8" kvg:type="㇔/㇏"></path>
+				</g>
+			</g>
+		</g>
+	</g>
+	<g id="kvg:StrokeNumbers_05f55" style="font-size:8;fill:#808080" xmlns:kvg="http://kanjivg.tagaini.net">
+		<text transform="matrix(1 0 0 1 23 19.5)">1</text>
+		<text transform="matrix(1 0 0 1 23 32.5)">2</text>
+		<text transform="matrix(1 0 0 1 11.5 46.5)">3</text>
+		<text transform="matrix(1 0 0 1 46 53.5)">4</text>
+		<text transform="matrix(1 0 0 1 17.2 57.5)">5</text>
+		<text transform="matrix(1 0 0 1 11.5 83.5)">6</text>
+		<text transform="matrix(1 0 0 1 71.8 52.5)">7</text>
+		<text transform="matrix(1 0 0 1 64.8 80.5)">8</text>
+	</g>
+</svg>
