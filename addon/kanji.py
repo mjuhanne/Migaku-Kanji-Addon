@@ -17,6 +17,52 @@ from .kanji_confirm_dialog import KanjiConfirmDialog
 from .search_engine import SearchEngine
 from .external_stories import ExternalStoryDatabase
 
+from aqt.operations import CollectionOp, OpChanges
+
+def add_notes_blocking(col, notes, deck_id, checkpoint):
+    from . import add_note_no_hook
+
+    print("**** Adding %d notes to checkpoint %s" % (len(notes), checkpoint))
+    pos = col.add_custom_undo_entry(checkpoint)
+
+    for note in notes:
+        add_note_no_hook(col, note, deck_id)
+
+    return col.merge_undo_entries(pos)
+
+def add_notes_op(*, notes, deck_id, checkpoint) -> CollectionOp[OpChanges]:
+    return CollectionOp(aqt.mw, 
+        lambda col, notes=notes,deck_id=deck_id,checkpoint=checkpoint: 
+            add_notes_blocking(col, notes, deck_id, checkpoint)
+    )
+
+
+def add_notes(notes, deck_id, checkpoint, success_func):
+
+    if checkpoint is None:
+        checkpoint = 'dummy_checkpoint'
+
+    # Current Anki undo queue has maximum length of 30 changes and
+    # will break if attempt is made to merge more changes into single checkpoint.
+    # For this reason we have to create additional checkpoints for every 30 notes added
+    maximum_notes_per_checkpoint = 29
+    notes_per_checkpoint = [ notes[i:i + maximum_notes_per_checkpoint] 
+        for i in range(0, len(notes), maximum_notes_per_checkpoint)
+    ]
+
+    checkpoint_number = 0
+    for notes_in_checkpoint in notes_per_checkpoint:
+        checkpoint_name = checkpoint + '_' + str(checkpoint_number+1)
+        print("Creating checkpoint %s" % checkpoint_name)
+
+        op = add_notes_op(notes=notes_in_checkpoint, deck_id=deck_id, checkpoint=checkpoint_name )
+        if checkpoint_number == len(notes_per_checkpoint)-1:
+            # run success_func only after last batch (checkpoint) is processed
+            op.success(success_func)
+        op.run_in_background()
+        checkpoint_number += 1
+
+
 kanji_db_path = addon_path("kanji.db")
 user_db_path = user_path("user.db")
 
@@ -303,6 +349,7 @@ class KanjiDB:
 
     # Recalc all kanji cards created
     def recalc_user_cards(self, card_type):
+        print("Recalc user cards: %s" % card_type.label)
         table = f"usr.{card_type.label}_card_ids"
 
         self.crs_execute(
@@ -507,6 +554,7 @@ class KanjiDB:
                 old = self.new_learn_ahead_kanji(ct, deck_id, 1000, 2)
                 old_new = self.new_learn_ahead_kanji(ct, deck_id, 500, 1)
                 new = self.new_learn_ahead_kanji(ct, deck_id, max_num)
+                print("***** Card type %s Deck: %s *****" % (ct.label,deck_name))
                 print("***** NEW from old studying: ", old)
                 print("***** NEW from currently studying: ", old_new)
                 print("***** NEW from unstudied: ", new)
@@ -822,8 +870,8 @@ class KanjiDB:
 
         return note
 
+        
     def make_cards_from_characters(self, card_type, new_characters, checkpoint=None):
-        from . import add_note_no_hook
 
         # Just to be sure...
         self.recalc_user_cards(card_type)
@@ -837,19 +885,18 @@ class KanjiDB:
         if deck is None:
             raise InvalidDeckError(card_type)
 
-        if checkpoint is not None:
-            aqt.mw.checkpoint(checkpoint)
-
         deck_id = deck["id"]
         model = aqt.mw.col.models.by_name(model_name)
+
+        new_notes = []
 
         for c in characters:
             note = anki.notes.Note(aqt.mw.col, model)
             note["Character"] = c
             self.refresh_note(note)
-            add_note_no_hook(aqt.mw.col, note, deck_id)
+            new_notes.append(note)
 
-        self.recalc_user_cards(card_type)
+        add_notes(new_notes, deck_id, checkpoint,lambda result : self.recalc_user_cards(card_type) )
 
     def refresh_note(self, note, do_flush=False):
         c = clean_character_field(note["Character"])
