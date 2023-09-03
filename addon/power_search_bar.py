@@ -1,7 +1,7 @@
 from . import util
 import aqt
 from aqt.qt import *
-
+from .card_type import CardType
 
 class ResultsBar():
 
@@ -18,6 +18,8 @@ class ResultsBar():
         self.buttons_lyt.setSpacing(3)
         self.buttons_lyt.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.buttons = []
+        self.card_type = CardType['Recognition']
+
 
         if aqt.theme.theme_manager.night_mode:
             btn_style_sheet = \
@@ -52,17 +54,44 @@ class ResultsBar():
 
 
     def set_contents(self, contents):
+        btn_style_sheet = \
+            "font-size: 20px;" \
+            "border-style: ridge;" \
+            "border-width: 2px;" \
+            "border-radius: 6px;" \
+            "padding: 2px;"
         idx = 0
         for r in contents:
             if idx < self.max_results:
                 btn = self.buttons[idx]
                 btn.setVisible(True)
+
+                if aqt.mw.migaku_kanji_db.is_primitive_rare(r, self.card_type):
+                    if aqt.theme.theme_manager.night_mode:
+                        style = btn_style_sheet + \
+                            "color: #e9e9e9;" \
+                            "background-color: #252525;" 
+                    else:
+                        style = btn_style_sheet + \
+                            "color: #202020;" \
+                            "background-color: #c9c9c9;"
+                else:
+                    if aqt.theme.theme_manager.night_mode:
+                        style = btn_style_sheet + \
+                            "color: #e9e9e9;" \
+                            "background-color: #454545;" 
+                    else:
+                        style = btn_style_sheet + \
+                            "color: #202020;" \
+                            "background-color: #e9e9e9;"
+                
+                btn.setStyleSheet(style)
                 if r[0] == '[':
                     # [primitive] tag -> convert to image
                     img = r[1:-1]
                     path = util.addon_path('primitives','%s.svg' % img)
                     btn.setText('')
-                    icon_size = int(self.button_size*0.8)
+                    icon_size = int(self.button_size*1)
                     icon = QIcon(path)
                     btn.setIcon(icon)
                     btn.setIconSize(QSize(icon_size,icon_size))
@@ -74,8 +103,18 @@ class ResultsBar():
                 idx += 1
         for i in range(idx,self.max_results):
             # clear/hide rest of the buttons
+            if aqt.theme.theme_manager.night_mode:
+                style = btn_style_sheet + \
+                    "color: #e9e9e9;" \
+                    "background-color: #454545;" 
+            else:
+                style = btn_style_sheet + \
+                    "color: #202020;" \
+                    "background-color: #e9e9e9;"
+
             btn = self.buttons[i]
             btn.character = None
+            btn.setStyleSheet(style)
             if self.hide_empty_buttons:
                 btn.setVisible(False)
             else:
