@@ -83,7 +83,8 @@ def on_mark_known():
 
 
 def on_refresh_ext_stories():
-    aqt.mw.migaku_kanji_db.external_stories.convert_external_stories("RTKK")
+    aqt.mw.migaku_kanji_db.external_stories.convert_external_stories("RRTK")
+    aqt.mw.migaku_kanji_db.external_stories.convert_external_stories("WK")
 
 def on_recalc():
     class RecalcThread(QThread):
@@ -204,7 +205,6 @@ aqt.gui_hooks.browser_menus_did_init.append(setup_browser_menu)
 
 
 add_note_no_hook = anki.collection.Collection.add_note
-
 
 def add_note(col, note, deck_id):
     r = add_note_no_hook(col, note, deck_id)

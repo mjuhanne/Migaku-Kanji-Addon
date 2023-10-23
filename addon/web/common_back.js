@@ -5,7 +5,8 @@ function create_primitive_section(primitives_detail, user_modified_primitives, m
 
     var primitives_pts = [];
     for (const p_data of primitives_detail) {
-        var keywords = [];
+        let keywords = [];
+        let raw_keywords = [];
         if (!p_data.has_result) {
             primitives_pts.push('MISSING DATA FOR ' + p_data.character);
             continue
@@ -14,13 +15,17 @@ function create_primitive_section(primitives_detail, user_modified_primitives, m
         if (
             p_data.heisig_keyword5 &&
             !keywords.includes(p_data.heisig_keyword5)
-        )
+        ) {
             keywords.push(p_data.heisig_keyword5);
+            raw_keywords.push(p_data.heisig_keyword5);
+        }
         if (
             p_data.heisig_keyword6 &&
             !keywords.includes(p_data.heisig_keyword6)
-        )
+        ) {
             keywords.push(p_data.heisig_keyword6);
+            raw_keywords.push(p_data.heisig_keyword6);
+        }
         if (p_data.usr_primitive_keyword)
             keywords.push(
                 '<span class="primitive_keyword">' +
@@ -31,6 +36,14 @@ function create_primitive_section(primitives_detail, user_modified_primitives, m
             const kw = '<span class="primitive_keyword">' + pk + '</span>';
             if (!keywords.includes(kw)) keywords.push(kw);
         }
+        for (let [collection,col_keywords] of Object.entries(p_data.external_keywords)) {
+            for (const pk of col_keywords) {
+                let conflict = p_data.external_conflicted_keywords[collection].includes(pk) ? 'conflicted_keyword' : '';
+                const kw = `<span class="primitive_keyword ${collection} ${conflict}">` + pk + `</span>`;
+                if (!raw_keywords.includes(pk)) keywords.push(kw);
+            }
+        }
+
         var keywords_txt = keywords.length ? keywords.join(', ') : '-';
 
         var meanings_txt = p_data.meanings.length
@@ -139,6 +152,13 @@ function update_story_section() {
                     story="<b>Add Heisig comment</b>";
                 }
             }
+            if (story_id == 'WK' || story_id == 'RRTK') {
+                story = '<b>' + story_id + ':</b> ' + story
+            } else {
+                if (story_id == 'WR') {
+                    story = '<b>WK reading:</b> ' + story
+                }
+            }
             html_stories += `<p class="story ${container.edit_mode ? 'editable_title' : ''}" 
                 ${container.edit_mode ? 'onClick=edit_story("' + story_id + '") ' : ''}
                 story_id=${story_id}">` + story + '</p>';
@@ -177,7 +197,7 @@ function create_story_section() {
 
     if (data.external_stories) {
         for (const story_item of data.external_stories) {
-            stories.push([story_item.Collection, story_item.Keyword + ': ' + story_item.Story]);
+            stories.push([story_item.Collection, story_item.Keywords + ': ' + story_item.Story]);
         }    
     }
 
@@ -689,6 +709,23 @@ function render_page(page_type) {
 		}
 	}
 
+	wk_prim = document.getElementById("wk_primitives")
+    wk_prim_cont = document.getElementById("wk_primitive_container")
+	//wk_prim_title = document.getElementById("wk_primitive_title")
+	//wk_prim_sep = document.getElementById("wk_primitive_separator")
+    if ("wk_primitives_detail" in data) {
+        var wk_primitives_pts = create_primitive_section(data.wk_primitives_detail, false, true);
+        $('#wk_primitives').empty();
+		//wk_prim_title.style.display = "block"
+		//wk_prim_sep.style.display = "block"
+        wk_prim.style.display = "block"
+        wk_prim_cont.style.display = "block"
+		$('#wk_primitives').html(wk_primitives_pts.join(''));
+    } else {
+        wk_prim_cont.style.display = "none"
+        wk_prim.style.display = "none"
+	}
+
     var primitive_of_pts = create_primitive_section(data.primitive_of_detail, false, true);
     var hasPrimitivesOf = primitive_of_pts.length > 0;
 	$('#primitives_of').empty();
@@ -967,14 +1004,17 @@ function render_page(page_type) {
     );
 
     var keywords = [];
+    var raw_keywords = [];
     var search_keyword = "";
     if (data.usr_keyword) keywords.push(data.usr_keyword);
     if (!settings.only_custom_keywords || keywords.length < 1 || page_type == "lookup") {
         if (data.heisig_keyword5 && !keywords.includes(data.heisig_keyword5))
             keywords.push(data.heisig_keyword5);
+            raw_keywords.push(data.heisig_keyword5);
             search_keyword = data.heisig_keyword5;
         if (data.heisig_keyword6 && !keywords.includes(data.heisig_keyword6))
             keywords.push(data.heisig_keyword6);
+            raw_keywords.push(data.heisig_keyword5);
             search_keyword = data.heisig_keyword6;
         if (data.usr_primitive_keyword)
             keywords.push(
@@ -985,8 +1025,15 @@ function render_page(page_type) {
         var userModifiedPrimitiveKeywords = data.mod_primitive_keywords !== null
         for (const pk of data.primitive_keywords) {
             const kw = `<span class="primitive_keyword${userModifiedPrimitiveKeywords ? ' -user-modified' : ''}">` + pk + `</span>`;
-            if (!keywords.includes(kw)) keywords.push(kw);
+            if (!raw_keywords.includes(pk)) keywords.push(kw);
             if (search_keyword == "") search_keyword = data.primitive_keywords;
+        }
+        for (let [collection,col_keywords] of Object.entries(data.external_keywords)) {
+            for (const pk of col_keywords) {
+                let conflict = data.external_conflicted_keywords[collection].includes(pk) ? 'conflicted_keyword' : '';
+                const kw = `<span class="primitive_keyword ${collection} ${conflict}">` + pk + `</span>`;
+                if (!raw_keywords.includes(pk)) keywords.push(kw);
+            }
         }
     }
     keywords_txt = keywords.length ? keywords.join(', ') : '-';

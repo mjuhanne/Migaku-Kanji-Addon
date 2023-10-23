@@ -115,7 +115,41 @@
 					id="secondary_primitives"
 					class="primitives-and-radicals__list kanji-char-font"
 				>
+				</div>
+
+				<div id="wk_primitive_container" class="title-tooltip__container">
+					<h2
+					class="title-tooltip__title primitives-and-radicals__title"
+					>
+						<span id="wk_primitive_title">Wanikani primitives</span>
+						<button
+							type="button"
+							title="What's this?"
+							aria-controls="tooltip-id--primtives__title"
+							onclick="toggleShow('tooltip-id--wk_primtives__title')"
+						>
+							<img src="_kanji_icon_help_black.svg" alt="" />
+						</button>
+					</h2>
+
+					<div
+						id="tooltip-id--wk_primtives__title"
+						class="title-tooltip__text"
+						style="display: none"
+						aria-expanded="false"
+					>
+						Primitive list from Wanikani.
+					</div>
+
+					<hr id="wk_primitive_separator" class="separator" />
+				</div>
+
+				<div
+					id="wk_primitives"
+					class="primitives-and-radicals__list kanji-char-font"
+				>
 				</div>				
+
 			</div>
 			<div class="primitives-and-radicals__block">
 				<div class="title-tooltip__container">

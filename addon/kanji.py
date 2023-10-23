@@ -214,7 +214,7 @@ class KanjiDB:
         except sqlite3.OperationalError:
             pass
 
-        self.external_stories = ExternalStoryDatabase()
+        self.external_stories = ExternalStoryDatabase(self)
         self.search_engine = SearchEngine(self)
 
     # Close db
@@ -559,14 +559,19 @@ class KanjiDB:
                 print("***** NEW from currently studying: ", old_new)
                 print("***** NEW from unstudied: ", new)
 
-                if len(new) < 1:
-                    continue
+                if len(old) > 0:
+                    try:
+                        self.make_cards_from_characters(ct, old, None)
+                    except InvalidStateError:
+                        # Ignore this silently...
+                        pass
 
-                try:
-                    self.make_cards_from_characters(ct, new, None)
-                except InvalidStateError:
-                    # Ignore this silently...
-                    pass
+                if len(new) > 0:
+                    try:
+                        self.make_cards_from_characters(ct, new, None)
+                    except InvalidStateError:
+                        # Ignore this silently...
+                        pass
 
     # checks learn ahead for a given deck
     def new_learn_ahead_kanji(self, card_type, deck_id, max_cards, status_type=0):
@@ -1122,6 +1127,10 @@ class KanjiDB:
             ret["is_rare"] = self.is_primitive_rare(character, card_type)
 
             ret["external_stories"] = self.external_stories.get_external_stories(character)
+            ret["external_components"] = self.external_stories.get_external_components(character)
+            ext_keywords, conflicted_keywords = self.external_stories.get_external_keywords(character)
+            ret["external_keywords"] = ext_keywords
+            ret["external_conflicted_keywords"] = conflicted_keywords
 
             if detail_primitives:
                 primitives_detail = []
@@ -1140,6 +1149,27 @@ class KanjiDB:
                     )
 
                 ret["primitives_detail"] = primitives_detail
+
+                for collection, components in ret['external_components'].items():
+
+                    if len(components)>0:
+                        primitives_detail = []
+
+                        for pc in components:
+                            primitives_detail.append(
+                                self.get_kanji_result_data(
+                                    pc,
+                                    card_ids=False,
+                                    detail_primitives=False,
+                                    detail_secondary_primitives=False,
+                                    detail_primitive_of=False,
+                                    words=False,
+                                    card_type=card_type,
+                                )
+                            )
+
+                        ret[collection.lower() + "_primitives_detail"] = primitives_detail
+
 
             if detail_secondary_primitives:
                 secondary_primitives_detail = []
