@@ -551,20 +551,8 @@ class KanjiDB:
                     continue
                 deck_id = deck["id"]
 
-                old = self.new_learn_ahead_kanji(ct, deck_id, 1000, 2)
-                old_new = self.new_learn_ahead_kanji(ct, deck_id, 500, 1)
                 new = self.new_learn_ahead_kanji(ct, deck_id, max_num)
-                print("***** Card type %s Deck: %s *****" % (ct.label,deck_name))
-                print("***** NEW from old studying: ", old)
-                print("***** NEW from currently studying: ", old_new)
-                print("***** NEW from unstudied: ", new)
-
-                if len(old) > 0:
-                    try:
-                        self.make_cards_from_characters(ct, old, None)
-                    except InvalidStateError:
-                        # Ignore this silently...
-                        pass
+                print("***** Card type %s Deck: %s - New from unstudied: %s *****" % (ct.label,deck_name,new))
 
                 if len(new) > 0:
                     try:
@@ -573,16 +561,54 @@ class KanjiDB:
                         # Ignore this silently...
                         pass
 
+    def scan_for_missing_kanji(self, callback=None):
+
+        missing_characters_per_card_type = OrderedDict()
+        for ct in CardType:
+            missing_characters = []
+            for e in config.get("card_type_learn_ahead", {}).get(ct.label, []):
+                deck_name = e["deck"]
+                max_num = e["num"]
+
+                deck = aqt.mw.col.decks.by_name(deck_name)
+                if deck is None:
+                    continue
+                deck_id = deck["id"]
+
+                missing_characters_for_this_deck = self.new_learn_ahead_kanji(ct, deck_id, -1, 2, callback=callback)
+                for c in missing_characters_for_this_deck:
+                    if c not in missing_characters:
+                        missing_characters.append(c)
+
+            if len(missing_characters) > 0:
+                missing_characters_per_card_type[ct] = missing_characters
+
+        if len(missing_characters_per_card_type) > 0:
+            KanjiConfirmDialog.show_new_kanji(missing_characters_per_card_type, aqt.mw)
+
+
     # checks learn ahead for a given deck
-    def new_learn_ahead_kanji(self, card_type, deck_id, max_cards, status_type=0):
-        nids = aqt.mw.col.db.all(
-            f"SELECT c.nid FROM cards as c WHERE did={deck_id} AND type={status_type} ORDER BY c.due AND queue>=0 LIMIT {max_cards}"
-        )
+    # status_type:  
+    #   0: New card. Applies to suspended or non-suspended cards
+    #   1: Learning, but due date not yet assigned (?)
+    #   2: Normal learning.
+    def new_learn_ahead_kanji(self, card_type, deck_id, max_cards, status_type=0, callback=None):
+        if max_cards >= 0:
+            nids = aqt.mw.col.db.all(
+                f"SELECT c.nid FROM cards as c WHERE did={deck_id} AND type={status_type} ORDER BY c.due AND queue>=0 LIMIT {max_cards}"
+            )
+        else:
+            # this will scan entire deck for missing kanji (actually only max 1000 cards with nearest due date)
+            nids = aqt.mw.col.db.all(
+                f"SELECT c.nid FROM cards as c WHERE did={deck_id} AND type={status_type} ORDER BY c.due AND queue>=0"
+            )
 
         kanji_seen = set()
         kanji = []  # to preserve order
 
-        for [nid] in nids:
+        num_notes = len(nids)
+            
+        for i, [nid] in enumerate(nids):
             note = aqt.mw.col.get_note(nid)
 
             for wr in config.get("word_recognized", []):
@@ -602,7 +628,10 @@ class KanjiDB:
                         continue
                     if deck_id != wr_deck["id"]:
                         continue
-
+                    
+                if callback and ((i + 1) % 25) == 0:
+                    callback(f"Scanning note ({i+1}/{num_notes}) in deck '{wr_deck_name}' ({card_type.label})")
+                        
                 field_value = note[wr_field]
                 for k in text_parser.filter_cjk(field_value):
                     if k not in kanji_seen:
@@ -948,7 +977,7 @@ class KanjiDB:
 
     # If the deck has cards that have now references for new primitives 
     # which are not yet included in the stack, add them.
-    def add_missing_characters(self):
+    def scan_for_missing_primitives(self):
         new_kanji_for_msg = OrderedDict()
 
         for ct in CardType:
@@ -984,7 +1013,7 @@ class KanjiDB:
 
         self.recalc_user_words()
 
-        self.add_missing_characters()
+        self.scan_for_missing_primitives()
 
         find_filter = [f'"note:{ct.model_name}"' for ct in CardType]
         note_ids = aqt.mw.col.find_notes(" OR ".join(find_filter))

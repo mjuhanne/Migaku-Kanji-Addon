@@ -50,9 +50,13 @@ def setup_menu():
     recalc_action.triggered.connect(on_recalc)
     submenu.addAction(recalc_action)
 
-    refresh_learn_ahead_action = QAction("Refresh learn ahead", aqt.mw)
-    refresh_learn_ahead_action.triggered.connect(on_refresh_learn_ahead)
-    submenu.addAction(refresh_learn_ahead_action)
+    force_learn_ahead_action = QAction("Force learn ahead", aqt.mw)
+    force_learn_ahead_action.triggered.connect(on_force_learn_ahead)
+    submenu.addAction(force_learn_ahead_action)
+
+    scan_for_missing_kanji_action = QAction("Scan for missing kanji", aqt.mw)
+    scan_for_missing_kanji_action.triggered.connect(on_scan_for_missing_kanji)
+    submenu.addAction(scan_for_missing_kanji_action)
 
     refresh_ext_stories_action = QAction("Refresh external stories", aqt.mw)
     refresh_ext_stories_action.triggered.connect(on_refresh_ext_stories)
@@ -130,9 +134,51 @@ def on_recalc():
     thread.start()
 
 
-def on_refresh_learn_ahead():
-    aqt.mw.migaku_kanji_db.refresh_learn_ahead()
+def on_scan_for_missing_kanji():
+    class RecalcThread(QThread):
+        progress_update = pyqtSignal(str)
 
+        def run(self):
+            debugpy.debug_this_thread()
+            aqt.mw.migaku_kanji_db.scan_for_missing_kanji(callback=self.on_callback)
+
+        def on_callback(self, txt):
+            self.progress_update.emit(txt)
+
+    class ProgressBox(QDialog):
+        def __init__(self, parent):
+            super(QDialog, self).__init__(parent)
+            self.setWindowIcon(util.default_icon())
+            self.setWindowTitle("Scanning for missing kanji")
+            self.setWindowModality(Qt.WindowModality.ApplicationModal)
+            self.setMinimumWidth(400)
+            lyt = QVBoxLayout()
+            self.setLayout(lyt)
+            self.lbl = QLabel() 
+            self.bar = QProgressBar()
+            self.bar.setTextVisible(False)
+            self.bar.setMinimum(0)
+            self.bar.setMaximum(0)
+            lyt.addWidget(self.lbl)
+            lyt.addWidget(self.bar)
+
+        def on_progress(self, txt):
+            self.lbl.setText(txt)
+
+        def reject(self):
+            # Hack
+            pass
+
+    box = ProgressBox(aqt.mw)
+    box.show()
+
+    thread = RecalcThread(aqt.mw)
+    thread.finished.connect(box.accept)
+    thread.progress_update.connect(box.on_progress)
+    thread.start()
+
+def on_force_learn_ahead():
+    aqt.mw.migaku_kanji_db.refresh_learn_ahead()
 
 def on_settings():
     SettingsWindow.show_modal(aqt.mw)
