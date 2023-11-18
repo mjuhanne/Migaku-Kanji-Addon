@@ -25,29 +25,10 @@ requested_fields = [
     #("grade", _, None),
     #("jlpt", _, None),
     ("kanken", _, None),
-    ("primitives", _, None),
-    ("sec_primitives", _, None),
-    ("primitive_of", _, None),
-    ("primitive_keywords", j2c, None),
-    ("primitive_alternatives", _, None),
-    #("heisig_id5", _, None),
-    #("heisig_id6", _, None),
-    ("heisig_keyword5", _, None),
-    ("heisig_keyword6", _, None),
-    ("heisig_story", _, None),
-    ("heisig_comment", _, None),
     ("radicals", _, None),
-    #("words_default", _, None),
-    ("koohi_stories", j2c, None),
-    #("wk", _, None),
     ("usr_keyword", _, "usr.keywords.usr_keyword"),
     ("usr_primitive_keyword", _, "usr.keywords.usr_primitive_keyword"),
     ("usr_story", _, "usr.stories.usr_story"),
-    ("mod_heisig_story", _, "usr.modified_values.mod_heisig_story"),
-    ("mod_heisig_comment", _, "usr.modified_values.mod_heisig_comment"),
-    ("mod_primitives", _, "usr.modified_values.mod_primitives"),
-    ("mod_sec_primitives", _, "usr.modified_values.mod_sec_primitives"),
-    ("mod_primitive_keywords", j2c, "usr.modified_values.mod_primitive_keywords"),
 ]
 
 sql_fields = ",".join((rf[2] if rf[2] else rf[0]) for rf in requested_fields)
@@ -55,14 +36,8 @@ sql_fields = ",".join((rf[2] if rf[2] else rf[0]) for rf in requested_fields)
 joins = [
     f"LEFT OUTER JOIN usr.keywords ON characters.character == usr.keywords.character ",
     f"LEFT OUTER JOIN usr.stories ON characters.character == usr.stories.character ",
-    f"LEFT OUTER JOIN usr.modified_values ON characters.character == usr.modified_values.character ",
 ]
 sql_joins_txt = "".join(joins)
-
-
-# we ignore these radicals for now because they don't have a keyword containing 
-# kanji counterpart in our database
-ignore_radicals = ['亅','屮','禸','爻','尢','无','彑','黽','鬲','鬥','齊','龠','黹','黹','鬯']
 
 # this table links radicals to their Heisig primitive counterpart to allow for
 # even better search capability
@@ -85,15 +60,16 @@ class SearchEngine:
     def __init__(self, parent):
         self.parent = parent
         self.crs = parent.crs
+
+        # These search pools consists of sets/lists of values for exact matching and then 
+        # their string representation to enable fast partial matching.
         self.keyword_set_cache = dict()
         self.keyword_cache = dict()
         self.radical_set_cache = dict()
         self.radical_name_set_cache = dict()
         self.radical_name_cache = dict()
         self.rec_radical_set_cache = dict()
-        self.rec_sec_radical_set_cache = dict()
         self.primitive_list_cache = dict()
-        self.sec_primitive_list_cache = dict()
         self.rec_primitive_list_cache = dict()
         self.rec_primitive_name_list_cache = dict()
         self.rec_primitive_name_cache = dict()
@@ -104,7 +80,8 @@ class SearchEngine:
         self.stories_cache = dict()
         self.primitive_alternative_cache = dict()
         self.radicals_set = set()
-        self.frequency_points = dict()
+        self.priority = dict()
+        self.character_list = []
 
         self.init_cache()
 
@@ -120,8 +97,9 @@ class SearchEngine:
 
     def recursively_find_all_primitives(self, character):
         if character not in self.primitive_list_cache:
+            # return at least auto-reference
             return [character]
-        primitives = self.primitive_list_cache[character] or list()
+        primitives = self.primitive_list_cache[character]
         if len(primitives) == 1 and character in primitives:
             # skip all the primitives that have only themselves listed as primitives
             return [character]
@@ -131,35 +109,26 @@ class SearchEngine:
             if p != character:
                 new_primitives = self.recursively_find_all_primitives(p)
                 for np in new_primitives:
-                    if np not in found_primitives:
+                    # in the case a kanji has multiples of the same primitive (eg. mouth)
+                    # we want all the parent kanjis to have at least the same amount
+                    if found_primitives.count(np) < new_primitives.count(np):
                         found_primitives.append(np)
         return found_primitives
 
-    def recursively_find_all_radicals(self, character, use_secondary_primitive_set):
+    def recursively_find_all_radicals(self, character):
         if character in self.radicals_set:
             return set(character)
-        if use_secondary_primitive_set:
-            if character in self.sec_primitive_list_cache:
-                primitives = self.sec_primitive_list_cache[character]
-            else:
-                return set()
-        else:
-            if character in self.primitive_list_cache:
-                primitives = self.primitive_list_cache[character]
-            else:
-                return set()
         if character in self.radical_set_cache:
-            found_radicals = set(self.radical_set_cache[character])
+            radicals = set(self.radical_set_cache[character])
         else:
-            found_radicals = set()
-        # recursively find all radicals for primitives
-        for p in primitives:
-            if p != character:
-                new_radicals = self.recursively_find_all_radicals(p, use_secondary_primitive_set)
-                found_radicals |= new_radicals
-        return found_radicals
-
-
+            radicals = set()
+        # recursively find all radicals that this kanji or its primitives uses
+        if character in self.primitive_list_cache:
+            for p in self.primitive_list_cache[character]:
+                if p != character:
+                    new_radicals = self.recursively_find_all_radicals(p)
+                    radicals.update(new_radicals)
+        return radicals
 
     def update_recursive_primitive_cache(self,character):
         rec_primitive_list = self.recursively_find_all_primitives(character)
@@ -169,7 +138,6 @@ class SearchEngine:
                 if p in self.keyword_set_cache:
                     kw_set = self.keyword_set_cache[p]
                     for kw in kw_set:
-                        #if kw not in rec_primitive_names_list:
                         rec_primitive_names_list.append(kw)
                 else:
                     print("Note! Kanji %s references primitive %s without a keyword" % (character,p))
@@ -182,8 +150,9 @@ class SearchEngine:
     def init_cache(self):
         self.update_cache()
 
-        # By iterating through a radicals list of each kanji,
-        # create a cache set of radical names and also a free text cache for partial matching
+        # By iterating through a radicals list of each kanji
+        # create a set of radical names for exact matching and also a free text
+        # cache for partial matching
         for c,radical_set in self.radical_set_cache.items():
             if len(radical_set) > 0:
                 radical_names_set = set()
@@ -192,9 +161,6 @@ class SearchEngine:
                     r = self.radical_to_primitive(r)
                     if r in self.keyword_set_cache:
                         radical_names_set.update(self.keyword_set_cache[r])
-                    else:
-                        if r not in ignore_radicals:
-                            print("Note! Kanji %s has unknown radical %s" % (c,r))
                 radical_names = ','.join(radical_names_set)
                 self.radical_name_set_cache[c] = radical_names_set
                 self.radical_name_cache[c] = radical_names
@@ -203,6 +169,7 @@ class SearchEngine:
 
     # Update cache for a character. If character is None, then update cache for all characters
     def update_cache(self, character=None):
+        print("Updating search engine cache..")
 
         if character:
             self.crs.execute(
@@ -219,54 +186,15 @@ class SearchEngine:
         if raw_data:
             for raw_row in raw_data:
 
-                # convert json escaping to comma separated value lists
+                # convert json escaping to python data structures (strings, lists)
                 d = {}
                 for data, (name, load_func, _) in zip(raw_row, requested_fields):
                     d[name] = load_func(data) or ''
 
                 c = d['character']
+                self.character_list.append(c)
 
-                # create a bunch of caches: sets of values for exact matching and then string
-                # representation for partial matching
-
-                # Keywords..
-                kw_set= set()
-                kw_set.add(d['heisig_keyword5'])
-                kw_set.add(d['heisig_keyword6'])
-                kw_set.add(d['usr_keyword'].lower())
-                if d['mod_primitive_keywords']:
-                    kw_set.update(csv_to_list(d['mod_primitive_keywords'].lower()))
-                else:
-                    kw_set.update(csv_to_list(d['primitive_keywords'].lower()))
-                kw_set.update(csv_to_list(d['usr_primitive_keyword'].lower()))
-                if '' in kw_set:
-                    kw_set.remove('')
-                if len(kw_set)>0:
-                    keywords = ','.join(list(kw_set))
-                    self.keyword_cache[c] = keywords
-                    self.keyword_set_cache[c] = kw_set
-
-                # Primitives..
-                if d['mod_primitives']:
-                    self.primitive_list_cache[c] = custom_list(d['mod_primitives'])
-                else:
-                    if len(d['primitives'])>0:
-                        self.primitive_list_cache[c] = custom_list(d['primitives'])
-                    else:
-                        # always set up a auto-reference at least
-                        self.primitive_list_cache[c] = [c]
-
-                # Secondary primitives..
-                if d['mod_sec_primitives']:
-                    self.sec_primitive_list_cache[c] = custom_list(d['mod_sec_primitives'])
-                else:
-                    if len(d['sec_primitives'])>0:
-                        self.sec_primitive_list_cache[c] = custom_list(d['sec_primitives'])
-                    else:
-                        # always set up a auto-reference at least
-                        self.sec_primitive_list_cache[c] = [c]
-
-                # Radicals..                
+                # Radicals..
                 if len(d['radicals'])>0:
                     self.radical_set_cache[c] = set(custom_list(d['radicals']))
                     self.radicals_set |= self.radical_set_cache[c]
@@ -292,22 +220,19 @@ class SearchEngine:
                     self.meaning_cache[c] = d['meanings']
                     self.meaning_set_cache[c] = meaning_set
 
-                # Stories..
-                st = d['usr_story'].lower() + \
-                    d['koohi_stories'].lower()
-                
-                if d['mod_heisig_story']:
-                    st += d['mod_heisig_story'].lower()
-                else:
-                    st += d['heisig_story'].lower()
+                # User stories..
+                self.stories_cache[c] = d['usr_story'].lower()
 
-                if d['mod_heisig_comment']:
-                    st += d['mod_heisig_comment'].lower()
-                else:
-                    st += d['heisig_comment'].lower()
+                # User keyword..
+                kw_set = set()
+                kw_set.add(d['usr_keyword'].lower())
+                kw_set.add(d['usr_primitive_keyword'].lower())
+                kw_set.discard('')
+                if len(kw_set)>0:
+                    self.keyword_cache[c] = ','.join(list(kw_set))
+                    self.keyword_set_cache[c] = kw_set
 
-                self.stories_cache[c] = st
-
+                # Calculate kanji priority based on its frequency and Kanken grading
                 points = 0
                 if d['frequency_rank'] is not None and d['frequency_rank'] != '':
                     fr_points = (4000 - d['frequency_rank'])/400
@@ -317,18 +242,65 @@ class SearchEngine:
                 if d['kanken'] is not None and d['kanken'] != '':
                     points += 11 - float(d['kanken'])
                 if points > 0:
-                    self.frequency_points[c] = points
+                    self.priority[c] = points
 
+        # Process data from separate story database
+        stories_per_source_and_kanji = self.parent.story_db.get_stories(character)
+
+        for key, elements in stories_per_source_and_kanji.items():
+            
+            if character is None:
+                (source, c) = key
+            else:
+                source = key
+                c = character
+            
+            # Stories and comments..
+            story_text = ' '.join(elements['story']) + ' '.join(elements['comment'])
+            if c in self.stories_cache:
+                self.stories_cache[c] += ' ' + story_text
+            else:
+                self.stories_cache[c] = ' ' + story_text            
+
+            # Keywords..
+            kw_set = set(elements['keywords'])
+            kw_set.update(elements['primitive_keywords'])
+            kw_set.discard('')
+            if len(kw_set)>0:
+                if c in self.keyword_set_cache:
+                    self.keyword_set_cache[c].update(kw_set)
+                else:
+                    self.keyword_set_cache[c] = kw_set
+            
+            # Primitives..
+            p_list = elements['primitives']
+            if len(p_list)>0:
+                if c in self.primitive_list_cache:
+                    for p in p_list:
+                        # in the case a kanji has multiples of the same primitive (eg. mouth)
+                        # we want to retain the maximum amount
+                        if self.primitive_list_cache[c].count(p) < p_list.count(p):
+                            self.primitive_list_cache[c].append(p)
+                else:
+                    self.primitive_list_cache[c] = p_list
+
+            if source == 'h':
                 # create a reverse lookup table for primitive alternatives
-                if len(d['primitive_alternatives']) > 0:
-                    prim_alt_list = custom_list(d['primitive_alternatives'])
-                    for p in prim_alt_list:
-                        self.primitive_alternative_cache[p] = c
+                for p in elements['primitive_alternatives']:
+                    self.primitive_alternative_cache[p] = c
 
+        for c, kw_set in self.keyword_set_cache.items():
+            self.keyword_cache[c] = ','.join(list(kw_set))
+
+        #for c in self.character_list:
+        #    if c not in self.primitive_set_cache:
+        #        # always set up a auto-reference at least
+        #        self.primitive_list_cache[c] = set(c)
+
+        # Create a search pool based on all the radicals each kanji (and all its primitives) use
         if not character:
-            for c in self.primitive_list_cache.keys():
-                self.rec_radical_set_cache[c] = self.recursively_find_all_radicals(c, False)
-                self.rec_sec_radical_set_cache[c] = self.recursively_find_all_radicals(c, True)
+            for c in self.character_list:
+                self.rec_radical_set_cache[c] = self.recursively_find_all_radicals(c)
 
         # Recursively iterate through a primitives list of each kanji
         # (i.e. create a list of primitives the kanji uses, down to the basic building blocks)
@@ -339,7 +311,6 @@ class SearchEngine:
         else:
             if character in self.primitive_list_cache.keys():
                 self.update_recursive_primitive_cache(c)
-
 
 
     def get_matching_characters(self, search_terms, pool, is_set, results, max_results):
@@ -388,8 +359,8 @@ class SearchEngine:
                     else:
                         kanji_scores[character] = pool_priority
                         kanji_matches[character] = {search_term}
-                    if character in self.frequency_points:
-                        kanji_scores[character] += self.frequency_points[character]
+                    if character in self.priority:
+                        kanji_scores[character] += self.priority[character]
 
 
     def get_matching_characters_from_list_of_pools(self, search_terms, pool_list, max_results):
@@ -481,9 +452,15 @@ class SearchEngine:
 
         return list(results)
     
-    def _suggest_primitives(self, character, match_scores, input_radicals, radical_set):
 
-        for c,radicals in radical_set.items():
+    # Suggest primitives based on 
+    def suggest_primitives(self, target_character, max_results=15):
+
+        input_radicals = self.parent.get_field(target_character,"radicals")
+        
+        match_scores = dict()
+        # find primitives that have all the radicals used by target kanji character
+        for c,radicals in self.rec_radical_set_cache.items():
             if c in input_radicals:
                 # We always want to add the input radicals themselves in the matching list.
                 # The whole list is not added because there might be some radicals
@@ -492,7 +469,7 @@ class SearchEngine:
             else:
                 if len(radicals)>len(input_radicals) or len(radicals)==0:
                     continue
-                if c == character:
+                if c == target_character:
                     continue
                 found = True
                 for r in radicals:
@@ -501,16 +478,7 @@ class SearchEngine:
                 if found:
                     match_scores[c] = len(radicals)
 
-
-    def suggest_primitives(self, character, max_results=15):
-
-        input_radicals = self.parent.get_field(character,"radicals")
-        
-        match_scores = dict()
-        # try to match primitives using both primary and secondary primitives list
-        self._suggest_primitives(character, match_scores, input_radicals, self.rec_radical_set_cache)
-        self._suggest_primitives(character, match_scores, input_radicals, self.rec_sec_radical_set_cache)
-
+        # give higher priority to those primitives that have the highest amount of matching radicals
         sorted_match_scores = sorted(match_scores.items(), key=lambda x:x[1], reverse=True)
         sorted_matches = list(dict(sorted_match_scores).keys())
 

@@ -1,48 +1,16 @@
 var dmak = null;
 var data = null;
 
+
 function create_primitive_section(primitives_detail, user_modified_primitives, mark_rare_primitives) {
 
     var primitives_pts = [];
     for (const p_data of primitives_detail) {
-        let keywords = [];
-        let raw_keywords = [];
         if (!p_data.has_result) {
             primitives_pts.push('MISSING DATA FOR ' + p_data.character);
             continue
         }
-        if (p_data.usr_keyword) keywords.push(p_data.usr_keyword);
-        if (
-            p_data.heisig_keyword5 &&
-            !keywords.includes(p_data.heisig_keyword5)
-        ) {
-            keywords.push(p_data.heisig_keyword5);
-            raw_keywords.push(p_data.heisig_keyword5);
-        }
-        if (
-            p_data.heisig_keyword6 &&
-            !keywords.includes(p_data.heisig_keyword6)
-        ) {
-            keywords.push(p_data.heisig_keyword6);
-            raw_keywords.push(p_data.heisig_keyword6);
-        }
-        if (p_data.usr_primitive_keyword)
-            keywords.push(
-                '<span class="primitive_keyword">' +
-                    p_data.usr_primitive_keyword +
-                    '</span>',
-            );
-        for (const pk of p_data.primitive_keywords) {
-            const kw = '<span class="primitive_keyword">' + pk + '</span>';
-            if (!keywords.includes(kw)) keywords.push(kw);
-        }
-        for (let [collection,col_keywords] of Object.entries(p_data.external_keywords)) {
-            for (const pk of col_keywords) {
-                let conflict = p_data.external_conflicted_keywords[collection].includes(pk) ? 'conflicted_keyword' : '';
-                const kw = `<span class="primitive_keyword ${collection} ${conflict}">` + pk + `</span>`;
-                if (!raw_keywords.includes(pk)) keywords.push(kw);
-            }
-        }
+        let keywords = get_keywords(p_data);
 
         var keywords_txt = keywords.length ? keywords.join(', ') : '-';
 
@@ -94,37 +62,22 @@ function create_primitive_section(primitives_detail, user_modified_primitives, m
     return primitives_pts;
 }
 
-
-function edit_item(item_name) {
+function edit_item(source, item_name) {
     pycmd(
         'edit_item-' +
+            source +
+            '-' +
             data.character +
             '-' +
             item_name 
     );
 }
 
-function edit_story(story_id) {
-    if ( (story_id == "heisig_story") || (story_id == "heisig_comment")) {
-        edit_item(story_id);
+function edit_story(story_source, story_type) {
+    if (story_source == "user") {
+        set_custom_story();			
     } else {
-
-        if (story_id == "usr_story") {
-            set_custom_story();			
-        } else {
-            selected_koohi_story = data.koohi_stories[parseInt(story_id)];
-            // strip away the commentator
-            idx = selected_koohi_story.indexOf(':')
-            if (idx != -1) {
-                idx += 2
-                selected_koohi_story = selected_koohi_story.substring(idx)
-            }
-            pycmd(
-            'custom_story-' +
-                data.character +
-                '-' + selected_koohi_story,
-            );		
-        }
+        edit_item(story_source, story_type);
     }
 }
 
@@ -137,31 +90,41 @@ function update_story_section() {
 	if (settings.only_custom_stories && data.usr_story && (!container.edit_mode))
         hide_non_usr_story = true
 
-
     for (idx in stories) {
         story_tuple = stories[idx];
-        var story_id = story_tuple[0]
-        var story = story_tuple[1]
-        if ((story_id == "usr_story") || !hide_non_usr_story) {
+        var story_source = story_tuple[0]
+        var story_type = story_tuple[1]
+        var story = story_tuple[2]
+        if ((story_source == "user") || !hide_non_usr_story) {
 
             if (container.edit_mode) {
-                if ((story_id=="heisig_story") && (story=="")) {
-                    story="<b>Add Heisig story</b>";
+                if ((story_source=="h" && (story==""))) {
+                    if (story_type=="story") {
+                        story="<b>Add Heisig story</b>";
+                    }
+                    if (story_type=="comment") {
+                        story="<b>Add Heisig comment</b>";
+                    }
                 }
-                if ((story_id=="heisig_comment") && (story=="")) {
-                    story="<b>Add Heisig comment</b>";
+                if ((story_source=="cs" && (story==""))) {
+                    if (story_type=="story") {
+                        story="<b>Add crowd-sourced story</b>";
+                    }
+                    if (story_type=="comment") {
+                        story="<b>Add crowd-sourced comment</b>";
+                    }
                 }
             }
-            if (story_id == 'WK' || story_id == 'RRTK') {
-                story = '<b>' + story_id + ':</b> ' + story
+            if (story_source == 'wk' || story_source == 'rrtk') {
+                story = '<b>' + story_source + ':</b> ' + story
             } else {
-                if (story_id == 'WR') {
+                if (story_source == 'wr') {
                     story = '<b>WK reading:</b> ' + story
                 }
             }
             html_stories += `<p class="story ${container.edit_mode ? 'editable_title' : ''}" 
-                ${container.edit_mode ? 'onClick=edit_story("' + story_id + '") ' : ''}
-                story_id=${story_id}">` + story + '</p>';
+                ${container.edit_mode ? 'onClick=edit_story("' + story_source + '","' + story_type + '") ' : ''}
+                >` + story + '</p>';
         }
     }
     $('#stories').html(html_stories);
@@ -169,42 +132,65 @@ function update_story_section() {
 
 function create_story_section() {
 
-    var userModifiedHeisigStory = (data.mod_heisig_story !== null) || 
-    (data.mod_heisig_comment !== null)
+    var userModified = false
+    for (const source of ['h','cs','rrtk','wk','wr','ks']) {
+        if (is_item_modified(source,'story') || is_item_modified(source,'comment')) 
+            userModified = true
+    }
+
     $('#story_title').html(
-        `<span class="editable_title ${userModifiedHeisigStory ? ' -user-modified' : ''}" onclick="toggle_story_editing();">Stories</span>`
+        `<span class="editable_title ${userModified ? ' -user-modified' : ''}" onclick="toggle_story_editing();">Stories</span>`
     );
 
     var stories = [];
+
     if (data.usr_story) {
-        stories.push( ['usr_story',data.usr_story.split('\n').join('<br>')]);
+        stories.push( ['user','story',data.usr_story.split('\n').join('<br>')]);
     }
 
-    if (data.heisig_story) {
-        var heisig_story = data.heisig_story;
-        var detagged_heisig_story = ReplaceTagsWithImages(heisig_story)
-        stories.push(['heisig_story',detagged_heisig_story]);
-    } else {
-        stories.push(['heisig_story','']);
-    }
+    let sources = [];
 
-    if (data.heisig_comment) {
-        var detagged_heisig_comment = ReplaceTagsWithImages(data.heisig_comment)
-        stories.push(['heisig_comment',detagged_heisig_comment])
-    } else {
-        stories.push(['heisig_comment','']);
-    }
+    for (const source of ['h','cs','rrtk','wk','wr','ks']) {
+        
+        let story_paragraphs = []
+        let comment_paragraphs = []
+        if (source in data.stories) {
+        
+            story_paragraphs = data.stories[source]['story'];
+            comment_paragraphs = data.stories[source]['comment'];
+            let keywords = data.stories[source]['keywords'];
+            keywords = keywords.concat(data.stories[source]['primitive_keywords']);
 
-    if (data.external_stories) {
-        for (const story_item of data.external_stories) {
-            stories.push([story_item.Collection, story_item.Keywords + ': ' + story_item.Story]);
-        }    
-    }
+            if (story_paragraphs.length>0 || comment_paragraphs.length>0) {
 
-    story_id = 0
-    for (const ks of data.koohi_stories) {
-        stories.push([story_id.toString(), ks]);
-        story_id += 1;
+                let header = '';
+                let keyword = keywords.length>0 ? keywords[0] : '';
+                if (source != 'h' && source != 'ks') {
+                    header = keywords + ': ';
+                }
+            
+                for (const sp of story_paragraphs) {
+                    p = source != 'ks' ? ReplaceTagsWithImages(sp) : sp;
+                    stories.push([source, 'story', header + p]);
+                    header = '';
+                }
+                for (const cp of comment_paragraphs) {
+                    p = source != 'ks' ? ReplaceTagsWithImages(cp) : cp;
+                    stories.push([source, 'comment', p]);
+                }
+            }
+
+        } 
+        
+        if (source=='h' || source=='cs') {
+            // add placeholder empty story/comment to allow editing
+            if (story_paragraphs.length==0) {
+                stories.push([source, 'story', '']);
+            }
+            if (comment_paragraphs.length==0) {
+                stories.push([source, 'comment', '']);
+            }
+        }
     }
 
     story_container = document.getElementById("stories_container")
@@ -678,16 +664,18 @@ function render_page(page_type) {
     $('#kunyomi').html(data.kunyomi.length ? data.kunyomi.join(', ') : '-');
     $('#nanori').html(data.nanori.length ? data.nanori.join(', ') : '-');
 
-    var userModifiedPrimitives = data.mod_primitives !== null
-    var primitives_pts = create_primitive_section(data.primitives_detail, userModifiedPrimitives, true);
-	var hasPrimitives = primitives_pts.length > 0;
-	$('#primitives').empty();
-	$('#primitives').html(
-		hasPrimitives ? primitives_pts.join('') : noResultsSpan,
-	);
 
-    var userModifiedSecondaryPrimitives = data.mod_sec_primitives !== null
-	var sec_primitives_pts = create_primitive_section(data.secondary_primitives_detail, userModifiedSecondaryPrimitives, true);
+    
+    var userModifiedPrimitives = is_item_modified('h','primitives');
+    var primitives_pts = 'h' in data.stories ? create_primitive_section(data.primitives_detail_h, userModifiedPrimitives, true) : [];
+    var hasPrimitives = primitives_pts.length > 0;
+	$('#primitives').empty();
+    $('#primitives').html(
+        hasPrimitives ? primitives_pts.join('') : noResultsSpan,
+    );
+
+    var userModifiedSecondaryPrimitives = is_item_modified('cs','primitives');
+	var sec_primitives_pts = 'cs' in data.stories ? create_primitive_section(data.primitives_detail_cs, userModifiedSecondaryPrimitives, true) : [];
 	var hasSecondaryPrimitives = sec_primitives_pts.length > 0;
 	sec_prim_title = document.getElementById("secondary_primitive_title")
 	sec_prim_add = document.getElementById("secondary_primitive_add_link")
@@ -699,6 +687,7 @@ function render_page(page_type) {
 		sec_prim_add.style.display = "none"
 		$('#secondary_primitives').html(sec_primitives_pts.join(''));
 	} else {
+
 		if (isMobileDevice) {
 			sec_prim_cont = document.getElementById("secondary_primitive_container")
 			sec_prim_cont.style.display = "none"
@@ -713,8 +702,8 @@ function render_page(page_type) {
     wk_prim_cont = document.getElementById("wk_primitive_container")
 	//wk_prim_title = document.getElementById("wk_primitive_title")
 	//wk_prim_sep = document.getElementById("wk_primitive_separator")
-    if ("wk_primitives_detail" in data) {
-        var wk_primitives_pts = create_primitive_section(data.wk_primitives_detail, false, true);
+    if ("primitives_detail_wk" in data) {
+        var wk_primitives_pts = create_primitive_section(data.primitives_detail_wk, false, true);
         $('#wk_primitives').empty();
 		//wk_prim_title.style.display = "block"
 		//wk_prim_sep.style.display = "block"
@@ -1003,39 +992,7 @@ function render_page(page_type) {
         wrap_list(data.radicals, '<button class="radical">', '</button>'),
     );
 
-    var keywords = [];
-    var raw_keywords = [];
-    var search_keyword = "";
-    if (data.usr_keyword) keywords.push(data.usr_keyword);
-    if (!settings.only_custom_keywords || keywords.length < 1 || page_type == "lookup") {
-        if (data.heisig_keyword5 && !keywords.includes(data.heisig_keyword5))
-            keywords.push(data.heisig_keyword5);
-            raw_keywords.push(data.heisig_keyword5);
-            search_keyword = data.heisig_keyword5;
-        if (data.heisig_keyword6 && !keywords.includes(data.heisig_keyword6))
-            keywords.push(data.heisig_keyword6);
-            raw_keywords.push(data.heisig_keyword5);
-            search_keyword = data.heisig_keyword6;
-        if (data.usr_primitive_keyword)
-            keywords.push(
-                '<span class="primitive_keyword">' +
-                    data.usr_primitive_keyword +
-                    '</span>',
-            );
-        var userModifiedPrimitiveKeywords = data.mod_primitive_keywords !== null
-        for (const pk of data.primitive_keywords) {
-            const kw = `<span class="primitive_keyword${userModifiedPrimitiveKeywords ? ' -user-modified' : ''}">` + pk + `</span>`;
-            if (!raw_keywords.includes(pk)) keywords.push(kw);
-            if (search_keyword == "") search_keyword = data.primitive_keywords;
-        }
-        for (let [collection,col_keywords] of Object.entries(data.external_keywords)) {
-            for (const pk of col_keywords) {
-                let conflict = data.external_conflicted_keywords[collection].includes(pk) ? 'conflicted_keyword' : '';
-                const kw = `<span class="primitive_keyword ${collection} ${conflict}">` + pk + `</span>`;
-                if (!raw_keywords.includes(pk)) keywords.push(kw);
-            }
-        }
-    }
+    var keywords = get_keywords(data);
     keywords_txt = keywords.length ? keywords.join(', ') : '-';
     $('#keywords').html(keywords_txt);
     if (keywords.length < 1) keywords = data.meanings;
@@ -1044,6 +1001,13 @@ function render_page(page_type) {
         $('#keywords_front').html(keywords_front_txt); }
 
     // add keyword search link
+    // TODO
+    search_keyword = null;
+    if ('h' in data.stories) {
+        if (data.stories['h']['keywords'].length>0) {
+            search_keyword = data.stories['h']['keywords'][0];
+        }
+    }
     if (search_keyword != null) {
         elem = document.getElementById("keyword_search_link")
         elem.setAttribute("href",`https://fi.m.wiktionary.org/wiki/${search_keyword}`);

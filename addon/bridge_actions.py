@@ -175,12 +175,13 @@ def handle_bridge_action(
         return True
 
     elif args[0] == "edit_item":
-        character = args[1]
-        item_name = args[2]
+        source = args[1]
+        character = args[2]
+        item_name = args[3]
         if reviewer:
             aqt.mw.requireReset()
-        if item_name == "primitives" or item_name == "secondary_primitives":
-            r = EditPrimitivesDialog(character, parent, item_name == "secondary_primitives").exec()
+        if item_name == "primitives":
+            r = EditPrimitivesDialog(source, character, parent).exec()
             if r == QDialog.DialogCode.Accepted:
                 if reviewer:
                     aqt.mw.requireReset()
@@ -188,8 +189,8 @@ def handle_bridge_action(
                     lookup_window.refresh()
             return True
 
-        elif item_name == "primitive_keywords":
-            r = EditListTypeDialog(character, item_name, parent).exec()
+        elif item_name == "keywords" or item_name == "primitive_keywords":
+            r = EditListTypeDialog(source, character, item_name, parent).exec()
             if r == QDialog.DialogCode.Accepted:
                 if reviewer:
                     aqt.mw.requireReset()
@@ -197,8 +198,8 @@ def handle_bridge_action(
                     lookup_window.refresh()
             return True
 
-        elif (item_name == "heisig_story") or (item_name == "heisig_comment"):
-            r = EditStringTypeDialog(character, item_name, True, parent).exec()
+        elif (item_name == "story") or (item_name == "comment"):
+            r = EditStringTypeDialog(source, character, item_name, True, parent).exec()
             if r == QDialog.DialogCode.Accepted:
                 if reviewer:
                     aqt.mw.requireReset()

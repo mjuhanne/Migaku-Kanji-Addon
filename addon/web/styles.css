@@ -1680,19 +1680,19 @@ body.dark {
 }
 
 
-.wk {
+.source_wk {
 	background-color: rgba(121, 175, 138, 0.2);
 	color: #1fc273;
 }
 
-.ankidroid_dark_mode .wk,
-.nightMode .wk,
-.dark .wk {
+.ankidroid_dark_mode .source_wk,
+.nightMode .source_wk,
+.dark .source_wk {
 	background-color: rgba(43, 144, 107, 0.2);
 	color: #22d880;
 }
 
-.rrtk {
+.source_rrtk {
 	background-color: rgba(181, 135, 135, 0.2);
 	color: #e1232a;
 
@@ -1703,14 +1703,14 @@ body.dark {
 	position: relative;
 }
 
-.ankidroid_dark_mode .rrtk,
-.nightMode .rrtk,
-.dark .rrtk {
+.ankidroid_dark_mode .source_rrtk,
+.nightMode .source_rrtk,
+.dark .source_rrtk {
 	background-color: rgba(144, 43, 78, 0.2);
 	color: #e1232a;
 }
 
-.conflicted_keyword {
+.conflicting_keyword {
 	text-decoration: line-through;
 }
 
@@ -1735,29 +1735,29 @@ body.dark {
 }
 
 
-.wk::before {
+.source_wk::before {
 	content: 'WK';
 	background-color: #1fc273;
 	color: #fff;
 }
 
-.ankidroid_dark_mode  .wk::before,
-.nightMode .wk::before,
-.dark .wk::before {
+.ankidroid_dark_mode  .source_wk::before,
+.nightMode .source_wk::before,
+.dark .source_wk::before {
 	background-color: #3ba14e;
 	color: #363c4a;
 }
 
 
-.rrtk::before {
+.source_rrtk::before {
 	background-color: #e1232a;
 	color: #fff;
 	content: 'RRTK';
 }
 
-.ankidroid_dark_mode .rrtk::before,
-.nightMode .rrtk::before,
-.dark .rrtk::before {
+.ankidroid_dark_mode .source_rrtk::before,
+.nightMode .source_rrtk::before,
+.dark .source_rrtk::before {
 	background-color: #e1232a;
 	color: #363c4a;
 }
@@ -1775,25 +1775,25 @@ body.dark {
 }
 
 
-.primitiveDetails .wk {
+.primitiveDetails .source_wk {
 	color: #163c2a;
 	background-color: rgba(121, 175, 138, 0.6);
 }
 
-.ankidroid_dark_mode .primitiveDetails .wk,
-.nightMode .primitiveDetails .wk,
-.dark .primitiveDetails .wk {
+.ankidroid_dark_mode .primitiveDetails .source_wk,
+.nightMode .primitiveDetails .source_wk,
+.dark .primitiveDetails .source_wk {
 	background-color: rgba(43, 144, 107, 0.7);
 }
 
-.primitiveDetails .rrtk {
+.primitiveDetails .source_rrtk {
 	color: #3c161a;
 	background-color: rgba(144, 43, 107, 0.6);
 }
 
-.ankidroid_dark_mode .primitiveDetails .rrtk,
-.nightMode .primitiveDetails .rrtk,
-.dark .primitiveDetails .rrtk {
+.ankidroid_dark_mode .primitiveDetails .source_rrtk,
+.nightMode .primitiveDetails .source_rrtk,
+.dark .primitiveDetails .source_rrtk {
 	background-color: rgba(185, 46, 134, 0.6);
 }
 
@@ -1822,26 +1822,26 @@ body.dark {
 }
 
 
-.primitiveDetails .wk::before {
+.primitiveDetails .source_wk::before {
 	content: 'W';
 	background-color: #1fc273;
 }
 
-.ankidroid_dark_mode .primitiveDetails .wk::before,
-.nightMode .primitiveDetails .wk::before,
-.dark .primitiveDetails .wk::before {
+.ankidroid_dark_mode .primitiveDetails .source_wk::before,
+.nightMode .primitiveDetails .source_wk::before,
+.dark .primitiveDetails .source_wk::before {
 	background-color: #3ba14e;
 	border: 1px solid #363c4a;
 }
 
-.primitiveDetails .rrtk::before {
+.primitiveDetails .source_rrtk::before {
 	content: 'R';
 	background-color: #e1232a;
 }
 
-.ankidroid_dark_mode .primitiveDetails .rrtk::before,
-.nightMode .primitiveDetails .rrtk::before,
-.dark .primitiveDetails .rrtk::before {
+.ankidroid_dark_mode .primitiveDetails .source_rrtk::before,
+.nightMode .primitiveDetails .source_rrtk::before,
+.dark .primitiveDetails .source_rrtk::before {
 	background-color: #e1232a;
 	border: 1px solid #363c4a;
 }

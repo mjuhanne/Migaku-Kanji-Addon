@@ -4,20 +4,35 @@ from aqt.qt import *
 from . import util
 from .power_search_bar import PowerSearchBar, ResultsBar
 
+source_labels = {
+    "h" : "Heisig",
+    "cs" : "crowd-sourced",
+    "rrtk" : "RRTK",
+    "ks" : "Koohi",
+    "wk" : "Wanikani",
+    "wr" : "Wanikani reading",
+}
+    
 class EditDialog(QDialog):
-    def __init__(self, character, item_name, multi_line=False, parent=None):
+    def __init__(self, source, character, item_name, multi_line=False, parent=None):
         super().__init__(parent)
 
+        self.source = source
         self.character = character
         self.item_name = item_name
         self.multi_line = multi_line
 
-        readable_name = item_name.replace('_',' ')
+        readable_name = source_labels[source] + ' ' if source in source_labels else ''
+        readable_name += item_name.replace('_',' ')
 
         self.original_data = self.get_original_data()
         previous_modified_data = self.get_previous_modified_data()
         if previous_modified_data is None:
             previous_modified_data = self.original_data
+
+        if multi_line:
+            self.original_data = '\n\n'.join(self.original_data)
+            previous_modified_data = '\n\n'.join(previous_modified_data)
 
         self.setWindowTitle(f"Migaku Kanji - Edit {readable_name} for {character}")
         lyt = QVBoxLayout()
@@ -78,13 +93,13 @@ class EditDialog(QDialog):
         self.resize(475, self.sizeHint().height())
 
     def get_original_data(self):
-        data = aqt.mw.migaku_kanji_db.get_field(self.character,self.item_name)
+        data = aqt.mw.migaku_kanji_db.story_db.get_field(self.source, self.character, self.item_name)
         if data is not None:
             data = self.process_data_from_db(data)
         return data
 
     def get_previous_modified_data(self):
-        data = aqt.mw.migaku_kanji_db.get_user_modified_field(self.character,self.item_name)
+        data = aqt.mw.migaku_kanji_db.story_db.get_user_modified_field(self.source, self.character,self.item_name)
         if data is not None:
             data = self.process_data_from_db(data)
         return data
@@ -113,8 +128,10 @@ class EditDialog(QDialog):
             self.new_value_edit.setText(self.original_data)
 
     def save_value_to_db(self, value):
-        aqt.mw.migaku_kanji_db.set_user_modified_field(
-            self.character, self.item_name, value
+        if self.multi_line:
+            value = value.split('\n\n')
+        aqt.mw.migaku_kanji_db.story_db.set_user_modified_field(
+            self.source, self.character, self.item_name, value
         )
 
     def accept(self):
@@ -123,8 +140,8 @@ class EditDialog(QDialog):
                 new_value= self.new_value_edit.toPlainText()
             else:
                 new_value= self.new_value_edit.text()
-            new_value = new_value.replace('\n',' ')
-            new_value = new_value.replace('\r','')
+            #new_value = new_value.replace('\n',' ')
+            #new_value = new_value.replace('\r','')
             new_value = new_value.strip()
             data_to_db = self.process_data_to_db(new_value)
             self.save_value_to_db(data_to_db)
@@ -132,10 +149,9 @@ class EditDialog(QDialog):
 
 
 class EditPrimitivesDialog(EditDialog):
-    def __init__(self, character, parent=None, secondary_primitives=False, max_search_results=12):
+    def __init__(self, source, character, parent=None, max_search_results=12):
         self.max_search_results = max_search_results
-        field_name = "primitives" if not secondary_primitives else "sec_primitives"
-        super().__init__(character, field_name, False, parent)
+        super().__init__(source, character, "primitives", False, parent)
 
     def get_edit_line_style_sheet(self):
         return 'font-size: 20px'
@@ -196,8 +212,8 @@ class EditPrimitivesDialog(EditDialog):
 
 
 class EditListTypeDialog(EditDialog):
-    def __init__(self, character, item_name, parent=None):
-        super().__init__(character, item_name, False, parent)
+    def __init__(self, source, character, item_name, parent=None):
+        super().__init__(source, character, item_name, False, parent)
 
 
     def process_data_from_db(self, data):
@@ -208,14 +224,14 @@ class EditListTypeDialog(EditDialog):
 
 
 class EditStringTypeDialog(EditDialog):
-    def __init__(self, character, item_name, multi_line=False, parent=None):
-        super().__init__(character, item_name, multi_line, parent)
+    def __init__(self, source, character, item_name, multi_line=False, parent=None):
+        super().__init__(source, character, item_name, multi_line, parent)
 
 
 class EditUserStoryDialog(EditDialog):
     def __init__(self, character, new_suggested_story, parent=None):
         self.new_suggested_story = new_suggested_story
-        super().__init__(character, "user story", True, parent)
+        super().__init__(None, character, "user story", True, parent)
 
     def get_original_data(self):
         return aqt.mw.migaku_kanji_db.get_character_usr_story(self.character)

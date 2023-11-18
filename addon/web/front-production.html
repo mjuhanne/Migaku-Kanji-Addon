@@ -119,27 +119,7 @@ START - Migaku markup
 	if (settings.hide_keywords && word_front_pts.length > 0)
 		document.getElementById('keywords_front').style.display = 'none';
 
-	var keywords = [];
-	if (data.usr_keyword) keywords.push(data.usr_keyword);
-	if (!settings.only_custom_keywords || keywords.length < 1) {
-		if (data.heisig_keyword5 && !keywords.includes(data.heisig_keyword5))
-			keywords.push(data.heisig_keyword5);
-		if (data.heisig_keyword6 && !keywords.includes(data.heisig_keyword6))
-			keywords.push(data.heisig_keyword6);
-		if (data.usr_primitive_keyword)
-			keywords.push(
-				'<span class="primitive_keyword">' +
-					data.usr_primitive_keyword +
-					'</span>',
-			);
-		var userModifiedPrimitiveKeywords = data.mod_primitive_keywords !== null
-		for (const pk of data.primitive_keywords) {
-			if (!keywords.includes(pk)) {
-				const kw = `<span class="primitive_keyword${userModifiedPrimitiveKeywords ? ' -user-modified' : ''}">` + pk + `</span>`;
-				keywords.push(kw);
-			}
-		}
-	}
+	var keywords = get_keywords(data);
 	keywords_txt = keywords.length ? keywords.join(', ') : '-';
 	$('#keywords').html(keywords_txt);
 	if (keywords.length < 1) keywords = data.meanings;

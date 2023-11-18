@@ -58,9 +58,9 @@ def setup_menu():
     scan_for_missing_kanji_action.triggered.connect(on_scan_for_missing_kanji)
     submenu.addAction(scan_for_missing_kanji_action)
 
-    refresh_ext_stories_action = QAction("Refresh external stories", aqt.mw)
-    refresh_ext_stories_action.triggered.connect(on_refresh_ext_stories)
-    submenu.addAction(refresh_ext_stories_action)
+    #convert_ext_stories_action = QAction("Convert external stories", aqt.mw)
+    #convert_ext_stories_action.triggered.connect(on_convert_ext_stories)
+    #submenu.addAction(convert_ext_stories_action)
 
     settings_action = QAction("Settings", aqt.mw)
     settings_action.setMenuRole(QAction.MenuRole.NoRole)
@@ -86,9 +86,9 @@ def on_mark_known():
     MarkKnownDialog.show_modal(parent=aqt.mw)
 
 
-def on_refresh_ext_stories():
-    aqt.mw.migaku_kanji_db.external_stories.convert_external_stories("RRTK")
-    aqt.mw.migaku_kanji_db.external_stories.convert_external_stories("WK")
+#def on_convert_ext_stories():
+#    aqt.mw.migaku_kanji_db.stories_converter.convert_external_stories("RRTK")
+#    aqt.mw.migaku_kanji_db.stories_converter.convert_external_stories("WK")
 
 def on_recalc():
     class RecalcThread(QThread):
