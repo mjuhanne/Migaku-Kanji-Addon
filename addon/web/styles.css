@@ -695,6 +695,7 @@ button.primitive:focus .kanji-addon__hover-tooltip,
 .title-tooltip__title {
 	display: inline-flex;
 	margin-left: 22px;
+	margin-top: 5px;
 }
 
 .title-tooltip__title.-left-aligned {
@@ -2625,6 +2626,15 @@ button.radical {
 }
 
 
+.primitives-and-radicals__block.edit_mode {
+	background: #edf0ff
+}
+.ankidroid_dark_mode .primitives-and-radicals__block.edit_mode,
+.nightMode .primitives-and-radicals__block.edit_mode,
+.dark .primitives-and-radicals__block.edit_mode {
+	background: #644a27
+}
+
 @media only screen and (min-width: 30em) and (max-width: 36.1875em) {
 	.stories__title {
 		margin-top: 15px;
@@ -2637,6 +2647,10 @@ button.radical {
 
 .stories__content p:last-child {
 	margin-bottom: 0;
+}
+
+.stories__content p {
+	margin-left: 20px;
 }
 
 .stories__content img {

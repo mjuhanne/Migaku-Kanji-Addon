@@ -1,6 +1,29 @@
 var dmak = null;
 var data = null;
 
+const primitive_source_labels = {
+    'h' : 'Heisig',
+    'cs' : 'Crowd-sourced',
+    'wk' : 'Wanikani',
+}
+
+const primitive_source_labels_for_editing = {
+    'h' : 'Heisig',
+    'cs' : 'crowd-sourced',
+    'wk' : 'Wanikani',
+}
+
+const story_source_labels = {
+    'h' : 'Heisig',
+    'cs' : 'Crowd',
+    'rrtk' : 'RRTK',
+    'wk' : 'Wanikani',
+    'wr' : 'Wanikani reading',
+    'ks' : 'Koohi stories'
+}
+
+const all_primitive_sources = ['h','cs','wk']
+const all_story_sources = ['h','cs','rrtk','wk','wr','ks']
 
 function create_primitive_section(primitives_detail, user_modified_primitives, mark_rare_primitives) {
 
@@ -62,6 +85,57 @@ function create_primitive_section(primitives_detail, user_modified_primitives, m
     return primitives_pts;
 }
 
+function update_primitives_section() {
+
+    let container = document.getElementById("primitives_block");
+    if (!container.hasOwnProperty("primitive_edit_mode")) {
+        container.primitive_edit_mode = false
+    }
+
+    for (source of all_primitive_sources) {
+
+        var primitives_pts = []
+        var hasPrimitives = false
+
+        if (source in data.stories) {
+
+            let userModifiedPrimitives = is_item_modified(source,'primitives');
+            primitives_pts = create_primitive_section(data.primitives_detail[source], userModifiedPrimitives, true);
+            hasPrimitives = primitives_pts.length > 0;
+        }
+
+        prim_id = '#' + source + "_primitives";
+        title = document.getElementById(source + "_primitives_title");
+
+        title.className = "title-tooltip__title " + (container.primitive_edit_mode ? " editable_title" : "");
+        title.setAttribute("onclick", container.primitive_edit_mode ? "edit_item('" + source + "','primitives');" : "");
+        if (container.primitive_edit_mode) {
+            if (hasPrimitives) {
+                $(title).html("Edit " + primitive_source_labels_for_editing[source] + " <br>primitives");
+            } else {
+                $(title).html("Add " + primitive_source_labels_for_editing[source] + " <br>primitives");
+            }
+            title.setAttribute("onclick", "edit_item('" + source + "','primitives')");
+
+        } else {
+            $(title).html( primitive_source_labels[source] );
+            title.setAttribute("onclick", "");
+        }
+
+        $(prim_id).empty();
+        if (hasPrimitives) {
+            title.style.display = "block";
+            $(prim_id).html(primitives_pts.join(''));
+        } else {
+            if (isMobileDevice || !container.primitive_edit_mode) {
+                title.style.display = "none";
+            } else {
+                title.style.display = "block";
+            }
+        }
+    }
+}
+
 function edit_item(source, item_name) {
     pycmd(
         'edit_item-' +
@@ -94,11 +168,13 @@ function update_story_section() {
         story_tuple = stories[idx];
         var story_source = story_tuple[0]
         var story_type = story_tuple[1]
-        var story = story_tuple[2]
+        var story_header = story_tuple[2]
+        var story = story_tuple[3]
+
         if ((story_source == "user") || !hide_non_usr_story) {
 
-            if (container.edit_mode) {
-                if ((story_source=="h" && (story==""))) {
+            if ((container.edit_mode) && (story=="")) {
+                if ((story_source=="h")) {
                     if (story_type=="story") {
                         story="<b>Add Heisig story</b>";
                     }
@@ -106,7 +182,7 @@ function update_story_section() {
                         story="<b>Add Heisig comment</b>";
                     }
                 }
-                if ((story_source=="cs" && (story==""))) {
+                if ((story_source=="cs")) {
                     if (story_type=="story") {
                         story="<b>Add crowd-sourced story</b>";
                     }
@@ -114,17 +190,12 @@ function update_story_section() {
                         story="<b>Add crowd-sourced comment</b>";
                     }
                 }
+            } else if (story != "") {
+                story = story_header + story;
             }
-            if (story_source == 'wk' || story_source == 'rrtk') {
-                story = '<b>' + story_source + ':</b> ' + story
-            } else {
-                if (story_source == 'wr') {
-                    story = '<b>WK reading:</b> ' + story
-                }
-            }
-            html_stories += `<p class="story ${container.edit_mode ? 'editable_title' : ''}" 
+            html_stories += `<p><div class="story ${container.edit_mode ? 'editable_title' : ''}" 
                 ${container.edit_mode ? 'onClick=edit_story("' + story_source + '","' + story_type + '") ' : ''}
-                >` + story + '</p>';
+                >` + story + '</div></p>';
         }
     }
     $('#stories').html(html_stories);
@@ -133,13 +204,13 @@ function update_story_section() {
 function create_story_section() {
 
     var userModified = false
-    for (const source of ['h','cs','rrtk','wk','wr','ks']) {
+    for (const source of all_story_sources) {
         if (is_item_modified(source,'story') || is_item_modified(source,'comment')) 
             userModified = true
     }
 
     $('#story_title').html(
-        `<span class="editable_title ${userModified ? ' -user-modified' : ''}" onclick="toggle_story_editing();">Stories</span>`
+        `<span class="${userModified ? ' -user-modified' : ''}">Stories</span>`
     );
 
     var stories = [];
@@ -150,7 +221,7 @@ function create_story_section() {
 
     let sources = [];
 
-    for (const source of ['h','cs','rrtk','wk','wr','ks']) {
+    for (const source of all_story_sources) {
         
         let story_paragraphs = []
         let comment_paragraphs = []
@@ -163,32 +234,42 @@ function create_story_section() {
 
             if (story_paragraphs.length>0 || comment_paragraphs.length>0) {
 
-                let header = '';
-                let keyword = keywords.length>0 ? keywords[0] : '';
-                if (source != 'h' && source != 'ks') {
-                    header = keywords + ': ';
+                let header = story_source_labels[source];
+                if (header != '') {
+                    header = '<b>' + header + '</b>'
                 }
+                header += keywords.length>0 && keywords[0] != data.main_keyword ? ' (' + keywords[0] + '): ' : ': ';
             
+                let force_paragraphs = story_paragraphs.length + comment_paragraphs.length > 1
+
+                let text = ''
                 for (const sp of story_paragraphs) {
                     p = source != 'ks' ? ReplaceTagsWithImages(sp) : sp;
-                    stories.push([source, 'story', header + p]);
+                    text += force_paragraphs ? '<p>' + p + '</p>' : p
+                }
+                if (story_paragraphs.length>0) {
+                    stories.push([source, 'story', header, text]);
                     header = '';
                 }
+
+                text = ''
                 for (const cp of comment_paragraphs) {
                     p = source != 'ks' ? ReplaceTagsWithImages(cp) : cp;
-                    stories.push([source, 'comment', p]);
+                    text += force_paragraphs ? '<p>' + p + '</p>' : p
+                }
+                if (comment_paragraphs.length>0) {
+                    stories.push([source, 'comment', header, text]);
                 }
             }
-
         } 
         
         if (source=='h' || source=='cs') {
             // add placeholder empty story/comment to allow editing
             if (story_paragraphs.length==0) {
-                stories.push([source, 'story', '']);
+                stories.push([source, 'story', '', '']);
             }
             if (comment_paragraphs.length==0) {
-                stories.push([source, 'comment', '']);
+                stories.push([source, 'comment', '', '']);
             }
         }
     }
@@ -213,6 +294,19 @@ function toggle_story_editing(state) {
         update_story_section();
     }
     container.className = "stories__container" + (container.edit_mode ? " edit_mode" : "")
+}
+
+function toggle_primitive_editing(state) {
+    let container = document.getElementById("primitives_block");
+
+    if (typeof state === 'boolean') {
+        container.primitive_edit_mode = state;
+        update_primitives_section();
+    } else {
+        container.primitive_edit_mode = !container.primitive_edit_mode;
+        update_primitives_section();
+    }
+    container.className = "primitives-and-radicals__block" + (container.primitive_edit_mode ? " edit_mode" : "")
 }
 
 function toggleShow(targetId, state) {
@@ -664,56 +758,7 @@ function render_page(page_type) {
     $('#kunyomi').html(data.kunyomi.length ? data.kunyomi.join(', ') : '-');
     $('#nanori').html(data.nanori.length ? data.nanori.join(', ') : '-');
 
-
-    
-    var userModifiedPrimitives = is_item_modified('h','primitives');
-    var primitives_pts = 'h' in data.stories ? create_primitive_section(data.primitives_detail_h, userModifiedPrimitives, true) : [];
-    var hasPrimitives = primitives_pts.length > 0;
-	$('#primitives').empty();
-    $('#primitives').html(
-        hasPrimitives ? primitives_pts.join('') : noResultsSpan,
-    );
-
-    var userModifiedSecondaryPrimitives = is_item_modified('cs','primitives');
-	var sec_primitives_pts = 'cs' in data.stories ? create_primitive_section(data.primitives_detail_cs, userModifiedSecondaryPrimitives, true) : [];
-	var hasSecondaryPrimitives = sec_primitives_pts.length > 0;
-	sec_prim_title = document.getElementById("secondary_primitive_title")
-	sec_prim_add = document.getElementById("secondary_primitive_add_link")
-	sec_prim_sep = document.getElementById("secondary_primitive_separator")
-	$('#secondary_primitives').empty();
-	if (hasSecondaryPrimitives) {
-		sec_prim_title.style.display = "block"
-		sec_prim_sep.style.display = "block"
-		sec_prim_add.style.display = "none"
-		$('#secondary_primitives').html(sec_primitives_pts.join(''));
-	} else {
-
-		if (isMobileDevice) {
-			sec_prim_cont = document.getElementById("secondary_primitive_container")
-			sec_prim_cont.style.display = "none"
-		} else {
-			sec_prim_title.style.display = "none"
-			sec_prim_add.style.display = "block"
-			sec_prim_sep.style.display = "none"
-		}
-	}
-
-	wk_prim = document.getElementById("wk_primitives")
-    wk_prim_cont = document.getElementById("wk_primitive_container")
-	//wk_prim_title = document.getElementById("wk_primitive_title")
-	//wk_prim_sep = document.getElementById("wk_primitive_separator")
-    if ("primitives_detail_wk" in data) {
-        var wk_primitives_pts = create_primitive_section(data.primitives_detail_wk, false, true);
-        $('#wk_primitives').empty();
-		//wk_prim_title.style.display = "block"
-		//wk_prim_sep.style.display = "block"
-        wk_prim.style.display = "block"
-        wk_prim_cont.style.display = "block"
-		$('#wk_primitives').html(wk_primitives_pts.join(''));
-    } else {
-        wk_prim_cont.style.display = "none"
-        wk_prim.style.display = "none"
-	}
+    update_primitives_section();
 
     var primitive_of_pts = create_primitive_section(data.primitive_of_detail, false, true);
     var hasPrimitivesOf = primitive_of_pts.length > 0;

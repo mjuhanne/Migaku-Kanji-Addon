@@ -342,9 +342,41 @@ class StoryDatabase:
             ret[source]['modified_fields'] = []
 
         self._overwrite_with_modified_story_elements(character, ret)
-            
+
         return ret
 
+
+    def _extract_main_keyword(self, keyword_source, stories):
+        kw_list = stories[keyword_source]["keywords"]
+        main_keyword = None
+        if len(kw_list)>0:
+            if keyword_source != 'h':
+                main_keyword = kw_list[0]
+            else:
+                if len(kw_list)==2:
+                    # select Heisig edition 6 keyword
+                    main_keyword = kw_list[1]
+                else:
+                    # select Heisig edition 1-5 keyword
+                    main_keyword = kw_list[0]
+        if main_keyword is None:
+            kw_list = stories[keyword_source]["primitive_keywords"]
+            if len(kw_list)>0:
+                main_keyword = kw_list[0]
+        return main_keyword
+
+    def extract_main_keyword(self, stories):
+        main_keyword = None
+        if main_keyword_source in stories:
+            main_keyword = self._extract_main_keyword(main_keyword_source, stories)
+
+        if main_keyword is None:
+            for source in stories.keys():
+                main_keyword = self._extract_main_keyword(source, stories)
+                if main_keyword is not None:
+                    return main_keyword
+
+        return main_keyword
 
     # Because the FULL OUTER JOIN in sql3 is not supported, we have to do this 
     # separate ugly query to fetch modified elements 

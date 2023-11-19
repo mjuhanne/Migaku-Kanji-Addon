@@ -47,10 +47,10 @@
 <div class="primitives-and-radicals__wrapper">
 	<div class="primitives-and-radicals__container">
 		<div class="primitives-and-radicals__components">
-			<div class="primitives-and-radicals__block">
+			<div id="primitives_block" class="primitives-and-radicals__block">
 				<div class="title-tooltip__container">
 					<h2 class="title-tooltip__title primitives-and-radicals__title">
-						<span class="editable_title" onclick="edit_item('h','primitives');">Primitives</span>
+						<span>Primitives</span>
 						<button
 							type="button"
 							title="What's this?"
@@ -58,6 +58,14 @@
 							onclick="toggleShow('tooltip-id--primtives__title')"
 						>
 							<img src="_kanji_icon_help_black.svg" alt="" />
+						</button>
+						<button
+							type="button"
+							title="Toggle primitive editing mode"
+							aria-controls="tooltip-id--primtives__title"
+							onclick="toggle_primitive_editing()"
+						>
+							<img src="_kanji_icon_cog_black.svg" alt="" />
 						</button>
 					</h2>
 
@@ -75,75 +83,20 @@
 					<hr class="separator" />
 				</div>
 
+				<h4 id="h_primitives_title" class="title-tooltip__title">Heisig</h4>
 				<div
-					id="primitives"
+					id="h_primitives"
 					class="primitives-and-radicals__list kanji-char-font"
 				></div>
-				<div id="secondary_primitive_container" class="title-tooltip__container">
-					<h2
-					class="title-tooltip__title primitives-and-radicals__title"
-					>
-						<span id="secondary_primitive_title" class="editable_title" onclick="edit_item('cs','primitives');">Secondary primitives</span>
-						<span id="secondary_primitive_add_link" class="editable_title smaller-title" style="display: none" onclick="edit_item('cs','primitives');">Add secondary<br>primitives</span>
-						<button
-							type="button"
-							title="What's this?"
-							aria-controls="tooltip-id--primtives__title"
-							onclick="toggleShow('tooltip-id--secondary_primtives__title')"
-						>
-							<img src="_kanji_icon_help_black.svg" alt="" />
-						</button>
-					</h2>
 
-					<div
-						id="tooltip-id--secondary_primtives__title"
-						class="title-tooltip__text"
-						style="display: none"
-						aria-expanded="false"
-					>
-						The secondary or crowd-sourced non-Heisig primitives. This list will be used to create new cards
-						if the list contains any primitives and user has enabled this option in Production/Recognition settings.
-						You can also edit this list yourself if you think a different set of primitives represent the kanji better
-						or if the default list is confusing to you. 
-						If you think the default list has clear errors or missing primitives consider editing it instead.
-					</div>
-
-					<hr id="secondary_primitive_separator" class="separator" />
-				</div>
-
+				<h4 id="cs_primitives_title" class="title-tooltip__title">Crowd-sourced</h4>
 				<div
-					id="secondary_primitives"
+					id="cs_primitives"
 					class="primitives-and-radicals__list kanji-char-font"
 				>
 				</div>
 
-				<div id="wk_primitive_container" class="title-tooltip__container">
-					<h2
-					class="title-tooltip__title primitives-and-radicals__title"
-					>
-						<span id="wk_primitive_title">Wanikani primitives</span>
-						<button
-							type="button"
-							title="What's this?"
-							aria-controls="tooltip-id--primtives__title"
-							onclick="toggleShow('tooltip-id--wk_primtives__title')"
-						>
-							<img src="_kanji_icon_help_black.svg" alt="" />
-						</button>
-					</h2>
-
-					<div
-						id="tooltip-id--wk_primtives__title"
-						class="title-tooltip__text"
-						style="display: none"
-						aria-expanded="false"
-					>
-						Primitive list from Wanikani.
-					</div>
-
-					<hr id="wk_primitive_separator" class="separator" />
-				</div>
-
+				<h4 id="wk_primitives_title" class="title-tooltip__title">Wanikani</h4>
 				<div
 					id="wk_primitives"
 					class="primitives-and-radicals__list kanji-char-font"

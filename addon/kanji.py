@@ -930,9 +930,11 @@ class KanjiDB:
                 ret["words"] = self.get_character_words(character)
             
             stories = self.story_db.get_stories(character)
+            
             ret["primitive_of"] = self.story_db.get_primitive_of(character)
             ret["stories"] = stories
-
+            ret["main_keyword"] = self.story_db.extract_main_keyword(stories)
+            
             ret["primitives"] = stories["h"]["primitives"] if 'h' in stories else []
             ret["primitive_alternatives"] = stories["h"]["primitive_alternatives"] if 'h' in stories else []
 
@@ -959,6 +961,7 @@ class KanjiDB:
 
             if detail_primitives:
 
+                ret["primitives_detail"] = {}
                 for source in stories.keys():
 
                     primitives = stories[source]["primitives"]
@@ -976,7 +979,7 @@ class KanjiDB:
                             )
                         )
 
-                    ret["primitives_detail_" + source.lower()] = primitives_detail
+                    ret["primitives_detail"][source.lower()] = primitives_detail
 
             if detail_primitive_of:
                 primitive_of_detail = []
