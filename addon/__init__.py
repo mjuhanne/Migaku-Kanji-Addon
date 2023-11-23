@@ -178,7 +178,7 @@ def on_scan_for_missing_kanji():
     thread.start()
 
 def on_force_learn_ahead():
-    aqt.mw.migaku_kanji_db.refresh_learn_ahead()
+    aqt.mw.migaku_kanji_db.refresh_learn_ahead(show_confirm_dialog=True)
 
 def on_settings():
     SettingsWindow.show_modal(aqt.mw)

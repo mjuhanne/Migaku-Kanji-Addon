@@ -462,7 +462,9 @@ class KanjiDB:
             if len(new_kanji_for_msg) > 0:
                 KanjiConfirmDialog.show_new_kanji(new_kanji_for_msg, aqt.mw)
 
-    def refresh_learn_ahead(self):
+    def refresh_learn_ahead(self, show_confirm_dialog=False):
+        new_kanji_for_msg = OrderedDict()
+
         for ct in CardType:
             for e in config.get("card_type_learn_ahead", {}).get(ct.label, []):
                 deck_name = e["deck"]
@@ -477,11 +479,18 @@ class KanjiDB:
                 print("***** Card type %s Deck: %s - New from unstudied: %s *****" % (ct.label,deck_name,new))
 
                 if len(new) > 0:
-                    try:
-                        self.make_cards_from_characters(ct, new, None)
-                    except InvalidStateError:
-                        # Ignore this silently...
-                        pass
+                    if not show_confirm_dialog:
+                        try:
+                            self.make_cards_from_characters(ct, new, None)
+                        except InvalidStateError:
+                            # Ignore this silently...
+                            pass
+                    else:
+                        new_kanji_for_msg[ct] = new
+
+        if len(new_kanji_for_msg) > 0:
+            KanjiConfirmDialog.show_new_kanji(new_kanji_for_msg, aqt.mw)
+
 
     def scan_for_missing_kanji(self, callback=None):
 
@@ -961,7 +970,6 @@ class KanjiDB:
 
             if detail_primitives:
 
-                ret["primitives_detail"] = {}
                 for source in stories.keys():
 
                     primitives = stories[source]["primitives"]
