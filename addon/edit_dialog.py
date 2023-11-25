@@ -165,7 +165,7 @@ class EditPrimitivesDialog(EditDialog):
         self.results_lyt = QVBoxLayout()
         lyt.addLayout(self.results_lyt)
 
-        bar_height = self.new_value_edit.sizeHint().height()*1.5
+        bar_height = int(self.new_value_edit.sizeHint().height()*1.5)
         self.power_search_bar = PowerSearchBar( self.search_bar_lyt , self.results_lyt, self.max_search_results,
             bar_height, self.on_primitive_selected, hide_empty_result_buttons=False
         )
