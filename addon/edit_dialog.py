@@ -234,10 +234,10 @@ class EditUserStoryDialog(EditDialog):
         super().__init__(None, character, "user story", True, parent)
 
     def get_original_data(self):
-        return aqt.mw.migaku_kanji_db.get_character_usr_story(self.character)
+        return [aqt.mw.migaku_kanji_db.get_character_usr_story(self.character)]
 
     def get_previous_modified_data(self):
-        return self.new_suggested_story
+        return [self.new_suggested_story]
 
     def save_value_to_db(self, value):
         aqt.mw.migaku_kanji_db.set_character_usr_story(

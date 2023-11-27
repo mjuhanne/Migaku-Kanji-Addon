@@ -15,7 +15,7 @@ START - Migaku markup
 	<div class="layout__above">
 		<!-- START - Character and examples -->
 		<div class="character-and-examples__container">
-			<h1 id="keywords_front" class="character-and-examples__keyword">
+			<h1 id="keywords" class="character-and-examples__keyword">
 				<button class="keyword_search_button"
 					type="button"
 					title="Wiktionary"
@@ -117,14 +117,12 @@ START - Migaku markup
 	);
 
 	if (settings.hide_keywords && word_front_pts.length > 0)
-		document.getElementById('keywords_front').style.display = 'none';
+		document.getElementById('keywords').style.display = 'none';
 
-	var keywords = get_keywords(data);
+	var keywords = get_decorated_keywords(data);
+	if (keywords.length < 1) keywords = data.meanings;
 	keywords_txt = keywords.length ? keywords.join(', ') : '-';
 	$('#keywords').html(keywords_txt);
-	if (keywords.length < 1) keywords = data.meanings;
-	keywords_front_txt = keywords.length ? keywords.join(', ') : '-';
-	$('#keywords_front').html(keywords_front_txt);
 
 	if (!settings.show_readings_front) $('rt').css({ visibility: 'hidden' });
 </script>

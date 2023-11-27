@@ -975,6 +975,16 @@ body.dark {
 	background: #f2994a;
 }
 
+.edit_mode_button__container button {
+	float: right;
+	height: 40px;
+}
+
+.edit_mode_button__container img {
+	width: 30px;
+	height: 30px;
+}
+
 .character-and-examples__container {
 	align-items: center;
 	display: flex;
@@ -2627,11 +2637,26 @@ button.radical {
 
 
 .primitives-and-radicals__block.edit_mode {
-	background: #edf0ff
+	background: #edf0ff;
+	padding-left: 10px;
+	padding-bottom: 10px;
+	margin-right: 10px;
 }
 .ankidroid_dark_mode .primitives-and-radicals__block.edit_mode,
 .nightMode .primitives-and-radicals__block.edit_mode,
 .dark .primitives-and-radicals__block.edit_mode {
+	background: #644a27
+}
+
+.editable_keywords__container.edit_mode {
+	background: #edf0ff;
+	padding-left: 10px;
+	padding-bottom: 10px;
+	margin-right: 10px;
+}
+.ankidroid_dark_mode .editable_keywords__container.edit_mode,
+.nightMode .editable_keywords__container.edit_mode,
+.dark .editable_keywords__container.edit_mode {
 	background: #644a27
 }
 

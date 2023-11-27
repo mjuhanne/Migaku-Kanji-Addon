@@ -968,6 +968,7 @@ class KanjiDB:
 
             ret["is_rare"] = self.is_primitive_rare(character, card_type)
 
+            ret["primitives_detail"] = {}
             if detail_primitives:
 
                 for source in stories.keys():

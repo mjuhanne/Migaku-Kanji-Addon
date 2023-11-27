@@ -48,37 +48,38 @@ START - Migaku markup
 
 		<main class="layout__main">
 			<div class="layout__content">
-				<!-- START - Font examples -->
-				<div class="font-examples__container">
-					<h2 class="vh">Font examples</h2>
-					<ul class="font-examples__list">
-						<li class="fontExample font-1 font-examples__character" id="character_img_1"></li>
-						<li class="fontExample font-2 font-examples__character" id="character_img_2"></li>
-						<li class="fontExample font-3 font-examples__character" id="character_img_3"></li>
-						<li class="fontExample font-4 font-examples__character" id="character_img_4"></li>
-					</ul>
+				<div>
+					<div class="edit_mode_button__container title-tooltip__container">
+						<button
+							type="button"
+							title="Toggle editing mode"
+							onclick="toggle_editing()"
+							class="edit_mode_button"
+						>
+							<img src="_kanji_icon_cog_black.svg" alt="" />
+						</button>
+					</div>
+					<!-- START - Font examples -->
+					<div class="font-examples__container">
+						<h2 class="vh">Font examples</h2>
+						<ul class="font-examples__list">
+							<li class="fontExample font-1 font-examples__character" id="character_img_1"></li>
+							<li class="fontExample font-2 font-examples__character" id="character_img_2"></li>
+							<li class="fontExample font-3 font-examples__character" id="character_img_3"></li>
+							<li class="fontExample font-4 font-examples__character" id="character_img_4"></li>
+						</ul>
+					</div>
+					<!-- END - Font examples -->
 				</div>
-				<!-- END - Font examples -->
 
 				<!-- START - Keyword and meaning -->
 				<div class="keyword-and-meaning__container">
-					<h2 class="keyword-and-meaning__keyword">
-						<span id="keywords" class="editable_title" onclick="edit_item('cs','primitive_keywords');"></span>
-						<button class="keyword_search_button"
-							type="button"
-							title="Wiktionary"
-						>
-							<img src="_kanji_icon_help_black.svg" alt="" />
-							<a
-								id="keyword_search_link"
-								href=""
-								target="_blank"
-								class="keyword-search"
-								aria-hidden="true"
-								rel="noopener noreferrer"
-							></a>`
-						</button>
-					</h2>
+					<h2 id="keywords" class="keyword-and-meaning__keyword"></h2>
+					<div id="editable_keywords_container" class="editable_keywords__container">
+						<h2 id="editable_keywords_title" class="title-tooltip__title">Edit keywords</h2>
+						<hr class="separator" />
+						<span id="editable_keywords" class="keyword-and-meaning__keyword__TODO"></span>
+					</div>
 					<div class="meanings__container">
 						<h3 class="meanings__title">Meanings:</h3>
 						<span id="meanings"></span>

@@ -1,19 +1,34 @@
 var dmak = null;
 var data = null;
 
-const primitive_source_labels = {
+var all_keyword_sources = ['h','cs','rrtk','wk']
+var all_primitive_sources = ['h','cs','wk']
+var all_story_sources = ['h','cs','rrtk','wk','wr','ks']
+
+var primitive_source_labels = {
     'h' : 'Heisig',
     'cs' : 'Crowd-sourced',
     'wk' : 'Wanikani',
 }
 
-const primitive_source_labels_for_editing = {
+var primitive_source_labels_for_editing = {
     'h' : 'Heisig',
     'cs' : 'crowd-sourced',
     'wk' : 'Wanikani',
 }
 
-const story_source_labels = {
+var source_labels_for_editing = {
+    'user' : 'user',
+    'h' : 'Heisig',
+    'cs' : 'crowd-sourced',
+    'rrtk' : 'RRTK',
+    'wk' : 'Wanikani',
+    'wr' : 'Wanikani reading',
+    'ks' : 'Koohi stories'
+}
+
+var source_labels = {
+    'user' : 'User',
     'h' : 'Heisig',
     'cs' : 'Crowd',
     'rrtk' : 'RRTK',
@@ -22,8 +37,39 @@ const story_source_labels = {
     'ks' : 'Koohi stories'
 }
 
-const all_primitive_sources = ['h','cs','wk']
-const all_story_sources = ['h','cs','rrtk','wk','wr','ks']
+function add_edit_keyword_link(source, html_keywords, is_primitive_keyword) {
+    let html = '';
+    html = `<span class="editable_title" onclick="edit_item('`+source+`','`;
+    html += is_primitive_keyword ? 'primitive_keywords' : 'keywords';
+    html += `');">`;
+    if (html_keywords.length>0) {
+        html += '<b>' + source_labels[source];
+        html += is_primitive_keyword ? ' (primitive)' : '';
+        html += ': </b>';
+        for (const html_keyword of html_keywords) {
+            html += html_keyword + ' ';
+        }
+    } else {
+        html += '<i>Add ' + source_labels_for_editing[source];
+        html += is_primitive_keyword ? ' primitive ' : '';
+        html += ' keywords</i>';
+    }
+    html += '</span><br><br>';
+    return html;
+}
+
+function get_editable_keyword_section(dataset) {
+    let html = '';
+
+    for (const source of all_keyword_sources) {
+        let html_keywords = [];
+        if (source in dataset.stories) {
+            html += add_edit_keyword_link(source, dataset.stories[source]['keywords'], false);
+            html += add_edit_keyword_link(source, dataset.stories[source]['primitive_keywords'], true);
+        }
+    }
+    return html;
+}
 
 function create_primitive_section(primitives_detail, user_modified_primitives, mark_rare_primitives) {
 
@@ -33,7 +79,7 @@ function create_primitive_section(primitives_detail, user_modified_primitives, m
             primitives_pts.push('MISSING DATA FOR ' + p_data.character);
             continue
         }
-        let keywords = get_keywords(p_data);
+        let keywords = get_decorated_keywords(p_data);
 
         var keywords_txt = keywords.length ? keywords.join(', ') : '-';
 
@@ -87,17 +133,12 @@ function create_primitive_section(primitives_detail, user_modified_primitives, m
 
 function update_primitives_section() {
 
-    let container = document.getElementById("primitives_block");
-    if (!container.hasOwnProperty("primitive_edit_mode")) {
-        container.primitive_edit_mode = false
-    }
-
     for (source of all_primitive_sources) {
 
         var primitives_pts = []
         var hasPrimitives = false
 
-        if (source in data.stories) {
+        if (source in data.primitives_detail) {
 
             let userModifiedPrimitives = is_item_modified(source,'primitives');
             primitives_pts = create_primitive_section(data.primitives_detail[source], userModifiedPrimitives, true);
@@ -107,19 +148,16 @@ function update_primitives_section() {
         prim_id = '#' + source + "_primitives";
         title = document.getElementById(source + "_primitives_title");
 
-        title.className = "title-tooltip__title " + (container.primitive_edit_mode ? " editable_title" : "");
-        title.setAttribute("onclick", container.primitive_edit_mode ? "edit_item('" + source + "','primitives');" : "");
-        if (container.primitive_edit_mode) {
+        title.className = "title-tooltip__title " + (settings.edit_mode ? " editable_title" : "");
+        title.setAttribute("onclick", settings.edit_mode ? "edit_item('" + source + "','primitives');" : "");
+        if (settings.edit_mode) {
             if (hasPrimitives) {
                 $(title).html("Edit " + primitive_source_labels_for_editing[source] + " <br>primitives");
             } else {
                 $(title).html("Add " + primitive_source_labels_for_editing[source] + " <br>primitives");
             }
-            title.setAttribute("onclick", "edit_item('" + source + "','primitives')");
-
         } else {
             $(title).html( primitive_source_labels[source] );
-            title.setAttribute("onclick", "");
         }
 
         $(prim_id).empty();
@@ -127,14 +165,35 @@ function update_primitives_section() {
             title.style.display = "block";
             $(prim_id).html(primitives_pts.join(''));
         } else {
-            if (isMobileDevice || !container.primitive_edit_mode) {
+            if (isMobileDevice || !settings.edit_mode) {
                 title.style.display = "none";
             } else {
                 title.style.display = "block";
             }
         }
     }
+    $('.primitive').click(primitive_click);
 }
+
+function create_keyword_section() {
+
+    if (settings.edit_mode) {
+        let html = get_editable_keyword_section(data, settings.edit_mode);
+        $('#keywords').hide();
+        $('#editable_keywords').html(html);
+        $('#editable_keywords_container').show();
+    } else {
+        let keywords = get_decorated_keywords(data);
+        if ((settings.page_type != 'lookup') && (keywords.length < 1)) {
+            keywords = data.meanings;
+        }
+        let keywords_txt = keywords.length ? keywords.join(', ') : '-';
+        $('#keywords').html(keywords_txt);
+        $('#keywords').show();
+        $('#editable_keywords_container').hide();
+    }
+}
+
 
 function edit_item(source, item_name) {
     pycmd(
@@ -161,7 +220,7 @@ function update_story_section() {
     html_stories = '';
 
     var hide_non_usr_story = false
-	if (settings.only_custom_stories && data.usr_story && (!container.edit_mode))
+	if (settings.only_custom_stories && data.usr_story && (!settings.edit_mode))
         hide_non_usr_story = true
 
     for (idx in stories) {
@@ -173,7 +232,7 @@ function update_story_section() {
 
         if ((story_source == "user") || !hide_non_usr_story) {
 
-            if ((container.edit_mode) && (story=="")) {
+            if ((settings.edit_mode) && (story=="")) {
                 if ((story_source=="h")) {
                     if (story_type=="story") {
                         story="<b>Add Heisig story</b>";
@@ -193,8 +252,8 @@ function update_story_section() {
             } else if (story != "") {
                 story = story_header + story;
             }
-            html_stories += `<p><div class="story ${container.edit_mode ? 'editable_title' : ''}" 
-                ${container.edit_mode ? 'onClick=edit_story("' + story_source + '","' + story_type + '") ' : ''}
+            html_stories += `<p><div class="story ${settings.edit_mode ? 'editable_title' : ''}" 
+                ${settings.edit_mode ? 'onClick=edit_story("' + story_source + '","' + story_type + '") ' : ''}
                 >` + story + '</div></p>';
         }
     }
@@ -216,7 +275,7 @@ function create_story_section() {
     var stories = [];
 
     if (data.usr_story) {
-        stories.push( ['user','story',data.usr_story.split('\n').join('<br>')]);
+        stories.push( ['user', 'story', '', data.usr_story.split('\n').join('<br>')]);
     }
 
     let sources = [];
@@ -234,7 +293,7 @@ function create_story_section() {
 
             if (story_paragraphs.length>0 || comment_paragraphs.length>0) {
 
-                let header = story_source_labels[source];
+                let header = source_labels[source];
                 if (header != '') {
                     header = '<b>' + header + '</b>'
                 }
@@ -276,38 +335,33 @@ function create_story_section() {
 
     story_container = document.getElementById("stories_container")
     story_container.stories = stories
-    if (!story_container.hasOwnProperty("edit_mode")) {
-        story_container.edit_mode = false
-    }
 
     update_story_section();    
 }
 
-function toggle_story_editing(state) {
-    var container = document.getElementById("stories_container");
+function toggle_editing(state) {
 
     if (typeof state === 'boolean') {
-        container.edit_mode = state;
-        update_story_section();
+        settings.edit_mode = state;
     } else {
-        container.edit_mode = !container.edit_mode;
-        update_story_section();
+        settings.edit_mode = !settings.edit_mode;
     }
-    container.className = "stories__container" + (container.edit_mode ? " edit_mode" : "")
+
+    container = document.getElementById("stories_container");
+    container.className = "stories__container" + (settings.edit_mode ? " edit_mode" : "")
+
+    container = document.getElementById("primitives_block");
+    container.className = "primitives-and-radicals__block" + (settings.edit_mode ? " edit_mode" : "")
+
+    container = document.getElementById("editable_keywords_container");
+    container.className = "editable_keywords__container" + (settings.edit_mode ? " edit_mode" : "")
+
+    create_keyword_section();
+    update_primitives_section();
+    update_story_section();
+
 }
 
-function toggle_primitive_editing(state) {
-    let container = document.getElementById("primitives_block");
-
-    if (typeof state === 'boolean') {
-        container.primitive_edit_mode = state;
-        update_primitives_section();
-    } else {
-        container.primitive_edit_mode = !container.primitive_edit_mode;
-        update_primitives_section();
-    }
-    container.className = "primitives-and-radicals__block" + (container.primitive_edit_mode ? " edit_mode" : "")
-}
 
 function toggleShow(targetId, state) {
     var tooltipContainer = document.getElementById(targetId);
@@ -758,6 +812,11 @@ function render_page(page_type) {
     $('#kunyomi').html(data.kunyomi.length ? data.kunyomi.join(', ') : '-');
     $('#nanori').html(data.nanori.length ? data.nanori.join(', ') : '-');
 
+    if (!settings.hasOwnProperty("edit_mode")) {
+        settings.edit_mode = false
+    }
+    settings.page_type = page_type
+
     update_primitives_section();
 
     var primitive_of_pts = create_primitive_section(data.primitive_of_detail, false, true);
@@ -1013,14 +1072,9 @@ function render_page(page_type) {
         $('.word').click(word_click);
     }
 
-    // map 'keyword search button' click to clicking the <a href> defined later
-    $('.keyword_search_button').click(function () {
-        this.querySelector('a.keyword-search').click();
-    });
-
     if (page_type == "production") {        
         if (settings.hide_keywords && word_front_pts.length > 0)
-            document.getElementById('keywords_front').style.display = 'none';
+            document.getElementById('keywords').style.display = 'none';
     }
 
     var hasRadicals = data.radicals.length > 0;
@@ -1037,26 +1091,7 @@ function render_page(page_type) {
         wrap_list(data.radicals, '<button class="radical">', '</button>'),
     );
 
-    var keywords = get_keywords(data);
-    keywords_txt = keywords.length ? keywords.join(', ') : '-';
-    $('#keywords').html(keywords_txt);
-    if (keywords.length < 1) keywords = data.meanings;
-    keywords_front_txt = keywords.length ? keywords.join(', ') : '-';
-    if (page_type != "lookup") {
-        $('#keywords_front').html(keywords_front_txt); }
-
-    // add keyword search link
-    // TODO
-    search_keyword = null;
-    if ('h' in data.stories) {
-        if (data.stories['h']['keywords'].length>0) {
-            search_keyword = data.stories['h']['keywords'][0];
-        }
-    }
-    if (search_keyword != null) {
-        elem = document.getElementById("keyword_search_link")
-        elem.setAttribute("href",`https://fi.m.wiktionary.org/wiki/${search_keyword}`);
-    }
+    create_keyword_section();
 
     var meanings_txt = data.meanings.length ? data.meanings.join(', ') : '-';
     $('#meanings').html(meanings_txt);

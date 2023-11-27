@@ -35,19 +35,20 @@ function is_item_modified(source, item_name) {
     return false;
 }
 
-function get_keywords(dataset) {
+function get_decorated_keywords(dataset) {
     let keywords = [];
     let raw_keywords = [];
+    
     if (dataset.usr_keyword) keywords.push(dataset.usr_keyword);
-    if (!settings.only_custom_keywords || keywords.length < 1 || page_type == "lookup") {
-        if (dataset.usr_primitive_keyword)
-            keywords.push(
-                '<span class="primitive_keyword">' +
-                dataset.usr_primitive_keyword +
-                    '</span>',
-            );
-        //for (let [source,src_keywords] of Object.entries(dataset.stories['keywords'])) {
-        for (let source in dataset.stories) {
+    if (dataset.usr_primitive_keyword) 
+        keywords.push(
+            '<span class="primitive_keyword">' +
+            dataset.usr_primitive_keyword +
+                '</span>',
+        );
+
+    if (!settings.only_custom_keywords || decorated_keywords.length < 1 || settings.page_type == "lookup") {
+        for (const source in dataset.stories) {
             let color_class = '';
             if (source != 'h')  {
                 if (source=='rrtk' || source=='wk') {
@@ -57,6 +58,7 @@ function get_keywords(dataset) {
                 }
                 color_class += 'source_' + source
             }
+
             var userModifiedKeywords = is_item_modified(source,'keywords');
             for (const pk of dataset.stories[source]['keywords']) {
                 let conflict = dataset.stories[source]['conflicting_keywords'].includes(pk) ? 'conflicting_keyword' : '';
@@ -66,6 +68,7 @@ function get_keywords(dataset) {
                     keywords.push(kw);
                 }
             }
+
             var userModifiedPrimitiveKeywords = is_item_modified(source,'primitive_keywords');
             for (const pk of dataset.stories[source]['primitive_keywords']) {
                 let conflict = dataset.stories[source]['conflicting_keywords'].includes(pk) ? 'conflicting_keyword' : '';
