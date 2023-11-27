@@ -72,7 +72,7 @@ class EditDialog(QDialog):
         if multi_line:
             self.new_value_edit = QTextEdit()
             self.new_value_edit.setAcceptRichText(False)
-            self.new_value_edit.setWordWrapMode(QTextOption.WordWrap)
+            self.new_value_edit.setWordWrapMode(QTextOption.WrapMode.WordWrap)
             self.new_value_edit.setPlainText(previous_modified_data)
         else:
             self.new_value_edit = QLineEdit(previous_modified_data)
