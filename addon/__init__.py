@@ -249,6 +249,17 @@ def setup_browser_menu(browser):
 
 aqt.gui_hooks.browser_menus_did_init.append(setup_browser_menu)
 
+def on_browser_search(context):
+    search_terms = context.search.split(" ")
+    for search_term in search_terms:
+        values = search_term.split(":")
+        if len(values) == 2:
+            if values[0] == "kanjigod":
+                LookupWindow.open(values[1])
+
+    return context
+
+aqt.gui_hooks.browser_will_search.append(on_browser_search)
 
 add_note_no_hook = anki.collection.Collection.add_note
 
