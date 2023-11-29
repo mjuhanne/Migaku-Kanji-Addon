@@ -62,10 +62,12 @@ function get_editable_keyword_section(dataset) {
     let html = '';
 
     for (const source of all_keyword_sources) {
-        let html_keywords = [];
         if (source in dataset.stories) {
             html += add_edit_keyword_link(source, dataset.stories[source]['keywords'], false);
             html += add_edit_keyword_link(source, dataset.stories[source]['primitive_keywords'], true);
+        } else {
+            html += add_edit_keyword_link(source, [], false);
+            html += add_edit_keyword_link(source, [], true);
         }
     }
     return html;
@@ -172,6 +174,7 @@ function update_primitives_section() {
             }
         }
     }
+    $('.primitive').unbind('click'); // prevent multiple event handlers
     $('.primitive').click(primitive_click);
 }
 
@@ -817,8 +820,6 @@ function render_page(page_type) {
     }
     settings.page_type = page_type
 
-    update_primitives_section();
-
     var primitive_of_pts = create_primitive_section(data.primitive_of_detail, false, true);
     var hasPrimitivesOf = primitive_of_pts.length > 0;
 	$('#primitives_of').empty();
@@ -843,7 +844,7 @@ function render_page(page_type) {
         );
     }
 
-    $('.primitive').click(primitive_click);
+    update_primitives_section();
 
     // Truncate results with "show more" button (if applicable)
     var primitive_of_max = 10;
