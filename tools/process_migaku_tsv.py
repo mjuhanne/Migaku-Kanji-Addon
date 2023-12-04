@@ -14,6 +14,25 @@ primary_primitives = ['艹','扌','⻖','⻏','川','罒','冫',]
 primitive_alternative_cache = dict()
 
 """
+NEW
+
+羊: alt prim 𦍌
+
+'炏' : '炎', # new alternative primitive: Firestarter
+'靑' : '青', # new alternative primitive: gaia
+'䖵' : 'plague'
+'吅' : 'eating contest'
+'彥' : '彦', # new alternative primitive: shy lad
+'䧹' : '雁', # new alternative primitive: cave goose
+
+'吿' : '告', # new alternative primitive: ?
+
+'吳' : '呉', # new alternative primitive: ?
+
+
+"""
+
+"""
  #nämä alternatiiveina?
 '戶' : '', # 棨戾牖扃扂帍扁启扆晵肈戽昈戹肁魲妒扄馿
 '靑' : '', # 靜箐睛鶄倩靘菁凊綪靚棈蜻猜婧䑶鼱崝靛圊靕靗
@@ -29,38 +48,40 @@ primitive_alternative_cache = dict()
 '龰' : '', # 緃從辵疋嚔懥
 '亏' : '', # 夸雩咢圬杇
 '兹' : '', # 孳鎡鶿鷀糍禌
-'㓞' : '', # 恝栔齧挈絜洯
+'㓞' : '丰刀', # 恝栔齧挈絜洯
 '益' : '', # 塧隘謚鎰縊艗搤嗌蠲鷁螠
 '䖵' : '', # 蠢蠧蠹蟸螙蟲蠶蠡螽蝨蠺蟁蠭蝱蟊蠚
 '吅' : '', # 雚僉嚴咒咢賷單斝哭襄囊
-'旣' : '', # 摡墍廐曁蔇嘅
+'旣' : '白匕旡', # 摡墍廐曁蔇嘅
 '產' : '', # 滻鏟剷
 '卝' : '', # 哶虁羐羋
-'遀' : '', # 膸隨髓
-'㕓' : '', # 纒壥
+'遀' : '左月辶', # 膸隨髓
+'㕓' : '厂黒土', # 纒壥
 '巂' : '', # 攜蠵觿
 '臯' : '', # 嘷翺皥
 '䧹' : '', # 譍膺
 '吳' : '', # 俁蜈茣悞麌鋘
-'㗊' : '', # 器囂噐噩嚚
+'㗊' : '吅吅', # 器囂噐噩嚚
 
-'欮' : '', # 厥闕
-'㡭' : '', # 繼斷
+
+
+'欮' : '屰欠', # 厥闕
+'㡭' : '幺幺一幺幺乙', # 繼斷
 '盇' : '', # 葢豓
 '絭' : '', # 縢勬
-'叹' : '', # 凾焏
+'叹' : '口又', # 凾焏
 '䩭' : '', # 羇覉
 '㽞' : '', # 嘼鼉
-'羕' : '', # 樣漾
+'羕' : '羊永', # 樣漾
 '䀠' : '', # 瞾瞿
 '罙' : '', # 賝琛
 '巜' : '', # 粼兪
 '㞢' : '', # 蚩旹
 '乡' : '', # 鄕雍
 '㼌' : '', # 寙蓏窳
-'䩻' : '', # 羈覊
+'䩻' : '革馬', # 羈覊
 '龱' : '', # 囟鬛巤
-'㐭' : '', # 啚禀稟亶
+'㐭' : '亠回', # 啚禀稟亶
 '仌' : '', # 俎睂蕐
 
 """
@@ -80,6 +101,7 @@ primitive_correction = {
 '处' : '夂人', # 昝咎
 '厉' : '厂万', # 砺蛎
 '雔' : '隹隹', # 靃犨雙讐
+
 
 '益' : '益', 
 '乛' : '', # 壽疋虍
@@ -128,7 +150,7 @@ primitive_correction = {
 '㸚' : '爻爻', # 爾
 '杀' : '', # 弑
 '䦚' : '', # 濶
-'閵' : '', # 藺
+'閵' : '門隹', # 藺
 '眘' : '', # 傄
 '䖭' : '', # 螣
 '禼' : '', # 竊
@@ -213,7 +235,7 @@ def find_proper_primitive(p):
     return p
 
 
-user_modifiable_fields = ['primitives','primitive_keywords','heisig_story','heisig_comment']
+#user_modifiable_fields = ['primitives','primitive_keywords','heisig_story','heisig_comment']
 
 # Creates a list of single-character Unicode kanjis and [primitive] tags
 # For example '[banner]也' -> ['\[banner\]','也'] 
@@ -272,10 +294,10 @@ requested_fields = [
     ("usr_keyword", _, "usr.keywords.usr_keyword"),
     ("usr_primitive_keyword", _, "usr.keywords.usr_primitive_keyword"),
     ("usr_story", _, "usr.stories.usr_story"),
-    ("mod_heisig_story", _, "usr.modified_values.mod_heisig_story"),
-    ("mod_heisig_comment", _, "usr.modified_values.mod_heisig_comment"),
-    ("mod_primitives", custom_list, "usr.modified_values.mod_primitives"),
-    ("mod_primitive_keywords", json_loads_or_none, "usr.modified_values.mod_primitive_keywords"),
+    #("mod_heisig_story", _, "usr.modified_values.mod_heisig_story"),
+    #("mod_heisig_comment", _, "usr.modified_values.mod_heisig_comment"),
+    #("mod_primitives", custom_list, "usr.modified_values.mod_primitives"),
+    #("mod_primitive_keywords", json_loads_or_none, "usr.modified_values.mod_primitive_keywords"),
 ]
 
 convert_data_from_db_to_str_func = {
@@ -296,7 +318,7 @@ def data_from_db_to_str(field_name,data):
 
 kanji_db_path = sys.argv[1] if len(sys.argv) > 1 else "addon/kanji.db"
 user_db_path = sys.argv[2] if len(sys.argv) > 2 else "addon/user_files/user.db"
-tsv_path = sys.argv[3] if len(sys.argv) > 3 else "kanji-migaku-patch.tsv"
+tsv_path = sys.argv[3] if len(sys.argv) > 3 else "kanji-migaku-patch-kanken1.tsv"
 
 migaku_tsv_path = "migaku-kanji-db-2022-01-11-my.tsv"
 
@@ -310,7 +332,7 @@ fields = ",".join((rf[2] if rf[2] else rf[0]) for rf in requested_fields)
 joins = [
     f"LEFT OUTER JOIN usr.keywords ON characters.character == usr.keywords.character ",
     f"LEFT OUTER JOIN usr.stories ON characters.character == usr.stories.character ",
-    f"LEFT OUTER JOIN usr.modified_values ON characters.character == usr.modified_values.character "
+    #f"LEFT OUTER JOIN usr.modified_values ON characters.character == usr.modified_values.character "
 ]
 joins_txt = "".join(joins)
 
@@ -324,10 +346,11 @@ column_names = [description[0] for description in crs.description]
 print("kanji.db column names:", column_names)
 
 p_i = column_names.index('primitives')
-mod_p_i = column_names.index('mod_primitives')
+#mod_p_i = column_names.index('mod_primitives')
 c_i = column_names.index('character')
 pa_i = column_names.index('primitive_alternatives')
 fr_i = column_names.index('frequency_rank')
+k_i = column_names.index('kanken')
 hi_i = column_names.index('heisig_id6')
 
 hk5_i = column_names.index('heisig_keyword5')
@@ -346,9 +369,9 @@ for row in rows:
     if c == '座':
         print("dsfr")
     prim = row[p_i]
-    mod_prim = row[mod_p_i]
-    if mod_prim is not None:
-        prim = mod_prim
+    #mod_prim = row[mod_p_i]
+    #if mod_prim is not None:
+    #    prim = mod_prim
     prim_alt = row[pa_i]
 
     kanji_primitives[c] = prim
@@ -385,6 +408,7 @@ def fw(args):
 
 # write header
 fw( [
+    "Source",
     "Kanji",
     "Field",
     "OldValue",
@@ -408,7 +432,7 @@ for l in open(migaku_tsv_path, "r", encoding="utf-8"):
 
 
 crs.execute(
-    f"SELECT {fields} FROM characters {joins_txt} ORDER BY heisig_id6 ASC"
+    f"SELECT {fields} FROM characters {joins_txt} ORDER BY frequency_rank ASC"
 )
 rows = crs.fetchall()
 
@@ -416,7 +440,8 @@ for row in rows:
 
     c = row[c_i]
     id = row[hi_i]
-    if id is not None:
+    kanken = row[k_i]
+    if id is None and kanken is not None:
         freq = row[fr_i]
         old_prim = kanji_primitives[c]
 
@@ -493,16 +518,16 @@ for row in rows:
 
                     if sec_prim_found:
                         if all_found:
-                            change = [c,"sec_primitives",old_prim,proper_new_prim_str]#, str(id), str(freq)]
+                            change = ["cs",c,"primitives",old_prim,proper_new_prim_str]#, str(id), str(freq)]
                         else:
-                            change = [c,"sec_primitives",old_prim,proper_new_prim_str, 'Missing ' + ','.join(missing_new_primitives)]
+                            change = ["cs",c,"primitives",old_prim,proper_new_prim_str, 'Missing ' + ','.join(missing_new_primitives)]
                         #fw(change)
                     else:
                         if old_prim == '':
                             if all_found:
-                                change = [c,"primitives",old_prim,proper_new_prim_str] #, str(id), str(freq)]
+                                change = ["h",c,"primitives",old_prim,proper_new_prim_str] #, str(id), str(freq)]
                             else:
-                                change = [c,"primitives",old_prim,proper_new_prim_str, 'Missing ' + ','.join(missing_new_primitives)]
+                                change = ["h",c,"primitives",old_prim,proper_new_prim_str, 'Missing ' + ','.join(missing_new_primitives)]
                             fw(change)
 
 
