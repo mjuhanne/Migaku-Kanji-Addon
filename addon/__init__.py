@@ -58,9 +58,13 @@ def setup_menu():
     scan_for_missing_kanji_action.triggered.connect(on_scan_for_missing_kanji)
     submenu.addAction(scan_for_missing_kanji_action)
 
-    #convert_ext_stories_action = QAction("Convert external stories", aqt.mw)
-    #convert_ext_stories_action.triggered.connect(on_convert_ext_stories)
-    #submenu.addAction(convert_ext_stories_action)
+    # convert_ext_stories_action = QAction("Convert external stories", aqt.mw)
+    # convert_ext_stories_action.triggered.connect(on_convert_ext_stories)
+    # submenu.addAction(convert_ext_stories_action)
+
+    recalc_user_cards_action = QAction("Recalc user cards", aqt.mw)
+    recalc_user_cards_action.triggered.connect(on_recalc_user_cards)
+    submenu.addAction(recalc_user_cards_action)
 
     settings_action = QAction("Settings", aqt.mw)
     settings_action.setMenuRole(QAction.MenuRole.NoRole)
@@ -86,7 +90,7 @@ def on_mark_known():
     MarkKnownDialog.show_modal(parent=aqt.mw)
 
 
-#def on_convert_ext_stories():
+# def on_convert_ext_stories():
 #    aqt.mw.migaku_kanji_db.stories_converter.convert_external_stories("RRTK")
 #    aqt.mw.migaku_kanji_db.stories_converter.convert_external_stories("WK")
 
@@ -154,7 +158,7 @@ def on_scan_for_missing_kanji():
             self.setMinimumWidth(400)
             lyt = QVBoxLayout()
             self.setLayout(lyt)
-            self.lbl = QLabel() 
+            self.lbl = QLabel()
             self.bar = QProgressBar()
             self.bar.setTextVisible(False)
             self.bar.setMinimum(0)
@@ -176,6 +180,10 @@ def on_scan_for_missing_kanji():
     thread.finished.connect(box.accept)
     thread.progress_update.connect(box.on_progress)
     thread.start()
+
+def on_recalc_user_cards():
+    for ct in CardType:
+        aqt.mw.migaku_kanji_db.recalc_user_cards(ct)
 
 def on_force_learn_ahead():
     aqt.mw.migaku_kanji_db.refresh_learn_ahead(show_confirm_dialog=True)
