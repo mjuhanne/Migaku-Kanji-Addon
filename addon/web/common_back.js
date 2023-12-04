@@ -1,7 +1,6 @@
 var dmak = null;
 var data = null;
 
-var all_keyword_sources = ['h','cs','rrtk','wk']
 var all_primitive_sources = ['h','cs','wk']
 var all_story_sources = ['h','cs','rrtk','wk','wr','ks']
 
@@ -135,7 +134,7 @@ function create_primitive_section(primitives_detail, user_modified_primitives, m
 
 function update_primitives_section() {
 
-    for (source of all_primitive_sources) {
+    for (let source of all_primitive_sources) {
 
         var primitives_pts = []
         var hasPrimitives = false

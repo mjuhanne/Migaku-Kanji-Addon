@@ -615,68 +615,26 @@ button.primitive:focus .kanji-addon__hover-tooltip,
 		color: #f1d6be;
 }
 
-.editable_title.-user-modified {
-	color: #e664d0;
+.tagged_keyword.-user-modified {
+	background: #322933;
+	color: #f7f1f6;
 }
-.ankidroid_dark_mode .editable_title.-user-modified,
-.nightMode .editable_title.-user-modified,
-.dark .editable_title.-user-modified {
-		color: #a366a5;
-}
-
-.editable_title.-user-modified:hover,
-.editable_title.-user-modified:focus {
-		color: #902794;
-}
-.ankidroid_dark_mode .editable_title.-user-modified:hover,
-.nightMode .editable_title.-user-modified:hover,
-.dark .editable_title.-user-modified:hover,
-.editable_title.-user-modified:focus,
-.editable_title.-user-modified:focus,
-.dark .editable_title.-user-modified:focus {
-		color: #e9baf0;
+.ankidroid_dark_mode .tagged_keyword.-user-modified,
+.nightMode .tagged_keyword.-user-modified,
+.dark .tagged_keyword.-user-modified {
+	color: #322933;
+	background: #756e74;
 }
 
-.primitive_keyword.-user-modified {
-	background: #e6c4ee;
-	color: #81517f;
-}
-.ankidroid_dark_mode .primitive_keyword.-user-modified,
-.nightMode .primitive_keyword.-user-modified,
-.dark .primitive_keyword.-user-modified {
-	color: #cf8fcd;
-	background: #770c92;
-}
 
-.editable_title:hover .primitive_keyword.-user-modified,
-.editable_title:focus .primitive_keyword.-user-modified,
-.primitive_keyword.-user-modified:hover,
-.primitive_keyword.-user-modified:focus {
-	color: #b877b5;
+.tagged_keyword.-user-modified::before {
+	background: #322933;
 }
-.ankidroid_dark_mode .primitive_keyword.-user-modified:hover,
-.ankidroid_dark_mode .primitive_keyword.-user-modified:focus,
-.ankidroid_dark_mode .editable_title:hover .primitive_keyword.-user-modified,
-.ankidroid_dark_mode .editable_title:focus .primitive_keyword.-user-modified,
-.nightMode .primitive_keyword.-user-modified:hover,
-.nightMode .primitive_keyword.-user-modified:focus,
-.nightMode .editable_title:hover .primitive_keyword.-user-modified,
-.nightMode .editable_title:focus .primitive_keyword.-user-modified,
-.dark .primitive_keyword.-user-modified:hover,
-.dark .primitive_keyword.-user-modified:focus,
-.dark .editable_title:hover .primitive_keyword.-user-modified,
-.dark .editable_title:focus .primitive_keyword.-user-modified {
-		color: #e7bfe6;
-}
-
-.primitive_keyword.-user-modified::before {
-	background-color: #bc37d6;
-}
-.ankidroid_dark_mode .primitive_keyword.-user-modified::before,
-.nightMode .primitive_keyword.-user-modified::before,
-.dark .primitive_keyword.-user-modified::before {
-	background-color: #bc37d6;
-	color: #363c4a;
+.ankidroid_dark_mode .tagged_keyword.-user-modified::before,
+.nightMode .tagged_keyword.-user-modified::before,
+.dark .tagged_keyword.-user-modified::before {
+	color: #756e74;
+	background: #3f3a3e;
 }
 
 .title-tooltip__container.-subdued .title-tooltip__text {
@@ -1675,7 +1633,7 @@ body.dark {
 	color: #f2994a;
 }
 
-.primitive_keyword {
+.tagged_keyword {
 	background-color: rgba(40, 128, 255, 0.2);
 	border-radius: 8px;
 	display: inline-block;
@@ -1684,9 +1642,9 @@ body.dark {
 	position: relative;
 }
 
-.ankidroid_dark_mode .primitive_keyword,
-.nightMode .primitive_keyword,
-.dark .primitive_keyword {
+.ankidroid_dark_mode .tagged_keyword,
+.nightMode .tagged_keyword,
+.dark .tagged_keyword {
 	background-color: rgba(242, 153, 74, 0.2);
 }
 
@@ -1702,6 +1660,19 @@ body.dark {
 	background-color: rgba(43, 144, 107, 0.2);
 	color: #22d880;
 }
+
+.source_cs {
+	background: #be61d5;
+	color: #f7f1f6;
+}
+
+.ankidroid_dark_mode .source_cs,
+.nightMode .source_cs,
+.dark .source_cs {
+	background: #6d397b;
+	color: #ceadc8;
+}
+
 
 .source_rrtk {
 	background-color: rgba(181, 135, 135, 0.2);
@@ -1725,7 +1696,7 @@ body.dark {
 	text-decoration: line-through;
 }
 
-.primitive_keyword::before {
+.tagged_keyword::before {
 	background-color: #2880ff;
 	border-radius: 8px;
 	color: #fff;
@@ -1738,9 +1709,9 @@ body.dark {
 	top: -5px;
 }
 
-.ankidroid_dark_mode .primitive_keyword::before,
-.nightMode .primitive_keyword::before,
-.dark .primitive_keyword::before {
+.ankidroid_dark_mode .tagged_keyword::before,
+.nightMode .tagged_keyword::before,
+.dark .tagged_keyword::before {
 	background-color: #f2994a;
 	color: #363c4a;
 }
@@ -1759,6 +1730,18 @@ body.dark {
 	color: #363c4a;
 }
 
+.source_cs::before {
+	content: 'CS';
+	color: #be61d5;
+	background: #f7f1f6;
+}
+
+.ankidroid_dark_mode  .source_cs::before,
+.nightMode .source_cs::before,
+.dark .source_cs::before {
+	color: #6d397b;
+	background: #ceadc8;
+}
 
 .source_rrtk::before {
 	background-color: #e1232a;
@@ -1774,16 +1757,17 @@ body.dark {
 }
 
 
-.primitiveDetails .primitive_keyword {
+.primitiveDetails .tagged_keyword {
 	background-color: rgba(255, 255, 255, 0.25);
 	padding: 1px 7px 1px 5px;
 }
 
-.ankidroid_dark_mode .primitiveDetails .primitive_keyword,
-.nightMode .primitiveDetails .primitive_keyword,
-.dark .primitiveDetails .primitive_keyword {
+.ankidroid_dark_mode .primitiveDetails .tagged_keyword,
+.nightMode .primitiveDetails .tagged_keyword,
+.dark .primitiveDetails .tagged_keyword {
 	background-color: rgba(54, 60, 74, 0.25);
 }
+
 
 
 .primitiveDetails .source_wk {
@@ -1797,6 +1781,18 @@ body.dark {
 	background-color: rgba(43, 144, 107, 0.7);
 }
 
+.primitiveDetails .source_cs {
+	color: #ceadc8;
+	background-color: #9d4bb1a0;
+}
+
+.ankidroid_dark_mode .primitiveDetails .source_cs,
+.nightMode .primitiveDetails .source_cs,
+.dark .primitiveDetails .source_cs {
+	background-color: #834bb180;
+}
+
+
 .primitiveDetails .source_rrtk {
 	color: #3c161a;
 	background-color: rgba(144, 43, 107, 0.6);
@@ -1808,7 +1804,7 @@ body.dark {
 	background-color: rgba(185, 46, 134, 0.6);
 }
 
-.primitiveDetails .primitive_keyword::before {
+.primitiveDetails .tagged_keyword::before {
 	align-items: center;
 	background-color: #004fc1;
 	border-radius: 50%;
@@ -1825,9 +1821,9 @@ body.dark {
 	width: 13px;
 }
 
-.ankidroid_dark_mode .primitiveDetails .primitive_keyword::before,
-.nightMode .primitiveDetails .primitive_keyword::before,
-.dark .primitiveDetails .primitive_keyword::before {
+.ankidroid_dark_mode .primitiveDetails .tagged_keyword::before,
+.nightMode .primitiveDetails .tagged_keyword::before,
+.dark .primitiveDetails .tagged_keyword::before {
 	background-color: #f2994a;
 	border: 1px solid #363c4a;
 }
@@ -1844,6 +1840,20 @@ body.dark {
 	background-color: #3ba14e;
 	border: 1px solid #363c4a;
 }
+
+.primitiveDetails .source_cs::before {
+	content: 'C';
+	background: #dd6bfa;
+	color: #f7f1f6;
+}
+
+.ankidroid_dark_mode .primitiveDetails .source_cs::before,
+.nightMode .primitiveDetails .source_cs::before,
+.dark .primitiveDetails .source_cs::before {
+	background-color: #834bb180;
+	border: 1px solid #363c4a;
+}
+
 
 .primitiveDetails .source_rrtk::before {
 	content: 'R';
@@ -2466,11 +2476,11 @@ button.primitive.-has-alternative::before {
 }
 
 button.primitive.-user-modified {
-	background: #dd6bfa;
+	background: #322933;
 	color: #f7f1f6;
 }
 button.primitive.-user-modified.-is-rare {
-	background: #803e90;
+	background: #050505;
 }
 
 button.primitive.-incomplete:hover,
@@ -2485,34 +2495,13 @@ button.primitive.-incomplete {
 
 button.primitive.-user-modified:hover,
 button.primitive.-user-modified:focus {
-	background: #770c92;
+	background: #494949;
 }
 
-.ankidroid_dark_mode button.primitive.-user-modified,
-.nightMode button.primitive.-user-modified,
-.dark button.primitive.-user-modified {
-	background: #770c92;
-	color: #d4c3d3;
-}
 .ankidroid_dark_mode button.primitive.-user-modified img,
 .nightMode button.primitive.-user-modified img,
 .dark button.primitive.-user-modified img {
 	filter: invert(99%) sepia(7%) saturate(2109%) hue-rotate(184deg) brightness(88%) contrast(81%);
-}
-
-.ankidroid_dark_mode button.primitive.-user-modified:hover,
-.ankidroid_dark_mode button.primitive.-user-modified:focus,
-.nightMode button.primitive.-user-modified:hover,
-.nightMode button.primitive.-user-modified:focus,
-.dark button.primitive.-user-modified:hover,
-.dark button.primitive.-user-modified:focus {
-	background: #ce2cf7;
-}
-
-.ankidroid_dark_mode button.primitive.-user-modified.-is-rare,
-.nightMode button.primitive.-user-modified.-is-rare,
-.dark button.primitive.-user-modified.-is-rare {
-	background: #470756;
 }
 
 button.radical {

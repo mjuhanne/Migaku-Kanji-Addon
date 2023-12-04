@@ -1,3 +1,5 @@
+var all_keyword_sources = ['h','cs','rrtk','wk']
+
 function ReplaceTagsWithImages(src, img_uri=primitives_uri) {
     if (src.includes('[')) {
         // replace [tag] with image link to tag.svg, but skip strike counts (such as [3])
@@ -40,42 +42,42 @@ function get_decorated_keywords(dataset) {
     let raw_keywords = [];
     
     if (dataset.usr_keyword) keywords.push(dataset.usr_keyword);
-    if (dataset.usr_primitive_keyword) 
+    if (dataset.usr_tagged_keyword) 
         keywords.push(
-            '<span class="primitive_keyword">' +
+            '<span class="tagged_keyword">' +
             dataset.usr_primitive_keyword +
                 '</span>',
         );
 
     if (!settings.only_custom_keywords || decorated_keywords.length < 1 || settings.page_type == "lookup") {
-        for (const source in dataset.stories) {
-            let color_class = '';
-            if (source != 'h')  {
-                if (source=='rrtk' || source=='wk') {
-                    // we use 'primitive keyword' class to give a RRTK/WK tag in the upper left corner 
-                    // even though the keyword may be just a normal keyword and not a primitive one
-                    color_class = 'primitive_keyword '; 
+        for (source of all_keyword_sources) {
+            if (source in dataset.stories) {
+                let color_class = '';
+                if (source != 'h')  {
+                    if (source=='rrtk' || source=='wk' || source=='cs') {
+                        color_class = 'tagged_keyword '; 
+                    }
+                    color_class += 'source_' + source + ' ';
                 }
-                color_class += 'source_' + source
-            }
 
-            var userModifiedKeywords = is_item_modified(source,'keywords');
-            for (const pk of dataset.stories[source]['keywords']) {
-                let conflict = dataset.stories[source]['conflicting_keywords'].includes(pk) ? 'conflicting_keyword' : '';
-                const kw = `<span class="${userModifiedKeywords ? ' -user-modified' : ''}${color_class} ${conflict}">` + pk + `</span>`;
-                if (!raw_keywords.includes(pk)) {
-                    raw_keywords.push(pk);
-                    keywords.push(kw);
+                var userModifiedKeywords = is_item_modified(source,'keywords');
+                for (const pk of dataset.stories[source]['keywords']) {
+                    let conflict = dataset.stories[source]['conflicting_keywords'].includes(pk) ? 'conflicting_keyword' : '';
+                    const kw = `<span class="${userModifiedKeywords ? ' -user-modified ' : ''}${color_class} ${conflict}">` + pk + `</span>`;
+                    if (!raw_keywords.includes(pk)) {
+                        raw_keywords.push(pk);
+                        keywords.push(kw);
+                    }
                 }
-            }
 
-            var userModifiedPrimitiveKeywords = is_item_modified(source,'primitive_keywords');
-            for (const pk of dataset.stories[source]['primitive_keywords']) {
-                let conflict = dataset.stories[source]['conflicting_keywords'].includes(pk) ? 'conflicting_keyword' : '';
-                const kw = `<span class="primitive_keyword${userModifiedPrimitiveKeywords ? ' -user-modified' : ''} ${color_class} ${conflict}">` + pk + `</span>`;
-                if (!raw_keywords.includes(pk)) {
-                    raw_keywords.push(pk);
-                    keywords.push(kw);
+                var userModifiedPrimitiveKeywords = is_item_modified(source,'primitive_keywords');
+                for (const pk of dataset.stories[source]['primitive_keywords']) {
+                    let conflict = dataset.stories[source]['conflicting_keywords'].includes(pk) ? 'conflicting_keyword' : '';
+                    const kw = `<span class="tagged_keyword${userModifiedPrimitiveKeywords ? ' -user-modified' : ''} ${color_class} ${conflict}">` + pk + `</span>`;
+                    if (!raw_keywords.includes(pk)) {
+                        raw_keywords.push(pk);
+                        keywords.push(kw);
+                    }
                 }
             }
         }
