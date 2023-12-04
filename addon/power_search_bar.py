@@ -20,26 +20,9 @@ class ResultsBar():
         self.buttons = []
         self.card_type = CardType['Recognition']
 
-
-        if aqt.theme.theme_manager.night_mode:
-            btn_style_sheet = \
-                "color: #e9e9e9;" \
-                "background-color: #454545;" 
-        else:
-            btn_style_sheet = \
-                "color: #202020;" \
-                "background-color: #e9e9e9;"
-
-        btn_style_sheet += \
-            "font-size: 20px;" \
-            "border-style: ridge;" \
-            "border-width: 2px;" \
-            "border-radius: 6px;" \
-            "padding: 2px;"
-
         for i in range(max_results):
             result_btn = QPushButton('   ', objectName='result_btn_' + str(i+1))
-            result_btn.setStyleSheet(btn_style_sheet)
+            #result_btn.setStyleSheet(btn_style_sheet)
             result_btn.setFixedWidth(result_button_size)
             result_btn.setFixedHeight(result_button_size)
             result_btn.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -68,31 +51,29 @@ class ResultsBar():
 
                 if aqt.mw.migaku_kanji_db.is_primitive_rare(r, self.card_type):
                     if aqt.theme.theme_manager.night_mode:
-                        style = btn_style_sheet + \
-                            "color: #e9e9e9;" \
-                            "background-color: #252525;" 
+                        color = QColor( 0xe9, 0xe9, 0xe9 )
+                        background_color = QColor( 0x25, 0x25, 0x25 )
                     else:
-                        style = btn_style_sheet + \
-                            "color: #202020;" \
-                            "background-color: #c9c9c9;"
+                        color = QColor( 0x20, 0x20, 0x20 )
+                        background_color = QColor( 0xc9, 0xc9, 0xc9 )
                 else:
                     if aqt.theme.theme_manager.night_mode:
-                        style = btn_style_sheet + \
-                            "color: #e9e9e9;" \
-                            "background-color: #454545;" 
+                        color = QColor( 0xe9, 0xe9, 0xe9 )
+                        background_color = QColor( 0x45, 0x45, 0x45 )
                     else:
-                        style = btn_style_sheet + \
-                            "color: #202020;" \
-                            "background-color: #e9e9e9;"
+                        color = QColor( 0x20, 0x20, 0x20 )
+                        background_color = QColor( 0xc9, 0xc9, 0xc9 )
                 
+                style = btn_style_sheet + \
+                    f"color: {color.name()};" \
+                    f"background-color: {background_color.name()};"
+
                 btn.setStyleSheet(style)
                 if r[0] == '[':
-                    # [primitive] tag -> convert to image
-                    img = r[1:-1]
-                    path = util.addon_path('primitives','%s.svg' % img)
                     btn.setText('')
-                    icon_size = int(self.button_size*1)
-                    icon = QIcon(path)
+                    icon_size = int(self.button_size*0.8)
+                    pixmap = util.get_pixmap_from_tag(r, icon_size*2, color) # to avoid smoothing we double the size and then resize below
+                    icon = QIcon(pixmap)
                     btn.setIcon(icon)
                     btn.setIconSize(QSize(icon_size,icon_size))
                 else:
