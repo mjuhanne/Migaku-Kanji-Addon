@@ -116,6 +116,7 @@ class PowerSearchBar():
 
         self.on_select_result_function = on_select_result_function
         self.max_results = max_results
+        self.ignore_obsolete_kanjis = True
 
         # search bar
         self.input_bar = QLineEdit()
@@ -129,7 +130,7 @@ class PowerSearchBar():
 
     def on_power_search_changed(self):
         text = self.input_bar.text()
-        result = aqt.mw.migaku_kanji_db.search_engine.search(text, self.max_results)
+        result = aqt.mw.migaku_kanji_db.search_engine.search(text, self.max_results, self.ignore_obsolete_kanjis)
         self.results_bar.set_contents(result)
 
     def on_power_search_submit(self):
@@ -144,6 +145,9 @@ class PowerSearchBar():
                 # retain the old functionality of the search bar: Open many tabs (one for each character)
                 self.on_select_result_function(text)
 
+    def set_ignore_obsolete_kanjis(self, setting):
+        self.ignore_obsolete_kanjis=setting
+        self.on_power_search_changed()
 
     def clear(self):
         self.input_bar.setText("")

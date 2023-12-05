@@ -241,8 +241,7 @@ class SearchEngine:
                     points += fr_points
                 if d['kanken'] is not None and d['kanken'] != '':
                     points += 11 - float(d['kanken'])
-                if points > 0:
-                    self.priority[c] = points
+                self.priority[c] = points
 
         # Process data from separate story database
         stories_per_source_and_kanji = self.parent.story_db.get_stories(character)
@@ -284,6 +283,10 @@ class SearchEngine:
                 else:
                     self.primitive_list_cache[c] = p_list
 
+                # Update priority of those primitives that this kanji uses
+                for p in p_list:
+                    self.priority[p] += 1
+
             if source == 'h':
                 # create a reverse lookup table for primitive alternatives
                 for p in elements['primitive_alternatives']:
@@ -313,7 +316,7 @@ class SearchEngine:
                 self.update_recursive_primitive_cache(c)
 
 
-    def get_matching_characters(self, search_terms, pool, is_set, results, max_results):
+    def get_matching_characters(self, search_terms, pool, is_set, results, max_results, ignore_obsolete_kanjis):
         for search_term,required_count in search_terms.items():
             if is_set and required_count>1:
                 # we want more than 1 occurence but this is a set -> not found
@@ -321,13 +324,16 @@ class SearchEngine:
 
         for character, data in pool.items():
             found = True
-            for search_term,required_count in search_terms.items():
-                if required_count>1:
-                    if data.count(search_term) < required_count:
-                        found = False
-                else:
-                    if search_term not in data and character != search_term:
-                        found = False
+            if ignore_obsolete_kanjis and self.priority[character] == 0:
+                found = False
+            else:
+                for search_term,required_count in search_terms.items():
+                    if required_count>1:
+                        if data.count(search_term) < required_count:
+                            found = False
+                    else:
+                        if search_term not in data and character != search_term:
+                            found = False
             if found:
                 if character not in results:
                     results.append(character)
@@ -336,34 +342,36 @@ class SearchEngine:
         return results
 
 
-    def get_matching_characters_with_scoring(self, search_terms, pool, is_set, pool_priority, kanji_scores, kanji_matches):
+    def get_matching_characters_with_scoring(self, search_terms, pool, is_set, pool_priority, kanji_scores, kanji_matches, ignore_obsolete_kanjis):
         for search_term,required_count in search_terms.items():
             if is_set and required_count>1:
                 # we want more than 1 occurence but this is a set -> not found
                 return
 
         for character, data in pool.items():
-            for search_term, required_count in search_terms.items():
-                found = False
-                if required_count>1:
-                    if data.count(search_term) >= required_count:
-                        found = True
-                else:
-                    if search_term in data or character == search_term:
-                        found = True
 
-                if found:
-                    if character in kanji_scores:
-                        kanji_scores[character] += pool_priority
-                        kanji_matches[character].add(search_term)
+            if not ignore_obsolete_kanjis or self.priority[character] > 0:
+                for search_term, required_count in search_terms.items():
+                    found = False
+                    if required_count>1:
+                        if data.count(search_term) >= required_count:
+                            found = True
                     else:
-                        kanji_scores[character] = pool_priority
-                        kanji_matches[character] = {search_term}
-                    if character in self.priority:
-                        kanji_scores[character] += self.priority[character]
+                        if search_term in data or character == search_term:
+                            found = True
+
+                    if found:
+                        if character in kanji_scores:
+                            kanji_scores[character] += pool_priority
+                            kanji_matches[character].add(search_term)
+                        else:
+                            kanji_scores[character] = pool_priority
+                            kanji_matches[character] = {search_term}
+                        if character in self.priority:
+                            kanji_scores[character] += self.priority[character]
 
 
-    def get_matching_characters_from_list_of_pools(self, search_terms, pool_list, max_results):
+    def get_matching_characters_from_list_of_pools(self, search_terms, pool_list, max_results, ignore_obsolete_kanjis):
 
         if len(search_terms) == 1:
             # In the case of only one search term its a simple exhaustive search until enough matches are found. 
@@ -371,7 +379,7 @@ class SearchEngine:
             # from the most prioritized one
             results = []
             for pool_priority, pool, is_set in pool_list:
-                self.get_matching_characters(search_terms, pool, is_set, results, max_results)
+                self.get_matching_characters(search_terms, pool, is_set, results, max_results, ignore_obsolete_kanjis)
                 if len(results)>=max_results:
                     return results
             return results
@@ -383,7 +391,7 @@ class SearchEngine:
             kanji_matches = dict() # how many search terms were matched
 
             for pool_priority, pool, is_set in pool_list:
-                self.get_matching_characters_with_scoring(search_terms, pool, is_set, pool_priority, kanji_scores, kanji_matches)
+                self.get_matching_characters_with_scoring(search_terms, pool, is_set, pool_priority, kanji_scores, kanji_matches, ignore_obsolete_kanjis)
 
             # remove those kanjis that didn't match all the search terms
             for kanji, matched_search_terms in kanji_matches.items():
@@ -399,7 +407,7 @@ class SearchEngine:
             return sorted_kanji_scores
 
 
-    def search(self, search_str, max_results=15):
+    def search(self, search_str, max_results=15, ignore_obsolete_kanjis=False):
 
         if search_str == '':
             return []
@@ -435,11 +443,14 @@ class SearchEngine:
         priority_list = [ 
             [30,self.keyword_set_cache,True],
             [26,self.keyword_cache,False],
-            [20,self.rec_primitive_list_cache,False], 
-            [18,self.rec_primitive_name_list_cache,False],
-            [16,self.rec_primitive_name_cache,False],
-            [14,self.meaning_set_cache,True],
-            [12,self.meaning_cache,False],
+
+            [20,self.meaning_set_cache,True],
+            [18,self.meaning_cache,False],
+
+            [16,self.rec_primitive_list_cache,False], 
+            [14,self.rec_primitive_name_list_cache,False],
+            [12,self.rec_primitive_name_cache,False],
+
             [10,self.stories_cache,False],
             [8,self.radical_set_cache,True],
             [7,self.radical_name_set_cache,True],
@@ -448,7 +459,7 @@ class SearchEngine:
             [4,self.reading_cache,False],
         ]
 
-        results = self.get_matching_characters_from_list_of_pools(search_terms_dict, priority_list, max_results)
+        results = self.get_matching_characters_from_list_of_pools(search_terms_dict, priority_list, max_results, ignore_obsolete_kanjis)
 
         return list(results)
     

@@ -49,6 +49,12 @@ class LookupWindow(QDialog):
         search_btn.clicked.connect(self.power_search_bar.on_power_search_submit)
         search_lyt.addWidget(search_btn)
 
+        self.ignore_obsolete_check_box = QCheckBox("Ignore obsolete")
+        self.ignore_obsolete_check_box.clicked.connect(self.on_switch_ignore_obsolete)
+        self.ignore_obsolete_check_box.setChecked(True)
+        self.ignore_obsolete_check_box.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        search_lyt.addWidget(self.ignore_obsolete_check_box)
+
         self.keep_tab_on_search_box = QCheckBox("Keep tabs open")
         self.keep_tab_on_search_box.setChecked(False)
         self.keep_tab_on_search_box.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -165,6 +171,9 @@ class LookupWindow(QDialog):
 
         if not handle_bridge_action(cmd, lookup_window=self):
             print("Unhandled bridge command:", cmd)
+
+    def on_switch_ignore_obsolete(self):
+        self.power_search_bar.set_ignore_obsolete_kanjis(self.ignore_obsolete_check_box.isChecked())
 
     def search(self, text, internal=False):
         unique_characters = util.unique_characters(text)
