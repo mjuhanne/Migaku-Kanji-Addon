@@ -3,6 +3,7 @@ from aqt.qt import *
 
 from . import util
 from .power_search_bar import PowerSearchBar, ResultsBar
+from .card_type import CardType
 
 source_labels = {
     "h" : "Heisig",
@@ -228,7 +229,37 @@ class EditStringTypeDialog(EditDialog):
         super().__init__(source, character, item_name, multi_line, parent)
 
 
-class EditUserStoryDialog(EditDialog):
+class EditStoryDialog(EditDialog):
+    def __init__(self, source, character, item_name, multi_line=False, parent=None):
+        self.max_search_results = 12
+        super().__init__(source, character, item_name, multi_line, parent)
+
+    def get_suggested_primitives(self):
+        primitives = set(self.character)
+        for ct in CardType:
+            defined_primitives = aqt.mw.migaku_kanji_db.story_db.get_recursive_primitive_set(self.character,ct)
+            primitives.update(defined_primitives)
+        suggested_primitives = set(aqt.mw.migaku_kanji_db.search_engine.suggest_primitives(self.character, self.max_search_results))
+        primitives.update(suggested_primitives)
+        return primitives
+        
+    def add_additional_widgets(self, lyt):
+
+        suggested_primitives = self.get_suggested_primitives()
+        lyt.addWidget(QLabel(f"Insert primitives by clicking below:"))
+        self.suggestions_lyt = QVBoxLayout()
+        lyt.addLayout(self.suggestions_lyt)
+
+        bar_height = 30
+        self.suggestions_bar = ResultsBar( self.suggestions_lyt, self.max_search_results,
+            bar_height, self.on_suggestion_selected, hide_empty_buttons=True
+        )
+        self.suggestions_bar.set_contents(suggested_primitives)
+
+    def on_suggestion_selected(self, suggested_primitive):
+        self.new_value_edit.insertPlainText(suggested_primitive)
+
+class EditUserStoryDialog(EditStoryDialog):
     def __init__(self, character, new_suggested_story, parent=None):
         self.new_suggested_story = new_suggested_story
         super().__init__(None, character, "user story", True, parent)

@@ -285,6 +285,14 @@ class StoryDatabase:
             return self.primitive_of_cache[character]
         return []
 
+    def get_recursive_primitive_set(self, character, card_type):
+        res = set(character)
+        p_list = self.get_primitives(character, card_type)
+        for p in p_list:
+            if p not in res:
+                rec_res = self.get_recursive_primitive_set(p, card_type)
+                res.update(rec_res)
+        return res
 
     def get_primitives(self, character, card_type):
         # Get primitives. If user has modified the primitive list, then use that by default. Otherwise fall back to the standard list

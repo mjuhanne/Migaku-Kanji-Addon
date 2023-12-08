@@ -199,7 +199,7 @@ def handle_bridge_action(
             return True
 
         elif (item_name == "story") or (item_name == "comment"):
-            r = EditStringTypeDialog(source, character, item_name, True, parent).exec()
+            r = EditStoryDialog(source, character, item_name, True, parent).exec()
             if r == QDialog.DialogCode.Accepted:
                 if reviewer:
                     aqt.mw.requireReset()
