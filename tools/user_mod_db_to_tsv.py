@@ -99,13 +99,13 @@ for raw_data in mod_rows:
     orig_data = {}
     if len(orig_rows) == 1:
         for data, field in zip(orig_rows[0], orig_fields):
-            orig_data[field] = data #load_func(data)
+            orig_data[field] = data_from_db_to_str(field,data) #load_func(data)
 
     for field in user_modifiable_fields:
         if field in orig_data:
-            data = data_from_db_to_str(field,orig_data[field]) or ''
+            old_data = orig_data[field] or ''
         else:
-            data = ''
+            old_data = ''
             
         user_mod_data = data_from_db_to_str(field,new_data['mod_' + field])
 
@@ -113,10 +113,10 @@ for raw_data in mod_rows:
             user_mod_data = user_mod_data.replace('\n','')
             user_mod_data = user_mod_data.replace('\r','')
 
-            if orig_data == user_mod_data:
+            if old_data == user_mod_data:
                 print("%s: user modified field %s has value %s which equals original. Should be cleaned!" % (character, field, orig_data))
             else:
-                change = [source,character,field,data,user_mod_data]
+                change = [source,character,field,old_data,user_mod_data]
                 fw(change)
 
 f.close()
