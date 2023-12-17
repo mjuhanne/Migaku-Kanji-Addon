@@ -273,7 +273,17 @@ def get_cjk_words(text, reading=False):
 
     r = []
     for occurence, dict_form, dict_form_reading in parser.parse(text):
-        if has_cjk(occurence) and has_cjk(dict_form):
+        occurrence_kanjis = set(filter_cjk(occurence))
+        if len(occurrence_kanjis)>0:
+            dict_form_kanjis = set(filter_cjk(dict_form))
+            if not occurrence_kanjis.issubset(dict_form_kanjis):
+                # The dictionary form is missing some kanjis present in original occurrence
+                # This might be because the parser stubbornly converts words erroneously
+                # (for example 速い to 早い) or this is a word written usually in 
+                # hiragana/katakana (for example 煌めく -> きらめく). 
+                # In these cases we want the original words instead of dict form
+                dict_form = occurence
+
             if reading:
                 dict_form_reading = to_hiragana(dict_form_reading)
                 r.append((dict_form, dict_form_reading))
