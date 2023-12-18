@@ -51,10 +51,6 @@ unicode_conversion_table = {
     '辶' : '辶',
 }
 
-# When two characters reference each other as alternatives (for example 艹 -> 艸 and 艸 -> 艹 )
-# then we want to link to the character which is the primary primitive
-primary_primitives = ['艹','扌','⻖','⻏','川','罒','冫','月']
-
 class SearchEngine:
 
     def __init__(self, parent):
@@ -78,21 +74,20 @@ class SearchEngine:
         self.meaning_set_cache = dict()
         self.meaning_cache = dict()
         self.stories_cache = dict()
-        self.primitive_alternative_cache = dict()
         self.radicals_set = set()
         self.priority = dict()
         self.character_list = []
 
         self.init_cache()
 
-    def radical_to_primitive(self,r):
+    def radical_to_primitive(self,r, fetch_primary_primitive=True):
         # First do unicode conversion because some radicals in the list might use slightly
         # # different (albeit visually indistinguishable) unicode character.
         if r in unicode_conversion_table:
             r = unicode_conversion_table[r]
         # .. then reference the main primitive instead if this is an alternative primitive
-        if r not in primary_primitives and r in self.primitive_alternative_cache:
-            r = self.primitive_alternative_cache[r]
+        if fetch_primary_primitive:
+            r = self.parent.story_db.get_primary_primitive_from_alternative(r)
         return r
 
     def recursively_find_all_primitives(self, character):
@@ -285,20 +280,13 @@ class SearchEngine:
 
                 # Update priority of those primitives that this kanji uses
                 for p in p_list:
+                    primary_p = self.parent.story_db.get_primary_primitive_from_alternative(p)
+                    if primary_p is not None:
+                        p = primary_p
                     self.priority[p] += 1
-
-            if source == 'h':
-                # create a reverse lookup table for primitive alternatives
-                for p in elements['primitive_alternatives']:
-                    self.primitive_alternative_cache[p] = c
 
         for c, kw_set in self.keyword_set_cache.items():
             self.keyword_cache[c] = ','.join(list(kw_set))
-
-        #for c in self.character_list:
-        #    if c not in self.primitive_set_cache:
-        #        # always set up a auto-reference at least
-        #        self.primitive_list_cache[c] = set(c)
 
         # Create a search pool based on all the radicals each kanji (and all its primitives) use
         if not character:
@@ -493,6 +481,9 @@ class SearchEngine:
         ]
 
         results = self.get_matching_characters_from_list_of_pools(search_terms_dict, priority_list, max_results, ignore_obsolete_kanjis)
+        results = self.parent.story_db.add_alternative_primitives_to_list(list(results), True)
+        if len(results) > max_results:
+            results = results[:max_results]
         return list(results)
     
 
@@ -525,9 +516,9 @@ class SearchEngine:
         sorted_match_scores = sorted(match_scores.items(), key=lambda x:x[1], reverse=True)
         sorted_matches = list(dict(sorted_match_scores).keys())
 
-        # some of the matches are radical entries (like ⺡) and we want to convert them 
-        # to a primitive entry that can be added to primitives list
-        sorted_matches = [ self.radical_to_primitive(r) for r in sorted_matches]
+        # clean the list and add all alternative primitives
+        sorted_matches = [ self.radical_to_primitive(r, False) for r in sorted_matches]
+        sorted_matches = self.parent.story_db.add_alternative_primitives_to_list(sorted_matches)
 
         if len(sorted_matches) > max_results:
             return sorted_matches[:max_results]

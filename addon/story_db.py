@@ -18,6 +18,10 @@ user_modifiable_fields = ['primitives','keywords','primitive_keywords','story','
 
 main_keyword_source = 'h'  # selects which keyword set to compare possible conflicts
 
+# When two characters reference each other as alternatives (for example 艹 -> 艸 and 艸 -> 艹 )
+# then we want to link to the character which is the primary primitive
+primary_primitives = ['艹','扌','⻖','⻏','川','罒','冫','月','辶','鼡','赤']
+
 def json_loads_or_empty_list(l):
     if l is None or l == '':
         return []
@@ -134,6 +138,7 @@ class StoryDatabase:
         self.crs.execute(query)
         self.con.commit()
 
+        self.calculate_primitive_alternatives()
         self.calculate_primitive_of_cache()
 
     def crs_execute(self, __sql: str, __parameters=()):
@@ -230,6 +235,28 @@ class StoryDatabase:
         self.parent.refresh_notes_for_character(character)
         print("Updated %s:%s field '%s': %s -> %s" % (source, character, field_name, previous_value, data))
 
+
+    def calculate_primitive_alternatives(self):
+
+        self.primitive_alternative_reverse_lookup_table = dict()
+        self.primitive_alternative_cache = dict()
+
+        data = self.crs_execute_and_fetch_all(
+            f"SELECT character, primitive_alternatives FROM stories WHERE primitive_alternatives IS NOT NULL"
+        )
+        for row in data:
+            c = row[0]
+            prim_alt_list = custom_list(row[1])
+            self.primitive_alternative_cache[c] = prim_alt_list
+            for p in prim_alt_list:
+                self.primitive_alternative_reverse_lookup_table[p] = c
+
+    def get_primary_primitive_from_alternative(self, alternative_primitive):
+        if alternative_primitive not in primary_primitives:
+            if alternative_primitive in self.primitive_alternative_reverse_lookup_table:
+                return self.primitive_alternative_reverse_lookup_table[alternative_primitive]
+        return alternative_primitive
+
     def calculate_primitive_of_cache(self):
 
         print("Calculating primitive_of cache..")
@@ -252,6 +279,7 @@ class StoryDatabase:
             if p_list is not None:
                 p_list = custom_list(p_list)
                 for p in p_list:
+                    p  = self.get_primary_primitive_from_alternative(p)
                     if p not in primitive_of:
                         primitive_of[p] = []
                     primitive_of[p].append(c)
@@ -284,9 +312,23 @@ class StoryDatabase:
         if character in self.primitive_of_cache:
             return self.primitive_of_cache[character]
         return []
-
+    
+    def add_alternative_primitives_to_list(self, p_list, add_only_existing_entries=False):
+        new_p_list = []
+        for p in p_list:
+            new_p_list.append(p)
+            if p in self.primitive_alternative_cache:
+                for pa in self.primitive_alternative_cache[p]:
+                    if pa not in new_p_list:
+                        if add_only_existing_entries:
+                            if self.parent.does_character_exist(pa, check_alternative_primitives=False):
+                                new_p_list.append(pa)
+                        else:
+                            new_p_list.append(pa)
+        return new_p_list
+                
     def get_recursive_primitive_set(self, character, card_type):
-        res = set(character)
+        res = set([character])
         p_list = self.get_primitives(character, card_type)
         for p in p_list:
             if p not in res:
@@ -294,7 +336,7 @@ class StoryDatabase:
                 res.update(rec_res)
         return res
 
-    def get_primitives(self, character, card_type):
+    def get_primitives(self, character, card_type, convert_to_primary_primitives=True):
         # Get primitives. If user has modified the primitive list, then use that by default. Otherwise fall back to the standard list
         primitives = self.get_user_modified_field_or_original('h',character,"primitives")
 
@@ -305,6 +347,11 @@ class StoryDatabase:
                 if not self.parent.is_primitive_rare(p, card_type):
                     if p not in primitives:
                         primitives.append(p)
+
+        # Convert alternative primitive to the primary (e.g. 氵-> 水)
+        if convert_to_primary_primitives:
+            primitives = [self.get_primary_primitive_from_alternative(p) for p in primitives]
+            
         return primitives
 
     # Fetch story elements (primitives, story, comment etc) for given kanji character.

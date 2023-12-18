@@ -104,6 +104,10 @@ function create_primitive_section(primitives_detail, user_modified_primitives, m
         if ( (keywords.length == 0) && (p_data.primitives.length == 0) ) {
             isIncomplete = true;
         }
+        let original_character_html = '';
+        if (p_data.displayed_character != p_data.character) {
+            original_character_html = '<h2>' + p_data.character + '</h2>';
+        }
         primitives_pts.push(
             `<button
                             class="primitive${primitiveHasAlts ? ' -has-alternative' : ''}
@@ -112,8 +116,9 @@ function create_primitive_section(primitives_detail, user_modified_primitives, m
                             ${isRare ? ' -is-rare' : ''}"
                             data-character="${p_data.character}"
                         >
-                            ${ReplaceTagsWithImages(p_data.character)}
+                            ${ReplaceTagsWithImages(p_data.displayed_character)}
                             <div class="primitiveDetails">
+                                ${original_character_html}
                                 <div class="primitiveDetails-keywords">
                                     <h3>Keywords:</h3>
                                     <span>${keywords_txt}</span>

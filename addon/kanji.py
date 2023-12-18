@@ -649,13 +649,16 @@ class KanjiDB:
             return ""
 
 
-    def does_character_exist(self, character):
+    def does_character_exist(self, character, check_alternative_primitives=True):
         r = self.crs_execute_and_fetch_one(
             "SELECT character FROM characters WHERE character=?",
             (character,),
         )
         if r:
             return True
+        if check_alternative_primitives:
+            if self.story_db.get_primary_primitive_from_alternative(character) != character:
+                return True
         return False
 
         
@@ -878,9 +881,14 @@ class KanjiDB:
         words=True,
         user_data=False,
         card_type=None,
+        displayed_character=None,
     ):
+        if displayed_character is None:
+            displayed_character = character
+
         ret = {
             "character": character,
+            "displayed_character" : displayed_character,
             "has_result": False,
         }
 
@@ -977,6 +985,13 @@ class KanjiDB:
                     primitives_detail = []
 
                     for p in primitives:
+
+                        # If this primitive is an alternative primitive (e.g. 氵), fetch the
+                        # data for original one (水) while still showing 氵 in the primitive list
+                        d_character = p
+                        if source == 'h' or source == 'cs':
+                            p = self.story_db.get_primary_primitive_from_alternative(p)
+
                         primitives_detail.append(
                             self.get_kanji_result_data(
                                 p,
@@ -985,6 +1000,7 @@ class KanjiDB:
                                 detail_primitive_of=False,
                                 words=False,
                                 card_type=card_type,
+                                displayed_character=d_character,
                             )
                         )
 
