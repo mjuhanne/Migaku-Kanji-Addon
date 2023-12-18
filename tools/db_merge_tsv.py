@@ -1,6 +1,5 @@
 #
 # Merges changed kanjis/primitives listed in kanji-ext.tsv with kanji.db
-# Recalculates also primitives-of list
 #
 import sqlite3
 import json
@@ -9,29 +8,32 @@ import os
 import re
 import logging
 
-LINE_FORMAT_SHORT = 0
-LINE_FORMAT_LONG = 1
+simulate = False
 
-standard_fields = [
+kanji_db_fields = [
     "character",
     "meanings",
-    "primitive_alternatives",
-    "primitives",
-    "sec_primitives",
-    "heisig_keyword5",
-    "heisig_keyword6",
-    "primitive_keywords",
-    "heisig_story",
-    "heisig_comment",
     "radicals",
+    "primitive_of",
 ]
 
-user_modifiable_fields = {
-    "primitives" : "usr.modified_values.mod_primitives",
-    "sec_primitives" : "usr.modified_values.mod_sec_primitives",
-    "primitive_keywords": "usr.modified_values.mod_primitive_keywords",
-    "heisig_story" : "usr.modified_values.mod_heisig_story",
-    "heisig_comment" : "usr.modified_values.mod_heisig_comment",
+story_db_fields = [
+    "keywords",
+    "primitives",
+    "primitive_keywords",
+    "primitive_alternatives",
+    "story",
+    "comment",
+    "conflicting_keywords",
+    "id",
+]
+
+user_modifiable_fields = {    
+    "primitives" : "umod.modified_values.mod_primitives",
+    "keywords": "umod.modified_values.mod_keywords",
+    "primitive_keywords": "umod.modified_values.mod_primitive_keywords",
+    "story" : "umod.modified_values.mod_story",
+    "comment" : "umod.modified_values.mod_comment",
 }
 
 def to_json_list_str(csv):
@@ -42,21 +44,48 @@ def to_json_list_str(csv):
     return '[]'
 
 def j2c_or_none(d):
-    if d is None:
+    if d is None or d == '':
         return None
     return ", ".join(json.loads(d))
+
+def story_json_dumps(d):
+    if d == '':
+        return '[]'
+    if d[0] != '[' or d[-1] != ']': 
+        # the value wasn't stored as JSON representation of list of strings 
+        # but a single string so convert to array of a single string and then do
+        # JSON dump
+        d = json.dumps( [d] )
+    return d
+
+def story_j2c(d):
+    if d is None or d == '':
+        return []
+    if d[0] != '[' or d[-1] != ']': 
+        # the value wasn't stored as JSON representation of list of strings 
+        # but a single string so convert to array of a single string
+        return [d]
+    return json.loads(d)
 
 _ = lambda x: x
 
 field_conversion_to_db_schema = {
+    "story" : story_json_dumps,
+    "comment" : story_json_dumps,
     "meanings" : to_json_list_str,
+    "keywords" : to_json_list_str,
     "primitive_keywords" : to_json_list_str,
+    "mod_keywords" : to_json_list_str,
     "mod_primitive_keywords" : to_json_list_str,
 }
 
 field_conversion_from_db_schema = {
+    "story" : story_j2c,
+    "comment" : story_j2c,
     "meanings" : j2c_or_none,
+    "keywords" : j2c_or_none,
     "primitive_keywords" : j2c_or_none,
+    "mod_keywords" : j2c_or_none,
     "mod_primitive_keywords" : j2c_or_none,
 }
 
@@ -75,11 +104,17 @@ def multiLine(src_list,n):
     return '<br>'.join(lines)
 
 #ext_tsv_path = sys.argv[1] if len(sys.argv) > 1 else "addon/kanji-ext4.tsv"
-ext_tsv_path = sys.argv[1] if len(sys.argv) > 1 else "kanji-patch-6.tsv"
+#ext_tsv_path = sys.argv[1] if len(sys.argv) > 1 else "../Migaku-Kanji-Addon/stories-db.tsv"
+#ext_tsv_path = sys.argv[1] if len(sys.argv) > 1 else "../Migaku-Kanji-Addon/kanji-db-koohi.tsv"
+#ext_tsv_path = sys.argv[1] if len(sys.argv) > 1 else "../Migaku-Kanji-Addon/wk.tsv"
+#ext_tsv_path = sys.argv[1] if len(sys.argv) > 1 else "../Migaku-Kanji-Addon/rrtk.tsv"
+ext_tsv_path = sys.argv[1] if len(sys.argv) > 1 else "../Migaku-Kanji-Addon/kanji-usermod-patch.tsv"
+#ext_tsv_path = sys.argv[1] if len(sys.argv) > 1 else "../Migaku-Kanji-Addon/kanji-db-ids.tsv"
 
-db_path = sys.argv[2] if len(sys.argv) > 2 else "addon/kanji.db"
-user_db_path = sys.argv[3] if len(sys.argv) > 3 else "addon/user_files/user.db"
-log_path = sys.argv[4] if len(sys.argv) > 4 else "db_merge_log.md"
+db_path = sys.argv[2] if len(sys.argv) > 2 else "../Migaku-Kanji-Addon/addon/kanji.db"
+story_db_path = sys.argv[2] if len(sys.argv) > 2 else "../Migaku-Kanji-Addon/addon/story.db"
+usermod_db_path = sys.argv[3] if len(sys.argv) > 3 else "../Migaku-Kanji-Addon/addon/user_files/usermod.db"
+log_path = sys.argv[4] if len(sys.argv) > 4 else "../Migaku-Kanji-Addon/db_merge_new_log.md"
 db_path = os.path.abspath(db_path)
 
 ### set up logging
@@ -88,46 +123,39 @@ logging.basicConfig(format='%(message)s', level=logging.INFO, handlers=targets)
 
 con = sqlite3.connect(db_path)
 crs = con.cursor()
-crs.execute(f'ATTACH DATABASE "{user_db_path}" AS usr;')
+
+story_db_con = sqlite3.connect(story_db_path)
+story_crs = story_db_con.cursor()
+story_crs.execute(f'ATTACH DATABASE "{usermod_db_path}" AS umod;')
+
 
 processed_kanji_list = []
 total_changes = 0
 line_number = 0
 
-line_format = None
-
-selected_sql_field_names = []
-selected_field_names = []
-selected_standard_field_names = []
-
-def create_field_selectors_and_convertors(fields):
-    global selected_sql_field_names, selected_field_names, selected_standard_field_names, \
-        field_conversion_to_db, field_conversion_from_db
-
-    selected_standard_field_names = fields.copy()
-    selected_field_names = fields.copy()
-    selected_sql_field_names = fields.copy()
-
-    for field in fields:
-        if field in user_modifiable_fields:
-            selected_sql_field_names.append(user_modifiable_fields[field])
-            field_name = 'mod_' + field
-            selected_field_names.append(field_name)
-
-    field_conversion_from_db = [ (field,field_conversion_from_db_schema[field])
-        if field in field_conversion_from_db_schema
-        else (field, _)
-        for field in selected_field_names 
-    ]
-    field_conversion_to_db = [ (field,field_conversion_to_db_schema[field])
-        if field in field_conversion_to_db_schema
-        else (field, _)
-        for field in selected_standard_field_names 
-    ]
-
-
 previous_kanji = None
-comment_field_enabled = False
+
+def clean_user_modified_field(source,kanji,field_name,new_data):
+    mod_field_name = 'mod_' + field_name
+
+    story_crs.execute(
+        f'SELECT {user_modifiable_fields[field_name]} FROM umod.modified_values WHERE character == (?) AND source == (?)',
+        (kanji, source),
+    )
+    res = story_crs.fetchall()
+    if len(res) > 0:
+        user_modified_data = res[0][0]
+        if user_modified_data == new_data:
+            logging.info('#### %s: Cleaning also user modified field: %s ' % (kanji,mod_field_name))
+            # let's not leave identical data laying around in the user mod column
+            if not simulate:
+                update_sql = (
+                    f'UPDATE umod.modified_values SET {mod_field_name}=? WHERE character=? AND source=?'
+                )
+                updated_data_tuple = (None, kanji, source)
+                story_crs.execute(update_sql, updated_data_tuple)
+                story_db_con.commit()
+
 
 for l in open(ext_tsv_path, "r", encoding="utf-8"):
     
@@ -137,25 +165,10 @@ for l in open(ext_tsv_path, "r", encoding="utf-8"):
     if len(d[0]) == 0:
         logging.info("")
         continue
-    if d[0] == 'Kanji' or d[0] == 'character':
+    if d[0] == 'Source':
         # process the header
-        if d[:4] == ['Kanji','Field','OldValue','NewValue']:
-            # File consists of 1 change per line
-            line_format = LINE_FORMAT_SHORT
-            if len(d) == 5:
-                if d[4] != 'Comment':
-                    raise Exception("Error in file format!")
-                comment_field_enabled = True
-            else:
-                if len(d) != 4:
-                    raise Exception("Error in file format!")
-        else:
-            line_format = LINE_FORMAT_LONG
-            if len(d) != 10:
-                raise Exception("Error in file format!")
-            fields = d.copy()
-            fields = fields[1:] # omit character
-            create_field_selectors_and_convertors(fields)
+        if d[1:] != ['Character','Field','OldValue','NewValue']:
+            raise Exception("Error in file format!")
         continue
     if d[0][0]=='#':  # only log the comments
         # modify the comments so they look better in markdown
@@ -170,256 +183,138 @@ for l in open(ext_tsv_path, "r", encoding="utf-8"):
             comment = '####' + cleaned_comment
         logging.info(comment)
         continue
-    if d[1] == 'DELETE':
-        logging.info("# DELETE %s",d[0])
-        delete_sql = (
-            f'DELETE FROM characters WHERE character=?'
-        )
-        crs.execute(delete_sql, (d[0],) )
-        con.commit()
+
+    source = d[0]
+    kanji = d[1]
+
+    if len(d) == 3 and d[2] == 'DELETE':
+        logging.info("# DELETE %s from %s" %(kanji,source))
+        if not simulate:
+            if source == 'k':
+                delete_sql = (
+                    f'DELETE FROM characters WHERE character=?'
+                )
+                crs.execute(delete_sql, (d[0],) )
+                con.commit()
+            else:
+                delete_sql = (
+                    f'DELETE FROM stories WHERE character=? AND source=?'
+                )
+                story_crs.execute(delete_sql, (kanji,source) )
+                story_db_con.commit()
         continue
 
-    if line_format == LINE_FORMAT_LONG:
-        if len(d) != 10:
-            raise Exception("Error! Line %d - wrong length in data: %s" % (line_number, str(d)))
-    elif line_format == LINE_FORMAT_SHORT:
-        if len(d) == 5 and comment_field_enabled:
-            comment_field = d[4]
-        else:
-            if len(d) != 4:
-                raise Exception("Error! Line %d - wrong length in data: %s" % (line_number, str(d)))
-            comment_field = ''
-        fields = [d[1]]
-        create_field_selectors_and_convertors(fields)
-        previous_value = d[2]
-        # this is the new [character,new value] pair
-        d = [d[0],d[3]]
-    else:
-        raise Exception("Error! No header defined!")
 
-    kanji = d[0].strip()
+    field_name = d[2]
+    previous_data = d[3]
+    non_converted_new_data = d[4]
+    character_field_tuple = (source,kanji,field_name)
     
-    new_data_list = d[1:] # omit character
-    new_data_per_field = dict()
-    for field,data in zip(selected_standard_field_names,new_data_list):
-        new_data_per_field[field] = data
-
     # convert data to json format for modifying the database
-    converted_new_data_per_field = dict()
-    for data, (field_name, load_func) in zip(new_data_list, field_conversion_to_db):
-        converted_new_data_per_field[field_name] = load_func(data)
-
-    if line_format == LINE_FORMAT_LONG:
-        if kanji in processed_kanji_list:
-                raise Exception("Kanji %s already processed! Remove duplicate from line %d" % (kanji,line_number))
-        else:
-            processed_kanji_list.append(kanji)
+    if field_name in field_conversion_to_db_schema:
+        converted_new_data = field_conversion_to_db_schema[field_name](non_converted_new_data)
     else:
-        character_field_tuple = (kanji,fields)
-        if character_field_tuple in processed_kanji_list:
-                raise Exception("Kanji %s already processed! Remove duplicate from line %d" % (character_field_tuple,line_number))
-        else:
-            processed_kanji_list.append(character_field_tuple)
+        converted_new_data = non_converted_new_data
 
-    # create printable header
-    pretty_header = kanji
-    if line_format == LINE_FORMAT_LONG:
-        pkw = new_data_per_field["primitive_keywords"]
-        kw = new_data_per_field["heisig_keyword5"]
-        if kw != '':
-            pretty_header += ' ' + kw
-            if pkw != '':
-                pretty_header += ' / ' + pkw
-        elif pkw != '':
-            pretty_header += ' ' + pkw
-        pretty_header += ' (' + new_data_per_field["meanings"] + ')'
+    if character_field_tuple in processed_kanji_list:
+            raise Exception("Kanji %s already processed! Remove duplicate from line %d" % (character_field_tuple,line_number))
 
     # Check if a card already exists for this character
-    crs.execute(
-        f'SELECT {",".join(selected_sql_field_names)} FROM characters LEFT OUTER JOIN usr.modified_values ON characters.character == usr.modified_values.character WHERE characters.character == (?)',
-        (kanji,),
-    )
+    if source == 'k':
+        # Kanji DB
+        if field_name not in kanji_db_fields:
+            raise Exception("Unknown field name %s in line %d" % (character_field_tuple,line_number))
 
-    res = crs.fetchall()
-    if len(res) > 0:
+        selected_sql_field_names = [field_name]
+        crs.execute(
+            f'SELECT {",".join(selected_sql_field_names)} FROM characters WHERE character == (?)',
+            (kanji,),
+        )
+        res = crs.fetchall()
+    else:
+        # Story DB
+        if field_name not in story_db_fields:
+            raise Exception("Unknown field name %s in line %d" % (character_field_tuple,line_number))
 
-        existing_data_list = list(res[0])
-        existing_data_per_field = dict()
-        for field,data in zip(selected_field_names,existing_data_list):
-            existing_data_per_field[field] = data
+        story_crs.execute(
+            f'SELECT {field_name} FROM stories LEFT OUTER JOIN umod.modified_values ON stories.character == umod.modified_values.character AND stories.source == umod.modified_values.source WHERE stories.character == (?) AND stories.source == (?)',
+            (kanji,source),
+        )
+        res = story_crs.fetchall()
 
-        # old data: create value strings for better readibility
-        existing_data_str_per_field = dict()
-        for data, (field_name, load_func) in zip(existing_data_list, field_conversion_from_db):
-            existing_data_str_per_field[field_name] = load_func(data)
-        
-        updated_fields = []
-        updated_data = []
-        to_be_cleaned_user_mod_fields = dict()
+    if len(res) > 1:
+        raise Exception("%s contains more than 1 entry! Should not happen!" % (character_field_tuple))
 
-        for field in selected_standard_field_names:
+    if len(res) == 1:
 
-            existing_data = existing_data_per_field[field]
-            new_data = converted_new_data_per_field[field]
-            if (existing_data != new_data) and not (existing_data is None and new_data==''):
+        existing_data = res[0][0]
+        if field_name in field_conversion_from_db_schema:
+            existing_data_str = field_conversion_from_db_schema[field_name](existing_data)
+        else:
+            existing_data_str = existing_data
 
-                if len(updated_fields)==0 and kanji != previous_kanji:
-                    logging.info('#### ' + pretty_header)
+        new_data = converted_new_data
 
-                    logging.info("| Field | Old value | New value | Comment |" )
-                    logging.info("|---|---|---|---|" )
+        if (existing_data != new_data) and not (existing_data is None and new_data==''):
 
-                logging.info("| %s | %s | %s | %s |" % (field.ljust(20), existing_data_str_per_field[field], new_data_per_field[field], comment_field))
-                total_changes += 1
+            if not simulate:
+                if source == 'k':
+                    update_sql = (
+                        f'UPDATE characters SET {field_name}=? WHERE character=?'
+                    )
+                    updated_data_tuple = (new_data, kanji)
+                    crs.execute(update_sql, updated_data_tuple)
+                    con.commit()
+                else:
+                    update_sql = (
+                        f'UPDATE stories SET {field_name}=? WHERE character=? AND source=?'
+                    )
+                    updated_data_tuple = (new_data, kanji, source)
+                    story_crs.execute(update_sql, updated_data_tuple)
+                    story_db_con.commit()
 
-                updated_fields.append(field)
-                updated_data.append(new_data)
+            if kanji != previous_kanji:
+                logging.info('#### ' + kanji)
 
-            if field in user_modifiable_fields:
-                mod_field_name = 'mod_' + field
-                user_modified_data = existing_data_per_field[mod_field_name]
-                if user_modified_data == new_data:
-                    # let's not leave identical data laying around in the user mod column
-                    to_be_cleaned_user_mod_fields[mod_field_name] = None
-                    logging.info('#### %s: Cleaning also user modified field: %s ' % (kanji,mod_field_name))
+                logging.info("| Source | Field | Old value | New value |" )
+                logging.info("|---|---|---|---|" )
 
+            logging.info("| %s | %s | %s | %s |" % (source.ljust(4), field_name.ljust(20), existing_data_str, new_data))
+            total_changes += 1
 
-        if len(updated_fields)>0:
-            update_sql = (
-                f'UPDATE characters SET {"=? , ".join(updated_fields)}=? WHERE character=?'
-            )
-            updated_data_tuple = (*updated_data, kanji)
-            crs.execute(update_sql, updated_data_tuple)
-            con.commit()
-
-        if len(to_be_cleaned_user_mod_fields)>0:
-            update_sql = (
-                f'UPDATE usr.modified_values SET {"=? , ".join(to_be_cleaned_user_mod_fields.keys())}=? WHERE character=?'
-            )
-            updated_data_tuple = (*to_be_cleaned_user_mod_fields.values(), kanji)
-            crs.execute(update_sql, updated_data_tuple)
-        con.commit()
+        if field_name in user_modifiable_fields:
+            clean_user_modified_field(source,kanji,field_name,new_data)
 
     else:
 
-        logging.info("#### %s (NEW ITEM)" % pretty_header)
+        logging.info("#### [%s] %s (NEW ITEM)" % (source,kanji))
 
-        logging.info("| Field | Value |" )
-        logging.info("|---|---|" )
+        logging.info("| Source | Field | Value |" )
+        logging.info("|---|---|---|" )
+        logging.info("| %s | %s | %s |" % (source, field_name, converted_new_data))
+        total_changes += 1
 
-        # convert data to json format for modifying to database
-        for field in selected_standard_field_names:
-            logging.info("| %s | %s |" % (field, converted_new_data_per_field[field]))
-            total_changes += 1
+        if not simulate:
+            if source == 'k':
+                insert_sql = (
+                    f'INSERT OR IGNORE into characters (character,{field_name}) values (?,?)'
+                )
+                insert_data_tuple = (kanji, converted_new_data)
+                crs.execute(insert_sql, insert_data_tuple)
+                con.commit()
+            else:
+                insert_sql = (
+                    f'INSERT OR IGNORE into stories (source,character,{field_name}) values (?,?,?)'
+                )
+                insert_data_tuple = (source, kanji, converted_new_data)
+                story_crs.execute(insert_sql, insert_data_tuple)
+                story_db_con.commit()
 
+        if field_name in user_modifiable_fields:
+            clean_user_modified_field(source,kanji,field_name,converted_new_data)
 
-        insert_sql = (
-            f'INSERT OR IGNORE into characters (character,{",".join(converted_new_data_per_field.keys())}) values ({",".join("?"*(len(converted_new_data_per_field)+1))})'
-        )
-        insert_data_tuple = (kanji, *converted_new_data_per_field.values())
-
-        crs.execute(insert_sql, insert_data_tuple)
-        con.commit()
 
     previous_kanji = kanji
 
 logging.info("Processed %d items with total %d changes" % (len(processed_kanji_list), total_changes))
 
-##################################################################
-print("Reconstructing primitive_of lists..")
-
-crs.execute("SELECT * FROM characters LEFT OUTER JOIN usr.modified_values ON characters.character == usr.modified_values.character")
-data = crs.fetchall()
-
-column_names = [description[0] for description in crs.description]
-print("kanji.db column names:", column_names)
-
-poi_i = column_names.index('primitive_of')
-pi_i = column_names.index('primitives')
-spi_i = column_names.index('sec_primitives')
-ci_i = column_names.index('character')
-ri_i = column_names.index('radicals')
-hk_i = column_names.index('heisig_keyword6') 
-pk_i = column_names.index('primitive_keywords') 
-m_i = column_names.index('meanings') 
-mpi_i = column_names.index('mod_primitives')
-mspi_i = column_names.index('mod_sec_primitives')
-
-primitive_of_dict = dict()
-
-# Create a lookup table for primitives that are being used by kanjis or other primitives
-for row in data:
-    character = row[ci_i]
-    primitives = custom_list(row[pi_i])
-    mod_primitives = custom_list(row[mpi_i])
-
-    sec_primitives = custom_list(row[spi_i])
-    mod_sec_primitives = custom_list(row[mspi_i])
-
-    if mod_primitives is not None:
-        for p in mod_primitives:
-            if p not in primitive_of_dict:
-                primitive_of_dict[p] = ""
-            if p != character:
-                primitive_of_dict[p] += character
-    else:
-        for p in primitives:
-            if p not in primitive_of_dict:
-                primitive_of_dict[p] = ""
-            if p != character:
-                primitive_of_dict[p] += character
-
-    if mod_sec_primitives is not None:
-        for p in mod_sec_primitives:
-            if p not in primitive_of_dict:
-                primitive_of_dict[p] = ""
-            if p != character:
-                primitive_of_dict[p] += character
-    else:
-        for p in sec_primitives:
-            if p not in primitive_of_dict:
-                primitive_of_dict[p] = ""
-            if p != character:
-                primitive_of_dict[p] += character
-
-
-# Re-calculate primitive_of references
-
-logging.info("# Changes in primitives-of list")
-logging.info("| Kanji | Meaning/Keyword | Added | Removed |")
-logging.info("|---|---|---|---|")
-for row in data:
-    character = row[ci_i]
-    orig_primitive_of = custom_list(row[poi_i])
-    orig_primitive_of_set = set(orig_primitive_of)
-    if character in primitive_of_dict:
-        primitive_of_set = set(custom_list(primitive_of_dict[character]))
-    else:
-        primitive_of_set = set()
-
-    # extract the best representation for the kanji/primitive name
-    if row[hk_i] is not None and row[hk_i] != '':
-        name = row[hk_i]
-    elif row[pk_i] is not None and row[pk_i] != '[]':
-        name = j2c_or_none(row[pk_i])
-    elif row[m_i] is not None and row[m_i] != '[]':
-        name = j2c_or_none(row[m_i])
-    else:
-        name = ""
-
-    if primitive_of_set != orig_primitive_of_set:
-
-        added = multiLine(list(primitive_of_set-orig_primitive_of_set),10)
-        removed = multiLine(list(orig_primitive_of_set - primitive_of_set),10)
-        logging.info('|' + character + " | " + name + " | " + added + " | " + removed + ' |')
-        new_primitive_of_set = primitive_of_set
-        new_data = [''.join(new_primitive_of_set), character]
-
-        update_prim_of_sql = (
-            f'UPDATE characters SET primitive_of=? WHERE character=?'
-        )
-
-        crs.execute(update_prim_of_sql, new_data)
-        con.commit()
-
-con.close()

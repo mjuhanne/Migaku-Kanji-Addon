@@ -7,6 +7,7 @@ import re
 # A tool to extract user modified fields and output them to a .tsv patch file
 #
 
+force_clean_old_data = False
 user_modifiable_fields = ['primitives','keywords','primitive_keywords','story','comment']
 
 def j2c_or_none(d):
@@ -38,9 +39,9 @@ def data_from_db_to_str(field_name,data):
         return f(data)
     return data
 
-story_db_path = sys.argv[1] if len(sys.argv) > 1 else "addon/story.db"
-user_mod_db_path = sys.argv[2] if len(sys.argv) > 2 else "addon/user_files/usermod.db"
-tsv_path = sys.argv[3] if len(sys.argv) > 3 else "kanji-usermod-patch.tsv"
+story_db_path = sys.argv[1] if len(sys.argv) > 1 else "../Migaku-Kanji-Addon/addon/story.db"
+user_mod_db_path = sys.argv[2] if len(sys.argv) > 2 else "../Migaku-Kanji-Addon/addon/user_files/usermod.db"
+tsv_path = sys.argv[3] if len(sys.argv) > 3 else "../Migaku-Kanji-Addon/kanji-usermod-patch.tsv"
 
 story_con = sqlite3.connect(story_db_path)
 story_crs = story_con.cursor()
@@ -114,7 +115,17 @@ for raw_data in mod_rows:
             user_mod_data = user_mod_data.replace('\r','')
 
             if old_data == user_mod_data:
-                print("%s: user modified field %s has value %s which equals original. Should be cleaned!" % (character, field, orig_data))
+                if force_clean_old_data:
+                    print("[%s] %s: user modified field '%s' has value '%s' which equals original. Cleaning.." % (source,character, field, old_data))
+                    mod_field_name = 'mod_' + field
+                    update_sql = (
+                        f'UPDATE modified_values SET {mod_field_name}=? WHERE character=? AND source=?'
+                    )
+                    updated_data_tuple = (None, character, source)
+                    user_crs.execute(update_sql, updated_data_tuple)
+                    user_con.commit()
+                else:
+                    print("[%s] %s: user modified field '%s' has value '%s' which equals original. Should be cleaned!" % (source,character, field, old_data))
             else:
                 change = [source,character,field,old_data,user_mod_data]
                 fw(change)
