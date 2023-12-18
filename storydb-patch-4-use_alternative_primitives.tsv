@@ -1,0 +1,770 @@
+Source	Character	Field	OldValue	NewValue
+
+######## 聿 -> [brush-top] #######
+
+######## 艹 -> 艸 #######
+
+######## 匚 -> [box-small] #######
+
+######## 弗 -> [dollar_sign-below] #######
+
+######## 食 -> 𩙿 #######
+
+######## 高 -> [tall] #######
+
+######## [futon] -> 翟 #######
+
+######## 衣 -> [top_hat_and_scarf] #######
+
+######## 艸 -> 艹 #######
+
+######## 人 -> 亻 #######
+h	儚	primitives	人夢	亻夢
+h	夜	primitives	亠人夂丶	亠亻夂丶
+cs	夜	primitives	亠人夕丶	亠亻夕丶
+h	保	primitives	人口木	亻口木
+cs	保	primitives	人呆	亻呆
+h	修	primitives	人丨攵彡	亻丨攵彡
+h	侵	primitives	人ヨ冖又	亻ヨ冖又
+cs	侵	primitives	人[french_maid]	亻[french_maid]
+h	仰	primitives	人匚卩	亻匚卩
+cs	仰	primitives	人卬	亻卬
+h	悠	primitives	人丨攵心	亻丨攵心
+h	倫	primitives	人亼冊	亻亼冊
+cs	倫	primitives	人侖	亻侖
+h	俊	primitives	人允夂	亻允夂
+cs	俊	primitives	人夋	亻夋
+h	儲	primitives	人諸	亻諸
+h	偏	primitives	人戸冊	亻戸冊
+cs	偏	primitives	人扁	亻扁
+h	篠	primitives	竹人丨攵木	竹亻丨攵木
+h	傲	primitives	人土方攵	亻土方攵
+h	伐	primitives	人戈	亻戈
+h	倦	primitives	人巻	亻巻
+h	佗	primitives	人它	亻它
+h	俑	primitives	人マ用	亻マ用
+cs	俑	primitives	人甬	亻甬
+h	葠	primitives	艹人[french_maid]	艹亻[french_maid]
+h	僯	primitives	人粦	亻粦
+h	何	primitives	人可	亻可
+h	作	primitives	人乍	亻乍
+h	体	primitives	人本	亻本
+h	信	primitives	人言	亻言
+h	仕	primitives	人士	亻士
+h	使	primitives	人吏	亻吏
+h	代	primitives	人弋	亻弋
+h	供	primitives	人共	亻共
+h	伝	primitives	人云	亻云
+h	任	primitives	人壬	亻壬
+h	他	primitives	人也	亻也
+h	件	primitives	人牛	亻牛
+h	付	primitives	人寸	亻寸
+h	優	primitives	人憂	亻憂
+h	係	primitives	人系	亻系
+h	備	primitives	人艹厂用	亻艹厂用
+h	化	primitives	人匕	亻匕
+h	仲	primitives	人中	亻中
+h	傷	primitives	人𠂉昜	亻𠂉昜
+h	住	primitives	人主	亻主
+h	倒	primitives	人到	亻到
+h	休	primitives	人木	亻木
+h	位	primitives	人立	亻立
+h	似	primitives	人以	亻以
+h	働	primitives	人動	亻動
+h	像	primitives	人象	亻象
+h	佐	primitives	人左	亻左
+h	例	primitives	人列	亻列
+h	低	primitives	人氐	亻氐
+h	価	primitives	人西	亻西
+h	個	primitives	人固	亻固
+h	側	primitives	人則	亻則
+h	借	primitives	人昔	亻昔
+h	値	primitives	人直	亻直
+h	宿	primitives	宀人百	宀亻百
+h	健	primitives	人建	亻建
+h	偽	primitives	人為	亻為
+h	便	primitives	人更	亻更
+h	偉	primitives	人韋	亻韋
+h	依	primitives	人衣	亻衣
+h	儀	primitives	人義	亻義
+h	停	primitives	人亭	亻亭
+h	伊	primitives	人尹	亻尹
+h	伏	primitives	人犬	亻犬
+h	仮	primitives	人反	亻反
+h	億	primitives	人意	亻意
+h	伸	primitives	人申	亻申
+h	倍	primitives	人咅	亻咅
+h	偶	primitives	人禺	亻禺
+h	仙	primitives	人山	亻山
+h	償	primitives	人賞	亻賞
+h	偵	primitives	人貞	亻貞
+h	仁	primitives	人二	亻二
+h	僚	primitives	人尞	亻尞
+h	僧	primitives	人曽	亻曽
+h	伯	primitives	人白	亻白
+h	伴	primitives	人半	亻半
+h	俳	primitives	人非	亻非
+h	鷹	primitives	广人隹鳥	广亻隹鳥
+h	侮	primitives	人毎	亻毎
+h	仏	primitives	人厶	亻厶
+h	伺	primitives	人司	亻司
+h	佳	primitives	人圭	亻圭
+h	侑	primitives	人有	亻有
+h	侍	primitives	人寺	亻寺
+h	傑	primitives	人舛木	亻舛木
+h	促	primitives	人足	亻足
+h	俗	primitives	人谷	亻谷
+h	傍	primitives	人立冖方	亻立冖方
+h	債	primitives	人責	亻責
+h	佑	primitives	人右	亻右
+h	併	primitives	人并	亻并
+h	傭	primitives	人庸	亻庸
+h	侶	primitives	人呂	亻呂
+h	侠	primitives	人夹	亻夹
+h	伍	primitives	人五	亻五
+h	僅	primitives	人[cabbage]	亻[cabbage]
+h	侯	primitives	人ユ矢	亻ユ矢
+h	仇	primitives	人九	亻九
+h	倣	primitives	人放	亻放
+h	倶	primitives	人具	亻具
+h	伽	primitives	人加	亻加
+h	俵	primitives	人表	亻表
+h	雁	primitives	厂人隹	厂亻隹
+h	佃	primitives	人田	亻田
+h	俣	primitives	人口天	亻口天
+h	儒	primitives	人需	亻需
+h	伎	primitives	人支	亻支
+h	仔	primitives	人子	亻子
+h	俸	primitives	人奉	亻奉
+h	倹	primitives	人㑒	亻㑒
+h	什	primitives	人十	亻十
+h	偲	primitives	人思	亻思
+h	僑	primitives	人喬	亻喬
+h	僻	primitives	人辟	亻辟
+h	但	primitives	人旦	亻旦
+h	倭	primitives	人委	亻委
+h	倖	primitives	人幸	亻幸
+h	應	primitives	广人隹心	广亻隹心
+h	伶	primitives	人令	亻令
+h	俄	primitives	人我	亻我
+h	倅	primitives	人卒	亻卒
+h	做	primitives	人故	亻故
+h	侃	primitives	人口川	亻口川
+h	侭	primitives	人尽	亻尽
+h	佼	primitives	人交	亻交
+h	倇	primitives	人宛	亻宛
+h	俟	primitives	人矣	亻矣
+
+######## 手 -> 扌 #######
+h	捏	primitives	手日土	扌日土
+h	捺	primitives	手奈	扌奈
+
+######## 者 -> 者 #######
+
+######## 会 -> 會 #######
+
+######## 入 -> [go_in] #######
+
+######## 長 -> [mane] #######
+
+######## 長 -> 镸 #######
+
+######## 心 -> 忄 #######
+h	悩	primitives	心⺍凶	忄⺍凶
+h	懐	primitives	心十罒衣	忄十罒衣
+cs	懐	primitives	心[hacker]衣	忄[hacker]衣
+h	憐	primitives	心舛米	忄舛米
+cs	憐	primitives	心粦	忄粦
+cs	惚	primitives	心忽	忄忽
+h	愕	primitives	心咢	忄咢
+h	悖	primitives	心孛	忄孛
+h	惴	primitives	心耑	忄耑
+h	懆	primitives	心喿	忄喿
+h	慘	primitives	心參	忄參
+h	性	primitives	心生	忄生
+h	情	primitives	心青	忄青
+h	怖	primitives	心布	忄布
+h	悟	primitives	心吾	忄吾
+h	怪	primitives	心圣	忄圣
+h	忙	primitives	心亡	忄亡
+h	慢	primitives	心曼	忄曼
+h	悔	primitives	心毎	忄毎
+h	憶	primitives	心意	忄意
+h	慣	primitives	心貫	忄貫
+h	快	primitives	心夬	忄夬
+h	慎	primitives	心真	忄真
+h	憎	primitives	心曽	忄曽
+h	恨	primitives	心艮	忄艮
+h	惨	primitives	心参	忄参
+h	惜	primitives	心昔	忄昔
+h	慌	primitives	心荒	忄荒
+h	憧	primitives	心童	忄童
+h	愉	primitives	心[butchers]	忄俞
+h	怯	primitives	心去	忄去
+h	怜	primitives	心令	忄令
+h	恒	primitives	心亘	忄亘
+h	悼	primitives	心卓	忄卓
+h	悦	primitives	心兑	忄兑
+h	憤	primitives	心卉貝	忄卉貝
+h	懺	primitives	心从戈韭	忄从戈韭
+h	惰	primitives	心左月	忄左月
+h	惧	primitives	心具	忄具
+h	憾	primitives	心感	忄感
+h	惟	primitives	心隹	忄隹
+h	恰	primitives	心合	忄合
+h	慄	primitives	心栗	忄栗
+h	悌	primitives	心弟	忄弟
+h	惇	primitives	心享	忄享
+h	悛	primitives	心夋	忄夋
+h	憬	primitives	心景	忄景
+h	恢	primitives	心灰	忄灰
+h	慳	primitives	心堅	忄堅
+h	惵	primitives	心枼	忄枼
+cs	懺	primitives	心韱	忄韱
+cs	慨	primitives	心既	忄既
+
+######## 心 -> ⺗ #######
+
+######## 母 -> 毋 #######
+h	毎	primitives	𠂉母	𠂉毋
+h	毒	primitives	龶母	龶毋
+
+######## 母 -> [mama-top] #######
+h	貫	primitives	母貝	[mama-top]貝
+
+######## 小 -> ⺌ #######
+h	当	primitives	小ヨ	⺌ヨ
+h	光	primitives	小儿	⺌儿
+h	鎖	primitives	金小貝	金⺌貝
+h	尚	primitives	小冂口	⺌冂口
+h	肖	primitives	小月	⺌月
+cs	尚	primitives	小冋	⺌冋
+
+######## 木 -> ホ #######
+
+######## 足 -> ⻊ #######
+
+######## 水 -> 氵 #######
+h	瀧	primitives	水龍	氵龍
+h	落	primitives	艹水各	艹氵各
+h	満	primitives	水艹両	氵艹両
+h	況	primitives	水兄	氵兄
+h	派	primitives	水⺁[rags]	氵⺁[rags]
+cs	派	primitives	水𠂢	氵𠂢
+h	減	primitives	水戌口	氵戌口
+cs	減	primitives	水咸	氵咸
+h	汚	primitives	水一丂	氵一丂
+h	混	primitives	水昆	氵昆
+h	瀬	primitives	水束頁	氵束頁
+cs	瀬	primitives	水頼	氵頼
+h	薄	primitives	艹水尃	艹氵尃
+h	添	primitives	水夭⺗	氵夭⺗
+cs	添	primitives	水忝	氵忝
+cs	湖	primitives	水胡	氵胡
+h	濯	primitives	水羽隹	氵羽隹
+cs	濯	primitives	水[futon]	氵[futon]
+h	浪	primitives	水良	氵良
+h	浸	primitives	水ヨ冖又	氵ヨ冖又
+cs	浸	primitives	水[french_maid]	氵[french_maid]
+h	漠	primitives	水莫	氵莫
+h	藻	primitives	艹水品木	艹氵品木
+h	藩	primitives	艹水番	艹氵番
+h	滉	primitives	水日光	氵日光
+cs	滉	primitives	水晃	氵晃
+h	滲	primitives	水厶厶厶㐱	氵厶厶厶㐱
+cs	滲	primitives	水參	氵參
+h	湍	primitives	水山而	氵山而
+cs	湍	primitives	水耑	氵耑
+h	漱	primitives	水束欠	氵束欠
+cs	漱	primitives	水欶	氵欶
+h	涌	primitives	水マ用	氵マ用
+cs	涌	primitives	水甬	氵甬
+h	渤	primitives	水勃	氵勃
+h	潾	primitives	水粦	氵粦
+h	寖	primitives	宀水[french_maid]	宀氵[french_maid]
+h	慂	primitives	水マ用心	氵マ用心
+cs	慂	primitives	水甬心	氵甬心
+cs	滌	primitives	水攸木	氵攸木
+h	決	primitives	水夬	氵夬
+h	法	primitives	水去	氵去
+h	海	primitives	水毎	氵毎
+h	消	primitives	水肖	氵肖
+h	流	primitives	水𠫓川	氵𠫓川
+h	活	primitives	水舌	氵舌
+h	治	primitives	水台	氵台
+h	準	primitives	水隹十	氵隹十
+h	渡	primitives	水度	氵度
+h	泣	primitives	水立	氵立
+h	演	primitives	水寅	氵寅
+h	深	primitives	水㓁木	氵㓁木
+h	済	primitives	水斉	氵斉
+h	注	primitives	水主	氵主
+h	酒	primitives	水酉	氵酉
+h	激	primitives	水白方攵	氵白方攵
+h	洗	primitives	水先	氵先
+h	波	primitives	水皮	氵皮
+h	滅	primitives	水戌火	氵戌火
+h	浮	primitives	水孚	氵孚
+h	温	primitives	水日皿	氵日皿
+h	沢	primitives	水尺	氵尺
+h	江	primitives	水工	氵工
+h	沙	primitives	水少	氵少
+h	染	primitives	水九木	氵九木
+h	河	primitives	水可	氵可
+h	泊	primitives	水白	氵白
+h	津	primitives	水聿	氵聿
+h	清	primitives	水青	氵青
+h	源	primitives	水原	氵原
+h	洋	primitives	水羊	氵羊
+h	油	primitives	水由	氵由
+h	浜	primitives	水兵	氵兵
+h	測	primitives	水則	氵則
+h	潰	primitives	水貴	氵貴
+h	潜	primitives	水替	氵替
+h	塗	primitives	水余土	氵余土
+h	泥	primitives	水尼	氵尼
+h	渉	primitives	水歩	氵歩
+h	液	primitives	水夜	氵夜
+h	涙	primitives	水戻	氵戻
+h	沈	primitives	水冘	氵冘
+h	浴	primitives	水谷	氵谷
+h	泳	primitives	水永	氵永
+h	池	primitives	水也	氵也
+h	滑	primitives	水骨	氵骨
+h	漏	primitives	水尸雨	氵尸雨
+h	湯	primitives	水昜	氵昜
+h	溶	primitives	水容	氵容
+h	浦	primitives	水甫	氵甫
+h	洞	primitives	水同	氵同
+h	汗	primitives	水干	氵干
+h	潮	primitives	水朝	氵朝
+h	浅	primitives	水㦮	氵㦮
+h	潔	primitives	水龶刀糸	氵龶刀糸
+h	滞	primitives	水帯	氵帯
+h	濃	primitives	水農	氵農
+h	漫	primitives	水曼	氵曼
+h	沖	primitives	水中	氵中
+h	漢	primitives	水𦰩	氵𦰩
+h	没	primitives	水殳	氵殳
+h	滝	primitives	水竜	氵竜
+h	沼	primitives	水召	氵召
+h	涼	primitives	水京	氵京
+h	浄	primitives	水争	氵争
+h	汁	primitives	水十	氵十
+h	漁	primitives	水魚	氵魚
+h	渋	primitives	水止[sparkler]	氵止[sparkler]
+h	湾	primitives	水亦弓	氵亦弓
+h	滴	primitives	水啇	氵啇
+h	泡	primitives	水包	氵包
+h	汽	primitives	水气	氵气
+h	漬	primitives	水責	氵責
+h	沿	primitives	水㕣	氵㕣
+h	溺	primitives	水弱	氵弱
+h	淳	primitives	水享	氵享
+h	簿	primitives	竹水尃	竹氵尃
+h	渚	primitives	水者	氵者
+h	濡	primitives	水需	氵需
+h	漂	primitives	水票	氵票
+h	湧	primitives	水勇	氵勇
+h	汰	primitives	水太	氵太
+h	涯	primitives	水厂圭	氵厂圭
+h	羨	primitives	羊水欠	羊氵欠
+h	渇	primitives	水[siesta]	氵[siesta]
+h	浩	primitives	水告	氵告
+h	澄	primitives	水登	氵登
+h	沸	primitives	水弗	氵弗
+h	溝	primitives	水冓	氵冓
+h	澪	primitives	水零	氵零
+h	淡	primitives	水炎	氵炎
+h	潤	primitives	水門王	氵門王
+h	渦	primitives	水咼	氵咼
+h	窪	primitives	穴水圭	穴氵圭
+h	汝	primitives	水女	氵女
+h	淑	primitives	水叔	氵叔
+h	渓	primitives	水爪夫	氵爪夫
+h	洪	primitives	水共	氵共
+h	淵	primitives	水片	氵片
+h	濁	primitives	水罒勹虫	氵罒勹虫
+h	淫	primitives	水爪壬	氵爪壬
+h	溢	primitives	水益	氵益
+h	溜	primitives	水留	氵留
+h	梁	primitives	水丶刀丶木	氵丶刀丶木
+h	泌	primitives	水必	氵必
+h	瀕	primitives	水頻	氵頻
+h	沌	primitives	水屯	氵屯
+h	漕	primitives	水曹	氵曹
+h	滋	primitives	水茲	氵茲
+h	濱	primitives	賓水	賓氵
+h	汐	primitives	水夕	氵夕
+h	涜	primitives	水売	氵売
+h	湊	primitives	水奏	氵奏
+h	沃	primitives	水夭	氵夭
+h	泪	primitives	水目	氵目
+h	溟	primitives	水冥	氵冥
+h	潟	primitives	水舄	氵舄
+h	洲	primitives	水州	氵州
+h	淋	primitives	水林	氵林
+h	洛	primitives	水各	氵各
+h	洸	primitives	水光	氵光
+h	淀	primitives	水定	氵定
+h	洩	primitives	水曳	氵曳
+h	瀞	primitives	水静	氵静
+h	沫	primitives	水末	氵末
+h	鴻	primitives	水工鳥	氵工鳥
+h	渾	primitives	水軍	氵軍
+h	洒	primitives	水西	氵西
+h	濫	primitives	水監	氵監
+h	氾	primitives	水㔾	氵㔾
+h	汲	primitives	水及	氵及
+h	渥	primitives	水屋	氵屋
+h	浙	primitives	水折	氵折
+h	汎	primitives	水凡	氵凡
+h	裟	primitives	水小衣	氵小衣
+h	濾	primitives	水慮	氵慮
+h	灘	primitives	水難	氵難
+h	沐	primitives	水木	氵木
+h	濠	primitives	水豪	氵豪
+h	涅	primitives	水日土	氵日土
+h	漉	primitives	水鹿	氵鹿
+h	澱	primitives	水殿	氵殿
+h	潅	primitives	水[pegasus]	氵[pegasus]
+h	漸	primitives	水斬	氵斬
+h	汀	primitives	水丁	氵丁
+h	湛	primitives	水甚	氵甚
+h	溌	primitives	水発	氵発
+h	渫	primitives	水枼	氵枼
+h	洵	primitives	水旬	氵旬
+h	瀴	primitives	水嬰	氵嬰
+h	浬	primitives	水里	氵里
+h	泄	primitives	水世	氵世
+h	澤	primitives	水罒幸	氵罒幸
+cs	淘	primitives	水匋	氵匋
+h	淘	primitives	水勹缶	氵勹缶
+h	瀆	primitives	水士四貝	氵士四貝
+cs	瀆	primitives	水賣	氵賣
+cs	濁	primitives	水蜀	氵蜀
+cs	湾	primitives	水弯	氵弯
+
+######## 内 -> 內 #######
+
+######## 平 -> 乎 #######
+
+######## 良 -> [halo] #######
+
+######## 歩 -> 步 #######
+
+######## 火 -> 灬 #######
+h	然	primitives	夕犬火	夕犬灬
+h	熱	primitives	圥土丸火	圥土丸灬
+cs	熱	primitives	坴丸火	坴丸灬
+h	烹	primitives	高了火	高了灬
+cs	烹	primitives	亨火	亨灬
+h	無	primitives	𠂉[oaken_tub]火	𠂉[oaken_tub]灬
+h	点	primitives	占火	占灬
+h	黒	primitives	里火	里灬
+h	黙	primitives	里犬火	里犬灬
+h	魚	primitives	勹田火	勹田灬
+h	燃	primitives	火然	灬然
+h	照	primitives	昭火	昭灬
+h	焦	primitives	隹火	隹灬
+h	熟	primitives	享丸火	享丸灬
+h	烈	primitives	列火	列灬
+h	煮	primitives	者火	者灬
+h	薫	primitives	艹重火	艹重灬
+h	熊	primitives	能火	能灬
+h	蒸	primitives	艹了水火	艹了水灬
+h	勲	primitives	動火	動灬
+h	燕	primitives	廿口北火	廿口北灬
+h	庶	primitives	[caverns]火	[caverns]灬
+h	煎	primitives	前火	前灬
+h	窯	primitives	穴羊火	穴羊灬
+h	煕	primitives	臣巳火	臣巳灬
+h	舄	primitives	臼勹火	臼勹灬
+cs	蒸	primitives	艹丞火	艹丞灬
+
+######## 黒 -> 黑 #######
+
+######## 川 -> 巛 #######
+h	巠	primitives	一川工	一巛工
+h	痙	primitives	疒一川工	疒一巛工
+h	勁	primitives	一川工力	一巛工力
+h	𥻘	primitives	粦川	粦巛
+h	拶	primitives	扌川夕	扌巛夕
+h	災	primitives	川火	巛火
+
+######## 川 -> [flood-bottom] #######
+
+######## 赤 -> 亦 #######
+
+######## 犬 -> 犭 #######
+h	獲	primitives	犬艹隻	犭艹隻
+cs	獲	primitives	犬蒦	犭蒦
+h	猿	primitives	犬[lidded_crock]𧘇	犭[lidded_crock]𧘇
+cs	猿	primitives	犬袁	犭袁
+h	猟	primitives	犬⺍几[cornstalk]	犭⺍几[cornstalk]
+cs	猟	primitives	犬鼡	犭鼡
+h	猶	primitives	犬丷酉	犭丷酉
+cs	猶	primitives	犬酋	犭酋
+h	猯	primitives	犬耑	犭耑
+h	犯	primitives	犬㔾	犭㔾
+h	独	primitives	犬虫	犭虫
+h	狙	primitives	犬且	犭且
+h	猫	primitives	犬艹田	犭艹田
+h	狩	primitives	犬守	犭守
+h	狂	primitives	犬王	犭王
+h	狼	primitives	犬良	犭良
+h	狭	primitives	犬夹	犭夹
+h	猛	primitives	犬子皿	犭子皿
+h	狸	primitives	犬里	犭里
+h	獅	primitives	犬師	犭師
+h	狐	primitives	犬瓜	犭瓜
+h	狗	primitives	犬句	犭句
+h	猪	primitives	犬者	犭者
+h	狡	primitives	犬交	犭交
+h	荻	primitives	艹犬火	艹犭火
+h	猾	primitives	犬骨	犭骨
+h	狛	primitives	犬白	犭白
+h	猥	primitives	犬畏	犭畏
+h	狽	primitives	犬貝	犭貝
+h	狒	primitives	犬弗	犭弗
+h	獨	primitives	犬罒勹虫	犭罒勹虫
+cs	獨	primitives	犬蜀	犭蜀
+
+######## 肉 -> 月 #######
+
+######## 東 -> 柬 #######
+
+######## 西 -> 覀 #######
+
+######## 青 -> 靑 #######
+
+######## 示 -> 礻 #######
+cs	禄	primitives	示录	礻录
+h	祢	primitives	示𠂉小	礻𠂉小
+cs	祢	primitives	示尓	礻尓
+h	祲	primitives	示[french_maid]	⺬[french_maid]
+h	神	primitives	示申	礻申
+h	社	primitives	示土	礻土
+h	礼	primitives	示乙	礻乙
+h	視	primitives	示見	礻見
+h	祝	primitives	示兄	礻兄
+h	祖	primitives	示且	礻且
+h	福	primitives	示畐	礻畐
+h	祈	primitives	示斤	礻斤
+h	祐	primitives	示右	礻右
+h	祥	primitives	示羊	礻羊
+h	祉	primitives	示止	礻止
+h	禅	primitives	示単	礻単
+h	祓	primitives	示犬丿	⺬犬丿
+h	禍	primitives	示咼	礻咼
+h	祷	primitives	示寿	礻寿
+h	禎	primitives	示貞	礻貞
+h	祀	primitives	示巳	⺬巳
+h	祇	primitives	示氏	⺬氏
+
+######## 才 -> [genie_in_the_bottle] #######
+
+######## 米 -> 氺 #######
+h	様	primitives	木羊米	木羊氺
+h	藤	primitives	艹月[quarter]米	艹月[quarter]氺
+h	求	primitives	弋米	弋氺
+h	暴	primitives	日共米	日共氺
+h	録	primitives	金ヨ米	金ヨ氺
+h	緑	primitives	糸ヨ米	糸ヨ氺
+h	泰	primitives	𡗗米	𡗗氺
+h	膝	primitives	肉木𠆢米	肉木𠆢氺
+h	黎	primitives	禾勹丿𠆢米	禾勹丿𠆢氺
+h	录	primitives	ヨ米	ヨ氺
+h	隶	primitives	肀米	肀氺
+
+
+
+######## 戸 -> 戶 #######
+
+
+######## 老 -> ⺹ #######
+h	者	primitives	老日	⺹日
+h	考	primitives	老[slingshot]	⺹[slingshot]
+h	老	primitives	老匕	⺹匕
+h	孝	primitives	老子	⺹子
+
+######## 泉 -> [spring-small] #######
+
+######## 牛 -> ⺧ #######
+
+######## 羽 -> 羽 #######
+
+######## 並 -> 亚 #######
+
+######## 並 -> 业 #######
+h	霊	primitives	並未	雨二业
+h	繊	primitives	糸𢦏並	糸𢦏业
+h	顕	primitives	日並頁	日业頁
+
+######## 並 -> [row-bottom] #######
+
+######## 並 -> [in_a_row_upside_down] #######
+h	業	primitives	並未	[in_a_row_upside_down]未
+h	撲	primitives	扌並夫	扌[in_a_row_upside_down]未
+h	叢	primitives	扌並夫	[in_a_row_upside_down]土取
+h	鑿	primitives	並丨臼殳金	[in_a_row_upside_down]臼丨殳金
+
+
+######## 刀 -> 刂 #######
+cs	剥	primitives	录刀	录刂
+h	剄	primitives	巠刀	巠刂
+h	別	primitives	口勹刀	口勹刂
+h	利	primitives	禾刀	禾刂
+h	判	primitives	半刀	半刂
+h	制	primitives	牛巾刀	牛巾刂
+h	剣	primitives	㑒刀	㑒刂
+h	割	primitives	害刀	害刂
+h	刺	primitives	朿刀	朿刂
+h	刻	primitives	亥刀	亥刂
+h	到	primitives	至刀	至刂
+h	創	primitives	倉刀	倉刂
+h	副	primitives	畐刀	畐刂
+h	罰	primitives	罒言刀	罒言刂
+h	列	primitives	歹刀	歹刂
+h	剤	primitives	斉刀	斉刂
+h	則	primitives	貝刀	貝刂
+h	削	primitives	肖刀	肖刂
+h	剛	primitives	岡刀	岡刂
+h	剰	primitives	乗刀	乗刂
+h	刷	primitives	尸巾刀	尸巾刂
+h	刈	primitives	乂刀	乂刂
+h	刊	primitives	干刀	干刂
+h	剖	primitives	咅刀	咅刂
+h	刹	primitives	乂木刀	乂木刂
+h	剃	primitives	弟刀	弟刂
+h	剪	primitives	前刀	前刂
+h	剽	primitives	票刀	票刂
+h	刖	primitives	月刀	月刂
+
+######## 虎 -> 虍 #######
+h	獻	primitives	虎鬲犬	虍鬲犬
+h	驢	primitives	馬虎田皿	馬虍田皿
+h	慮	primitives	虎思	虍思
+h	虐	primitives	虎匚一	虍匚一
+h	膚	primitives	虎胃	虍胃
+h	虜	primitives	虎男	虍男
+h	虔	primitives	虎文	虍文
+h	盧	primitives	虎田皿	虍田皿
+h	虞	primitives	虎呉	虍呉
+h	彪	primitives	虎彡	虍彡
+h	虛	primitives	虎	虍
+h	譃	primitives	言虎	言虍
+
+######## 彦 -> 彥 #######
+h	諺	primitives	言彦	言彥
+
+######## 竹 -> ⺮ #######
+
+######## 亀 -> [eel] #######
+h	電	primitives	雨亀	雨[eel]
+h	竜	primitives	立亀	立[eel]
+
+######## 亀 -> [bucket_of_eels] #######
+h	縄	primitives	糸亀	糸[bucket_of_eels]
+h	蝿	primitives	虫亀	虫[bucket_of_eels]
+h	竃	primitives	穴土日亀	穴土[bucket_of_eels]
+
+######## 亀 -> 电 #######
+h	奄	primitives	大亀	大电
+
+
+######## 鹿 -> [deer-abbreviated] #######
+h	薦	primitives	艹鹿一[tail_feathers]	艹[deer-abbreviated]一[tail_feathers]
+
+
+
+######## 爪 -> 爫 #######
+
+######## 乙 -> 乚 #######
+
+######## 乙 -> L #######
+
+######## 曽 -> 曾 #######
+
+######## 喩 -> 喻 #######
+
+######## 阜 -> ⻖ #######
+h	隕	primitives	阜員	⻖員
+
+######## 邑 -> ⻏ #######
+
+######## 艮 -> [silver-left] #######
+
+######## 丬 -> 爿 #######
+h	寢	primitives	宀丬[french_maid]	宀爿[french_maid]
+h	牃	primitives	丬枼	爿枼
+
+######## 勹 -> ⺈ #######
+
+######## 厂 -> 丆 #######
+
+######## 𧘇 -> [scarf-unhooked] #######
+
+######## マ -> ㄗ #######
+
+######## 网 -> 罒 #######
+
+
+######## 开 -> 廾 #######
+h	弁	primitives	厶开	厶廾
+h	鼻	primitives	自田开	自田廾
+h	算	primitives	竹目开	竹目廾
+h	葬	primitives	艹死开	艹死廾
+h	戒	primitives	戈开	戈廾
+h	弄	primitives	王开	王廾
+h	弊	primitives	敝开	敝廾
+
+
+######## 冫 -> ⺀  #######
+h	尽	primitives	尺冫	尺⺀
+h	寒	primitives	宀[celery]ハ冫	宀[celery]ハ⺀
+h	冬	primitives	夂冫	夂⺀
+
+
+######## 罒 -> 网 #######
+
+######## ⺁ -> [drag-bottom] #######
+h	衆	primitives	血⺁[rags]	血[drag-bottom][rags]
+h	乑	primitives	⺁[rags]	[drag-bottom][rags]
+
+
+######## ⻏ -> 邑 #######
+
+######## 賣 -> 𧶠 #######
+
+h	惚	primitives	心勿心	忄勿心
+h	脛	primitives	肉一川工	肉一巛工
+h	湖	primitives	水古肉	氵古肉
+h	獄	primitives	犬言犬	犭言犬
+h	巡	primitives	川辶	巛辶
+h	型	primitives	开刀土	开刂土
+h	劉	primitives	[receipt]刀金刀	[receipt]刀金刂
+
+######## Many changed primitives #######
+h	渕	primitives	水关刀	氵关刂
+h	刑	primitives	开刀	廾刂
+h	劇	primitives	虎豕刀	虍豕刂
+
+h	剝	primitives	彑水刀	彑氺刂
+h	剥	primitives	ヨ米刀	ヨ氺刂
+h	禄	primitives	示ヨ米	礻ヨ氺
+h	黍	primitives	禾人米	禾𠆢氺
+
+h	僕	primitives	人並夫	亻[in_a_row_upside_down]夫
+
+h	虚	primitives	虎並	虍业
+
+h	湿	primitives	水日並	氵日业
+
+
+cs	薦	primitives	艹鹿[slingshot]火	艹[deer-abbreviated][slingshot]灬
+h	滌	primitives	水人丨攵木	氵亻丨攵木
+h	俺	primitives	人大亀	亻大电
+cs	俺	primitives	人奄	亻奄
+
+h	漆	primitives	水木𠆢米	氵木𠆢氺
