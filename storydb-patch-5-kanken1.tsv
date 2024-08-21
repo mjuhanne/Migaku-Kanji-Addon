@@ -1,0 +1,266 @@
+Source	Character	Field	OldValue	NewValue
+k	厉	radicals		厂万
+h	益	primitive_alternatives		益
+h	乙	primitive_alternatives	乚L	乚L⺄
+h	手	primitive_alternatives	扌	龵
+
+h	茲	primitive_alternatives		兹
+
+h	俞	primitive_alternatives		兪
+h	刀	primitive_alternatives	刂	刂巜
+
+h	黄	primitive_alternatives		黃
+
+h	告	primitive_alternatives		吿
+h	呉	primitive_alternatives		吳
+h	幺	primitive_alternatives		乡
+
+h	丁	primitive_alternatives		丅
+
+h	舄	primitive_alternatives		舃
+
+
+k	䖵	radicals		虫
+h	䖵	primitives		虫虫
+
+h	睪	primitives		罒幸
+
+k	䍃	radicals		夕缶
+h	䍃	primitives		夕缶
+cs	䍃	keywords		condor (old)
+cs	䍃	comment		This is an old form of condor ([condor])
+
+k	㐭	radicals		亠囗口
+h	㐭	primitives		亠囗口
+
+k	吅	radicals		口
+h	吅	primitives		口口
+
+k	㓞	radicals		丰刀
+h	㓞	primitives		丰刀
+
+k	閒	radicals		門月
+h	閒	primitives		門月
+
+k	匃	radicals		勹人
+h	匃	primitives		勹人L
+
+h	曷	primitives		日勹人L
+cs	曷	primitives		日匃
+
+h	鬥	primitives		丨王王丨	
+h	齊	primitives		亠丫刀[receipt][fenceposts]二	
+
+
+
+
+h	嗇	primitives		土从回
+
+#h	兔	primitives		免丶
+
+h	婁	primitives		口一口丨女
+
+cs	澤	primitives	水睪	氵睪
+cs	慂	primitives	氵甬心	涌心
+cs	滌	primitives	氵攸木	氵條
+cs	條	primitives		攸木
+cs	撈	primitives	扌𤇾力	扌勞
+
+h	儿	primitive_alternatives		兀
+
+h	ヨ	primitive_alternatives		彐
+
+
+h	鬳	primitives		虍鬲
+h	處	primitives		虍処
+
+h	歲	primitives		止戌小
+
+h	垚	primitives		土土土
+
+h	兓	primitives		旡旡
+
+h	爭	primitives		爪肀
+
+h	瞿	primitives		目目隹
+
+h	庚	primitives		广尹丶	
+
+h	厤	primitives		厂禾禾	
+h	兟	primitives		先先
+
+#TODO
+k	絭	radicals		糸
+h	絭	primitives		[quarter]糸
+
+h	巤	primitives		巛囗乂[plow]⺀[plow]⺀乚
+
+k	䧹	radicals		广亻隹
+h	䧹	primitives		广亻隹
+
+k	炏	radicals		火
+h	炏	primitives		火火
+
+
+k	魝	radicals		魚刂
+h	魝	primitives		魚刂
+k	洰	radicals		氵巨
+h	洰	primitives		氵巨
+k	㢶	radicals		弓百
+h	㢶	primitives		弓百
+k	杀	radicals		乂ホ
+h	杀	primitives		乂ホ
+k	㞢	radicals		㞢
+h	㞢	primitives		㞢
+k	頝	radicals		交頁
+h	頝	primitives		交頁
+k	㿽	radicals		𠆢皿
+h	㿽	primitives		今皿
+k	㓣	radicals		𠆢口刂
+h	㓣	primitives		合刂
+k	㚒	radicals		大人
+h	㚒	primitives		大从
+k	夃	radicals		乃又
+h	夃	primitives		乃又
+k	㧜	radicals		扌匚
+h	㧜	primitives		扌匚巾
+k	砳	radicals		石
+h	砳	primitives		石石
+k	欮	radicals		屰欠
+h	欮	primitives		屰欠
+k	䩻	radicals		革馬
+h	䩻	primitives		革馬
+k	珤	radicals		王缶
+h	珤	primitives		王缶
+k	羕	radicals		羊永
+h	羕	primitives		羊永
+k	叹	radicals		口又
+h	叹	primitives		口又
+k	竘	radicals		立勹口
+h	竘	primitives		立句
+k	䖒	radicals		虍豆
+h	䖒	primitives		虍豆
+k	卄	radicals		卄
+h	卄	primitives		卄
+k	㸒	radicals		爪壬
+h	㸒	primitives		爪壬
+k	虽	radicals		口虫
+h	虽	primitives		口虫
+k	秃	radicals		禾几
+h	秃	primitives		禾几
+k	仌	radicals		人
+h	仌	primitives		人人
+k	䦚	radicals		門舌
+h	䦚	primitives		門舌
+k	籴	radicals		𠆢米
+h	籴	primitives		𠆢米
+k	㚇	radicals		凵乂ハ夂
+h	㚇	primitives		凶ハ夂
+k	雐 	radicals		虍隹
+h	雐	primitives		虍隹
+k	亐	radicals		亐
+h	亐	primitives		亐
+k	乛	radicals		乛
+h	乛	primitives		乛
+k	㗊	radicals		口
+h	㗊	primitives		口口口口
+k	㡭	radicals		L幺
+h	㡭	primitives		L幺幺L幺幺
+k	龰	radicals		龰
+h	龰	primitives		龰
+k	旣	radicals		白匕旡
+h	旣	primitives		白匕旡
+cs	旣	primitives		皂旡
+k	皂	radicals		白七
+h	皂	primitives		白七
+k	㚘	radicals		夫
+h	㚘	primitives		夫夫
+k	䩭	radicals		革奇
+h	䩭	primitives		革奇
+k	遀	radicals		左月辶
+h	遀	primitives		左月辶
+k	㕓	radicals		厂黑土
+h	㕓	primitives		厂黑土
+k	㕡	radicals		卜容又
+h	㕡	primitives		卜容又
+k	粜	radicals		出米
+h	粜	primitives		出米
+k	㬱	radicals		先日
+h	㬱	primitives		兟日
+k	巂	radicals		山隹冂ハ口
+h	巂	primitives		山隹冂ハ口
+k	䀠	radicals		目
+h	䀠	primitives		目目
+k	禼	radicals		卜乂囗禸
+h	禼	primitives		卜龱禸
+k	㳄	radicals		氵欠
+h	㳄	primitives		氵欠
+k	䙴	radicals		覀大巳
+h	䙴	primitives		覀大巳
+k	猌	radicals		來犬
+h	猌	primitives		來犬
+k	䙳	radicals		覀火
+h	䙳	primitives		覀火
+k	䩗	radicals		革月
+h	䩗	primitives		革月
+k	牪	radicals		牛
+h	牪	primitives		牛牛
+k	盇	radicals		太皿
+h	盇	primitives		太皿
+k	⺻	radicals		肀一
+h	⺻	primitives		肀一
+k	强	radicals		弓口虫
+h	强	primitives		弓口虫
+k	聑	radicals		耳
+h	聑	primitives		耳耳
+k	歨	radicals		止龰
+h	歨	primitives		止龰
+k	㞋	radicals		尸又
+h	㞋	primitives		尸又
+
+k	龱	radicals		囗乂
+h	龱	primitives		囗乂
+
+k	吴	radicals		口天
+h	吴	primitives		口天
+
+k	㲋	radicals		勹口比
+h	㲋	primitives		勹口比
+
+k	雐	radicals		虍隹
+h	雐	primitives		虍隹
+
+k	㽞	radicals		口田
+h	㽞	primitives		口口田
+
+k	㹜	radicals		犬
+h	㹜	primitives		犬犬
+
+k	汒	radicals		氵亡
+h	汒	primitives		氵亡
+
+k	丣	radicals		丣
+h	丣	primitives		丣
+
+h	龜	primitives		勹冖一一丨乙ヨヨ乂
+
+h	疌	primitives		ヨ走
+
+h	㐆	primitives		⺁ヨ勹
+
+h	幷	primitives		亠十亠十
+
+h	㠯	primitives		㠯
+
+h	夊	primitives		勹丶
+
+h	丱	primitives		丱
+
+h	亊	primitives		一丷肀
+
+h	丏	primitives		丏
+
+h	韲	primitives		亠丫刀[receipt]韭
+
+h	丫	primitives		丫
+

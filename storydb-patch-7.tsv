@@ -1,0 +1,207 @@
+Source	Character	Field	OldValue	NewValue
+cs	炙	keywords	toast	roasted on fire
+cs	倦	primitives		亻卷
+cs	莢	story	A assembly line (从) of workers cracking open pea <b>pods</b> while <i>big</i> <i>St Bernard dog</i> (大) keeps watch and makes sure the workers don't eat the products by themselves.	A assembly line (从) of workers cracking open pea <b>pods</b> with <i>old scissors</i> (夾) while <i>big</i> <i>St Bernard dog</i> (大) keeps watch and makes sure the workers don't eat the products by themselves.
+cs	膀	keywords		bladder
+cs	謗	keywords		libel
+h	慈	primitives	茲心	兹心
+h	磁	primitives	石茲	石兹
+h	滋	primitives	氵茲	氵兹
+cs	尓	primitive_keywords		take a nap
+cs	尓	story		<i>Reclining</i> (𠂉) a <i>little</i> (小) usually means <b>taking a nap</b>
+cs	尓	comment		This is a crowd-sourced non-Heisig primitive.
+cs	婁	primitive_keywords		constellation (old)
+cs	婁	comment		This is an old form of 娄 (constellation). Not used in Japanese except as a primitive.
+h	栴	primitives	木丹	木𠂉円
+cs	弥	primitives		弓尓
+cs	称	primitives		禾尓
+h	你	primitives		亻𠂉小
+cs	你	primitives		亻尓
+cs	躙	keywords		trample
+h	憚	primitives	忄吅日十	忄口口田十
+cs	煌	keywords		gleaming
+cs	縋	keywords		cling to
+cs	睿	keywords		sapience (alternative)
+cs	睿	comment		This is an alternative but rarer form of 叡 (sapience) with same readings.
+h	禾	primitive_keywords	grain, wheat, cereal	wheat, cereal
+h	禾	story	This primitive element will be made to stand for <b>wheat</b>. It connotes a special <b>grain</b>, more expensive than ordinary rice and so reserved for special occasions. Alternatively, it can mean <b>cereal</b>. Its form is like that for tree, except for the dot at the top to represent a spike of <b>wheat</b> blowing in the wind. [5]	This primitive element will be made to stand for <b>wheat</b>. It connotes a special grain, more expensive than ordinary rice and so reserved for special occasions. Alternatively, it can mean <b>cereal</b>. Its form is like that for tree, except for the dot at the top to represent a spike of <b>wheat</b> blowing in the wind. [5]
+cs	禾	primitive_keywords		bread
+cs	禾	comment		Because this primitive is used in over 100 kanjis it's advisable to add one more primitive keyword: <b>bread</b>.  Not only it's possible to swap <b>wheat</b> for white <b>bread</b> in many cases without affecting the story negatively, but on the contrary it often makes the story even more vivid. For example 稼 (earn income = bringing home your daily bread).
+cs	鵲	keywords		magpie
+cs	憚	keywords		reluctant
+cs	憚	story		<i>Data</i> (忄) was <b>reluctant</b> to solve such <i>old and simple</i> (單) problems such as Fermat's theorem.
+cs	夾	primitive_keywords		scissors (old)
+h	於	primitives	方𠆢丶丶	方𠆢⺀
+cs	膠	keywords		gelatin
+cs	鉗	keywords		pliers
+cs	諍	keywords		to bicker
+cs	猶	keywords		postpone
+cs	襖	comment	Note that the right side has a 'animal tracks' instead of 'grains of rice' so it's not actually a simple 'core'. Add an extra down-left sloping stroke.	Note that the right side is an old version of <i>core</i> (奧), having an 'animal tracks' instead of 'grains of rice'.
+cs	癪	keywords		spasm
+h	釀	primitives	酉衣吅井一	酉衣吅[celery]一
+h	禳	primitives	礻衣吅井一	礻衣吅[celery]一
+h	壤	primitives	土衣吅井一	土衣吅[celery]一
+h	讓	primitives	言衣吅井一	言衣吅[celery]一
+h	攘	primitives	扌衣吅井一	扌衣吅[celery]一
+h	襄	primitives	衣口口井一	衣口口[celery]
+cs	襄	primitives	衣吅井一	衣吅[celery]一
+h	孃	primitives	女衣吅井一	女衣吅[celery]一
+h	驤	primitives	馬衣吅井一	馬衣吅[celery]
+h	賽	primitives	宀井一八貝	宀[celery]ハ貝
+h	穰	primitives	禾衣吅井一	禾衣吅[celery]一
+h	蹇	primitives	宀井一八足	宀[celery]ハ足
+h	謇	primitives	宀井一八言	宀[celery]ハ言
+h	騫	primitives	宀井一八馬	宀[celery]ハ馬
+h	搴	primitives	宀井一八手	宀[celery]ハ手
+h	寨	primitives	宀井一八木	宀[celery]ハ木
+cs	塞	primitives		[air_con]土
+cs	[air_con]	primitive_keywords		air conditioner
+cs	[air_con]	story		The <b>air conditioner</b> is working a bit too well! Under the <i>roof</i> (宀) our groceries (celery [celery] and chicken legs ハ) are already frozen and they are not even in the fridge yet!
+cs	[air_con]	comment		This is a crowd-sourced non-Heisig primitive.
+h	[air_con]	primitives		宀[celery]ハ
+cs	寒	primitives		[air_con]⺀
+cs	賽	primitives		[air_con]貝
+cs	寨	primitives		[air_con]木
+cs	寨	keywords		stronghold
+cs	搴	primitives		[air_con]手
+cs	蹇	primitives		[air_con]足
+cs	謇	primitives		[air_con]言
+cs	騫	primitives		[air_con]馬
+cs	聽	primitives		聴王
+cs	廳	primitives	广聽	广聴
+cs	爭	primitives	爪ヨ亅	
+cs	拮	keywords		duel
+cs	殲	keywords		annihilation
+cs	殱	keywords		annihilation (ext)
+cs	殱	comment		This is an extended shinjitai (unofficial simplification) form of 殲 (annihilation).
+cs	戮	keywords		massacre
+cs	翏	primitive_keywords		albatross
+cs	翏	story		Imagine an <b>albatross</b> with its wide <i>wings</i> (羽 / 羽) strutting along the beach in an endless crowd of <i>parasols</i> (㐱).  Is this a good sign or a bad omen? We don't know yet - that depends on the story of each kanji this primitive is used in!
+cs	翏	comment		Story of the <b>albatross</b> (from Wikipedia): In the poem <i>The Rime of the Ancient Mariner</i>, an <b>albatross</b> follows a ship setting out to sea, which is considered a sign of good luck. However, the titular mariner shoots the albatross with a crossbow, an act that will curse the ship and cause it to suffer terrible mishaps. Unable to speak due to lack of water, the ship's crew let the mariner know through their glances that they blame him for their plight and they tie the bird around his neck as a sign of his guilt. From this arose the image of an albatross around the neck as metaphor for a burden that is difficult to escape.
+cs	寡	primitives		宀一自一分
+cs	昂	story		Welcome to the <i>Sunny</i> (日) <i>Parcel</i> (卬) Service! We <b>elevate</b> your spirits by delivering your <i>parcels</i> blazingly fast. Might I even say, with a speed of (sun)light!! Of course we also have ridiculously <b>elevated</b> fees, but hey, that's what you pay for!
+cs	挿	primitives		扌千申
+cs	挿	story		Thousand (千) monkeys (申) banging typewriters with their fingers (扌), <b>inserting</b> random characters to the sheet. When will they be able to duplicate a play of Shakespeare? (see the Infinite Monkey Theorem in Wikipedia).
+h	躇	comment	The old form here is the element puppet which forms part of the primitive for renowned here. The difference is the addition of a final drop. This has generally disappeared today, as in the following examples: 堵, 渚, 曙, 箸 (old forms) vs 堵, 渚, 曙, 箸 (modern abbreviations).  Editor's note: It's not possible to show the old vs new versions due to discrepancies by fonts used.	["The old form here is the element puppet which forms part of the primitive for renowned here. The difference is the addition of a final drop. This has generally disappeared today, as in the following examples: \u5835, \u6e1a, \u66d9, \u7bb8 (old forms) vs \u5835, \u6e1a, \u66d9, \u7bb8 (modern abbreviations).", "Editor's note: It's not possible to show the old vs new versions due to discrepancies by fonts used."]
+cs	舄	primitive_keywords		magpie
+cs	舄	comment		Note that the <b>magpie</b> keyword is used only as a primitive. Not to be confused with the actual somewhat rare kanji for magpie (鵲).
+cs	卂	primitive_keywords		needletail
+cs	卂	story		["The meaning of this kanji is <b>to fly rapidly</b> so we can conveniently assign it a keyword <b>needletail</b>. This references <i>white-throated needletail</i>, a one of the fastest birds on this planet. ", "The <i>hook</i> (\u2e84) looks like a pictograph of the bird looking from the side. It's so aerodynamic that its head (which would be on the left side) is completely flush with its torso and thus cannot be distinguished. The little kink at the end of its wing is the winglet seen on many modern airplanes.  Finally there's the <i>needle</i> (\u5341) which has detached itself from the tail because the bird really is so fast!"]
+cs	迅	story		["The white-throated <i>needletail</i> (\u5342 ), one of the fastest birds on this planet, is soaring <b>swiftly</b> high up on top of the highway with a maximum speed of 169 km/h (105 mph). Of course it wouldn't need to follow any <i>roads</i> (\u2ecc) and can blast through any crossroads (\u8fbb) but the mischievous bird just likes to make fun of other voyagers stuck in traffic jams. ", "Fun fact: The white-throated <i>needletail</i> (\u5342 ) actually belongs to <b>swifts</b> (a family of birds) although this kanji is unrelated."]
+cs	徘	keywords		loitering
+cs	徊	keywords		roaming
+cs	彷	keywords		strolling
+cs	謳	keywords		declare
+cs	窩	keywords	pouch	socket
+cs	帛	keywords		cloth
+cs	錦	primitives		金帛
+cs	綿	primitives		糸帛
+cs	幇	keywords		accessory
+cs	葛	primitives		艹曷
+cs	噴	primitives		口賁
+cs	憤	primitives		忄賁
+cs	墳	primitives		土賁
+cs	賁	primitive_keywords		ornament
+cs	漿	keywords		liquid
+h	漿	primitives	爿寸水	爿月寸水
+h	將	primitives	爿寸	爿月寸
+h	奬	primitives	爿寸大	爿月寸大
+h	獎	primitives	爿寸犬	爿月寸犬
+h	鏘	primitives	金爿寸	金月爿寸
+h	然	primitives	夕犬灬	月犬灬
+cs	嗇	keywords		stingy
+h	栃	primitives	木厂万	木⺁万
+cs	栃	comment		It's NOT a <i>cliff 厂</i> but a <i>drag ⺁</i>.
+cs	咆	keywords		shriek
+cs	檻	keywords		holding cell
+cs	冑	keywords		head piece
+cs	頰	keywords		cheek (old)
+cs	頰	comment		This is an old form of 頬 (cheek), using old scissors (夾).
+h	頰	primitives		夾頁
+cs	哮	keywords		bellow
+cs	吼	keywords		howl
+cs	哭	keywords		wail
+cs	唸	keywords		moan
+cs	喘	keywords		panting
+cs	呻	keywords		groan
+cs	墟	keywords		ruins
+cs	睨	keywords		glare at
+cs	驕	keywords		pompous
+cs	遡	primitives		逆月
+cs	獰	keywords		ferocious
+cs	冤	keywords		false charge
+cs	兔	keywords		rabbit (old)
+cs	兔	comment		This is an old form of 兎 (rabbit).
+cs	楚	keywords		switch (cane)
+cs	猫	primitives		犭苗
+cs	憫	keywords		feel sorry for
+cs	沓	keywords		boots
+cs	踏	primitives		足沓
+cs	瑣	keywords		trivial
+cs	擲	keywords		hurl
+cs	崖	primitives		山厓
+cs	涯	primitives		氵厓
+cs	厓	primitive_keywords		ivy-clad cliff
+cs	皺	keywords		wrinkles
+h	慶	primitives	慶	[deer-abbreviated]冖心夂
+cs	綴	keywords		spelling
+cs	轢	keywords		run over
+cs	捲	keywords		roll up
+cs	呟	keywords		to mutter
+cs	筐	keywords		bamboo basket
+cs	貯	primitives		貝宁
+cs	佇	keywords		standing still
+cs	宁	keywords		serene
+cs	枷	keywords		shackles
+cs	媚	keywords		flirt
+cs	拗	keywords		distort
+cs	峙	keywords		holding your own against
+cs	憔	keywords		get thin
+cs	悴	keywords		emaciated
+cs	穢	keywords		pollution
+cs	轍	keywords		wheel tracks
+cs	嗜	keywords		preference
+cs	軀	keywords	body (old) (old)	body (older)
+cs	焉	keywords		life's end
+cs	膨	primitives		月彭
+cs	咬	keywords		bite
+cs	礎	primitives		石楚
+h	楚	primitives	疋木	林疋
+cs	褪	keywords		fade
+cs	徨	keywords		wander around
+cs	茫	primitives	艹汒	[seaweed]亡
+cs	茫	keywords		expansive
+cs	衍	keywords		overflowing
+cs	鞘	keywords		sheath
+cs	頷	primitives		含頁
+h	橉	primitives	木桀	木粦
+cs	傑	primitives		亻桀
+cs	磔	keywords		crucifixion
+cs	攫	primitives	扌矍	扌瞿又
+cs	攫	keywords		abduct
+cs	攫	comment		2nd alternative combination: 扌 + 矍
+h	攫	primitives	扌瞿又	扌目目隻
+cs	闊	keywords		broad
+cs	宴	primitives		宀妟
+h	偃	primitives	亻匚妟	亻匚日女
+cs	堰	primitives	土匽	土匚妟
+cs	堰	comment		More refined variant: 土 + 匽
+cs	妟	primitive_keywords		Sun Goddess
+cs	偃	primitives	亻匽	亻匚妟
+cs	偃	comment		More refined components: 人 + 匽
+cs	樵	keywords		lumberjack
+cs	唖	keywords		mute
+cs	憮	keywords		disappointment
+cs	劇	primitives		豦刂
+cs	遽	keywords		haste
+cs	誅	keywords		execution
+cs	尃	primitives		専丶
+cs	痣	keywords		birthmark
+cs	蠢	keywords		wriggle
+cs	蜃	keywords		mirage
+cs	鉈	keywords		machete
+cs	嗚	keywords		weep
+cs	塀	primitives		土屏
+cs	蛆	keywords		maggot
+cs	商	primitives		立冏
+cs	裔	keywords		scion
