@@ -203,12 +203,12 @@ class EditPrimitivesDialog(EditDialog):
         new_primitives = util.custom_list(text)
         for p in new_primitives:
             if not aqt.mw.migaku_kanji_db.does_character_exist(p):
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Warning)
-                msg.setText("Invalid primitive: '%s'" % p)
-                msg.setWindowTitle("Invalid primitive")
-                msg.exec_()
-                return False     
+                QMessageBox.warning(
+                    self,
+                    "Invalid primitive",
+                    f"Invalid primitive: '%s'" % p,
+                )
+                return False
         return True
 
 
