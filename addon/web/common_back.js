@@ -304,7 +304,11 @@ function create_story_section() {
                 if (header != '') {
                     header = '<b>' + header + '</b>'
                 }
-                header += keywords.length>0 && keywords[0] != data.main_keyword ? ' (' + keywords[0] + '): ' : ': ';
+                if (source != 'h') {
+                    header += keywords.length>0 && keywords[0] != data.main_keyword ? ' (' + keywords[0] + '): ' : ': ';
+                } else {
+                    header += ': '
+                }
             
                 let force_paragraphs = story_paragraphs.length + comment_paragraphs.length > 1
 

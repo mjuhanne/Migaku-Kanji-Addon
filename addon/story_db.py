@@ -20,7 +20,7 @@ main_keyword_source = 'h'  # selects which keyword set to compare possible confl
 
 # When two characters reference each other as alternatives (for example 艹 -> 艸 and 艸 -> 艹 )
 # then we want to link to the character which is the primary primitive
-primary_primitives = ['艹','扌','⻖','⻏','川','罒','冫','月','辶','鼡','赤']
+primary_primitives = ['艹','扌','⻖','⻏','川','罒','冫','月','辶','鼡','赤']
 
 def json_loads_or_empty_list(l):
     if l is None or l == '':
@@ -264,14 +264,18 @@ class StoryDatabase:
             f"SELECT source, character, primitives FROM stories WHERE primitives IS NOT NULL"
         )
         p_dict = dict()
+        # Calculate primitive_of cache from Heisig / crowd-sourced primitives
+        # but skip Wanikani because of so many errors in their data
         for row in data:
-            p_dict[ (row[0],row[1]) ] = row[2]
+            if row[0] != 'wk':
+                p_dict[ (row[0],row[1]) ] = row[2]
 
         mod_data = self.crs_execute_and_fetch_all(
             f"SELECT source, character, mod_primitives FROM umod.modified_values WHERE mod_primitives IS NOT NULL"
         )
         for row in mod_data:
-            p_dict[ (row[0],row[1]) ] = row[2]
+            if row[0] != 'wk':
+                p_dict[ (row[0],row[1]) ] = row[2]
 
         primitive_of = dict()
 

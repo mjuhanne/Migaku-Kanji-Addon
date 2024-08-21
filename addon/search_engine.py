@@ -257,8 +257,8 @@ class SearchEngine:
                 self.stories_cache[c] = ' ' + story_text            
 
             # Keywords..
-            kw_set = set(elements['keywords'])
-            kw_set.update(elements['primitive_keywords'])
+            kw_set = set([k.lower() for k in elements['keywords']])
+            kw_set.update([k.lower() for k in elements['primitive_keywords']])
             kw_set.discard('')
             if len(kw_set)>0:
                 if c in self.keyword_set_cache:
